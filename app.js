@@ -18,7 +18,7 @@ const crypto = require('crypto');
 const sharp = require('sharp');
 require('dotenv').config();
 
-//changed by arfin
+
 const MongoDBStore = require("connect-mongodb-session")(session); // Import the MongoDB session store
 
 app.set("view engine", "ejs");
@@ -41,7 +41,7 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Error connecting to MongoDB:", err));
 
-//changed by arfin
+
 const store = new MongoDBStore({
   uri: process.env.MONGODB_URI,
   collection: 'sessions', // Collection name for sessions
@@ -124,7 +124,7 @@ app.use(
     secret: "your-secret-key",
     resave: false,
     saveUninitialized: true,
-    store: store, //changed by arfin
+    store: store, 
   })
 );
 
