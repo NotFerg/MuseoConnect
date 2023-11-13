@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        /* @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap'); */
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Tour - MuseoConnec</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/games.css">
+    <script src="https://static.kuula.io/embed.js" data-kuula="https://kuula.co/share/collection/7JyyK?logo=1&info=1&fs=1&vr=0&sd=1&thumbs=-1" data-width="100%" data-height="640px"></script>
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg fixed-top nav-underline">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/loggedIn/Index">
+          <img src="https://www.dlsud.edu.ph/images/about-logo.png" alt="dlsud-logo" class="logo">
+           MuseoConnect </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto py-1">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/loggedIn/index">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/loggedIn/aboutUs">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/loggedIn/donation">Donation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/loggedIn/artifacts">Artifacts</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/loggedIn/virtualTour">Virtual Tour</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/loggedIn/games">Games</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/loggedIn/reservation">Reservation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/loggedIn/evaluation">Evaluation</a>
+            </li>
+            <li class="nav-item dropdown">
+              <button class="btn btn-success btn-sm mt-1 dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                  data-bs-auto-close="true" aria-expanded="false">
+                  Account Settings
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="/loggedIn/accountInformation">Account Information</a></li>
+                  <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+              </ul>
+          </li>
+        </div>
+        </li>
+        </ul>
+      </div>
+      </div>
+    </nav>
+
+    <br>
+    <br>
+    <br>
+   
+  
+
+    <!-- Virtual Tour Content -->
+    <!-- First Floor -->
+    <div class="container my-5">
+      <div class="row justify-content-center">
+          <div class="col-12">
+              <div class="card">
+                  <div class="card-body text-center">
+                    <p class="text-center"><b>First Floor of Museo De La Salle</b></p>
+                    <iframe width="100%" height="800" frameborder="0" allow="xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen scrolling="no" src="https://kuula.co/share/collection/7JyyK?logo=-1&info=0&fs=1&vr=1&zoom=1&sd=1&initload=0&autop=10&thumbs=1"></iframe>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+    <!-- SECOND FLOOR -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                      <p class="text-center"><b>Second Floor of Museo De La Salle</b></p>
+                      <iframe width="100%" height="640" frameborder="0" allow="xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen scrolling="no" src="https://kuula.co/share/collection/7JtTs?logo=-1&info=0&fs=1&vr=1&zoom=1&initload=0&autop=10&thumbs=1"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    
+ 
+   
+
+    <!-- FOOTER -->
+    <footer class="pt-2">
+      <div class="container-fluid py-2 text-center">
+        <p> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel Palgan</p>
+        <% if (user && user.name) { %>
+          <p hidden>Welcome, <%= user.name %></p>
+        <% } else { %>
+          <p hidden>User is not logged in</p>
+          <script>
+            // Redirect to the logout route when user.name is empty
+            window.location.href = "/logout";
+          </script>
+        <% } %>
+      </div>
+    </footer>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+  <script>
+    let inactivityTimeout;
+    // Function to reset the inactivity timer
+    function resetInactivityTimeout() {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(() => {
+        // Send a request to the server to reset the session timeout
+        fetch("/reset-inactivity").then((response) => {
+          if (response.ok) {
+               console.log("Inactivity timer reset.");
+               // Redirect to the logout route after 1 minute of inactivity
+               window.location.href = "/logout";
+          }
+        });
+      }, 300000); // 300,000 milliseconds = 5 minutes
+    }
+    // Listen for user interactions
+    window.addEventListener("mousemove", resetInactivityTimeout);
+    window.addEventListener("keydown", resetInactivityTimeout);
+    // Initial reset
+    resetInactivityTimeout(); 
+  </script>  
+
+</html>

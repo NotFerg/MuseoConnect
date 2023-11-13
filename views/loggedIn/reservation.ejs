@@ -1,0 +1,324 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservation - MuseoConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/css/reservation.css">
+  <style>
+    .blocked-date {
+      background-color: #FF0000 !important;
+    }
+
+    .partialBlock {
+      background-color: #40E0D0 !important;
+    }
+  </style>
+
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg fixed-top nav-underline">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/loggedIn/Index">
+        <img src="https://www.dlsud.edu.ph/images/about-logo.png" alt="dlsud-logo" class="logo">
+        MuseoConnect </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto py-1">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="/loggedIn/index">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/aboutUs">About Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/donation">Donation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/artifacts">Artifacts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/virtualTour">Virtual Tour</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/games">Games</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/loggedIn/reservation">Reservation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/evaluation">Evaluation</a>
+          </li>
+          <li class="nav-item dropdown">
+            <button class="btn btn-success btn-sm mt-1 dropdown-toggle" type="button" data-bs-toggle="dropdown"
+              data-bs-auto-close="true" aria-expanded="false">
+              Account Settings
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/loggedIn/accountInformation">Account Information</a></li>
+              <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+            </ul>
+          </li>
+      </div>
+      </li>
+      </ul>
+    </div>
+    </div>
+  </nav>
+
+  <!-- REGISTRATION -->
+  <section class="h-100">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col">
+          <div class="card card-registration my-4">
+            <div class="row g-0">
+              <div class="col-xl-6 d-none d-xl-block position-relative">
+                <div class="cardbg">
+                  <img
+                    src="https://images.summitmedia-digital.com/spotph/images/2019/10/03/dlsu-d-museum3-1570074554.jpg"
+                    alt="Sample photo">
+                  <!-- New div to hold the text -->
+                  <div class="image-text">
+                    <h2 class="">Museo Connect Reservation</h2>
+                    <p class="">offers visitors the convenience of securing their entry in advance,
+                      ensuring a hassle-free and timely access to the museum's exhibits. Exploring
+                      a diverse collection of historical artifacts and artworks that showcase the
+                      rich heritage and contributions of the De La Salle community.</p>
+                  </div>
+                </div>
+              </div>
+
+              <form action="/loggedIn/reservation" method="POST" id="reservationForm">
+                <div class="col-xl-6">
+                  <div class="card-body p-md-5 text-black">
+                    <h3 class="mb-5 text-uppercase">MUSEOCONNECT RESERVATION</h3>
+
+                    <div class="form-outline mb-4">
+                      <label for="visitDate">Visit Date</label>
+                      <input type="text" id="visitDate" name="visitDate" class="form-control" id="visitdate" required
+                        autocomplete="off">
+                    </div>
+
+                    <div class="form-outline mb-4">
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                          aria-expanded="false" id="choice" required> Visit Time </button>
+                        <ul class="dropdown-menu" id="visitTimeDropdown">
+                          <li><a class="dropdown-item" id="visit1" href="#" data-time="10:30">10:30</a></li>
+                          <li><a class="dropdown-item" id="visit2" href="#" data-time="13:30">13:30</a></li>
+                        </ul>
+                      </div>
+                      <input type="hidden" id="selectedVisitTime" name="visitTime" value=""
+                        class="form-control form-control-lg" required autocomplete="off">
+                    </div>
+
+                    <% if (user && user.name) { %>
+                      <div class="form-outline mb-4">
+                        <input type="text" id="fullName" name="fullName" value="<%= user.name %>"
+                          class="form-control form-control-lg" required autocomplete="off">
+                        <label class="form-label" for="fullName">Full Name</label>
+                      </div>
+                      <% } else { %>
+                        <script>
+                          // Redirect to the logout route when user.name is empty
+                          window.location.href = "/logout";
+                        </script>
+                        <% } %>
+
+                          <% if (user && user.email) { %>
+                            <div class="form-outline mb-4">
+                              <input type="text" id="emailAddress" name="emailAddress" value="<%= user.email %>"
+                                class="form-control form-control-lg" required autocomplete="off" disabled>
+                              <label class="form-label" for="emailAddress">Email</label>
+                            </div>
+                            <% } %>
+
+                              <div class="form-outline mb-4">
+                                <input type="number" name="contactNumber" id="contactNumber"
+                                  class="form-control form-control-lg" required autocomplete="off">
+                                <label class="form-label" for="contactNumber">Contact Number</label>
+                              </div>
+
+                              <div class="form-outline mb-4">
+                                <input type="number" name="numberOfVisitors" id="numberOfVisitors"
+                                  class="form-control form-control-lg" required autocomplete="off">
+                                <label class="form-label" for="numberOfVisitors">Number Of Visitors</label>
+                              </div>
+
+                              <div class="form-outline mb-4">
+                                <button type="submit" class="btn btn-success btn-lg rounded-5 w-100"
+                                  id="reserve">Reserve</button>
+                              </div>
+
+                  </div>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="pt-2">
+    <div class="container-fluid py-2 text-center">
+      <p> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel Palgan</p>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+
+  <script>
+    $(document).ready(function () {
+      const blockedDateTimesJSON = '<%- JSON.stringify(blockedSlots) %>';
+      let blockedDates = [];
+
+      if (blockedDateTimesJSON) {
+        blockedDates = JSON.parse(blockedDateTimesJSON);
+      }
+
+      const reservationJSON = '<%- JSON.stringify(reservations) %>';
+      let reservation = [];
+
+      if (reservationJSON) {
+        reservation = JSON.parse(reservationJSON);
+      }
+
+      $("#visit1").click(function () {
+        $("#choice").text("10:30");
+        $("#selectedVisitTime").val("10:30");
+      });
+
+      $("#visit2").click(function () {
+        $("#choice").text("13:30 ");
+        $("#selectedVisitTime").val("13:30 ");
+      });
+
+      //console.log('Blocked Dates:', blockedDates);
+      //console.log('Reservations:', reservation);
+
+      // Declare 'filled' here so that it's accessible in the datepicker initialization below
+      const filled = [];
+      blockedDates.forEach((blockedDate) => {
+        //console.log('Blocked Date:', blockedDate);
+        blockedDate.blockedTimes.forEach((time) => {
+          //console.log('Time:', time);
+          filled.push({ date: blockedDate.blockedDate, time });
+        });
+      });
+
+      reservation.forEach((reservation) => {
+        filled.push({ date: reservation.visitDate, time: reservation.visitTime });
+        //console.log('Reservation:', reservation);
+      });
+
+      function updateDropdown(selectedDate) {
+        const visitTimeDropdown = $("#choice");
+        const selectedVisitTime = $("#selectedVisitTime");
+
+        const formattedDate = $.datepicker.formatDate("yy-mm-dd", selectedDate);
+
+        const blockedTimes = blockedDates.find((slot) => slot.blockedDate.startsWith(formattedDate))?.blockedTimes || [];
+
+        // Check if the selected time slot is reserved
+        const has1030 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "10:30");
+        const has1330 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "13:30");
+
+        if ((blockedTimes.includes("10:30") && blockedTimes.includes("13:30")) || (has1030 && has1330)
+          || (blockedTimes.includes("10:30") && has1330) || (has1330 && blockedTimes.includes("10:30"))) {
+          visitTimeDropdown.text("Both time slots are fully booked");
+          selectedVisitTime.val("");
+          visitTimeDropdown.prop("disabled", true);
+        } else if (blockedTimes.includes("10:30") || has1030) {
+          visitTimeDropdown.text("13:30");
+          selectedVisitTime.val("13:30");
+          visitTimeDropdown.prop("disabled", true);
+        } else if (blockedTimes.includes("13:30") || has1330) {
+          visitTimeDropdown.text("10:30");
+          selectedVisitTime.val("10:30");
+          visitTimeDropdown.prop("disabled", true);
+        } else {
+          visitTimeDropdown.text("Visit Time");
+          selectedVisitTime.val("");
+          visitTimeDropdown.prop("disabled", false);
+        }
+      }
+      $("#visitDate").datepicker({
+        dateFormat: "yy-mm-dd",
+        onSelect: function (dateText, inst) {
+          const selectedDate = new Date(dateText);
+          updateDropdown(selectedDate);
+        },
+        beforeShowDay: function (date) {
+          const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
+          //console.log('Checking date:', formattedDate);
+          //console.log('filled:', filled);
+
+          const has1030 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "10:30");
+          const has1330 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "13:30");
+
+          //console.log('has1030:', has1030);
+          //console.log('has1330:', has1330);
+
+          if (has1030 && has1330) {
+            //console.log('Disabling date:', formattedDate);
+            return [false, "blocked-date"];
+          } else if (has1030 || has1330) {
+            //console.log('Partially blocking date:', formattedDate);
+            return [true, "partialBlock"];
+          } else {
+            //console.log('Enabling date:', formattedDate);
+            return [true, ""];
+          }
+        },
+      });
+
+      $("#reservationForm").submit(function (event) {
+        const selectedTime = selectedVisitTime.value;
+
+        // Check if the selected time is still the default "Visit Time"
+        if (selectedTime === "") {
+          alert("Please select a visit time.");
+          event.preventDefault(); // Prevent the form from submitting
+        }
+      });
+      let inactivityTimeout;
+      // Function to reset the inactivity timer
+      function resetInactivityTimeout() {
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(() => {
+          // Send a request to the server to reset the session timeout
+          fetch("/reset-inactivity").then((response) => {
+            if (response.ok) {
+              console.log("Inactivity timer reset.");
+              // Redirect to the logout route after 1 minute of inactivity
+              window.location.href = "/logout";
+            }
+          });
+        }, 300000); // 300,000 milliseconds = 5 minutes
+      }
+      // Listen for user interactions
+      window.addEventListener("mousemove", resetInactivityTimeout);
+      window.addEventListener("keydown", resetInactivityTimeout);
+      // Initial reset
+      resetInactivityTimeout();
+    });
+  </script>
+</body>
+
+</html>

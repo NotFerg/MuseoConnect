@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games - MuseoConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/games.css">
+
+
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg fixed-top nav-underline">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/loggedIn/Index">
+        <img src="https://www.dlsud.edu.ph/images/about-logo.png" alt="dlsud-logo" class="logo">
+        MuseoConnect </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto py-1">
+          <li class="nav-item">
+            <a class="nav-link " aria-current="page" href="/loggedIn/index">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link " href="/loggedIn/aboutUs">About Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/donation">Donation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/artifacts">Artifacts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/virtualTour">Virtual Tour</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/loggedIn/games">Games</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/reservation">Reservation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/evaluation">Evaluation</a>
+          </li>
+          <li class="nav-item dropdown">
+            <button class="btn btn-success btn-sm mt-1 dropdown-toggle" type="button" data-bs-toggle="dropdown"
+              data-bs-auto-close="true" aria-expanded="false">
+              Account Settings
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/loggedIn/accountInformation">Account Information</a></li>
+              <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <br>
+  <br>
+  <br>
+
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6">
+        <div class="card">
+          <div class="card-body text-center">
+            <div id="question-container">
+              <h1>Test your knowldge!</h1>
+              <p id="question"></p>
+              <ul id="options"></ul>
+              <button onclick="checkInputAnswer(); nextQuestion();">Next Question</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form id="scoreForm" method="POST" action="/saveScore">
+    <input type="hidden" id="scoreInput" value="" name="score">
+    <button type="submit" style="display: none;"></button>
+  </form>
+
+
+  <!-- FOOTER -->
+  <footer class="pt-2 fixed-bottom">
+    <div class="container-fluid py-2 text-center">
+      <p> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel Palgan</p>
+      <% if (user && user.name) { %>
+        <p hidden>Welcome, <%= user.name %>
+        </p>
+        <% } else { %>
+          <p hidden>User is not logged in</p>
+          <script>
+            // Redirect to the logout route when user.name is empty
+            window.location.href = "/logout";
+          </script>
+          <% } %>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+  <script>
+    const questions = [
+      {
+        question: "When was Museo De La Salle inaugurated?",
+        options: ["a) March 25, 2000", "b) October 1996", "c) April 10, 2005", "d) February 14, 1999"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "What is the meaning of 'Zaguan'?",
+        type: "input",
+        correctAnswer: "bedroom"
+      },
+
+      {
+        question: "What does 'cuarto' refer to in the museum?",
+        options: ["a) A prayer room", "b) A passageway or ground floor storage area", "c) A dining room", "d) A drawing room"],
+        correctAnswer: "b"
+      },
+
+      {
+        question: "The 'Oratorio' room served as a ___ room in old bahay-na-bato houses?",
+        type: "input",
+        correctAnswer: "prayer"
+      },
+
+      {
+        question: "What is depicted on the ceiling of the 'Pink Room' (Cuarto) at Museo De La Salle?",
+        options: ["a) Trompe l'oeil butterflies", "b) Religious scenes", "c) Victorian motifs", "d) Abstract patterns"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "What does the 'Sala Mayor' traditionally serve as in a bahay-na-bato house?",
+        options: ["a) Main living room for big parties", "b) Bedroom for the master of the house", "c) Kitchen and dining area", "d) Study and office space"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "What were the traditional materials used for making furniture in the Sala Mayor?",
+        options: ["a) Balayong and Narra wood", "b) Oak and Pine wood", "c) Bamboo and Rattan", "d) Teak and Cedar"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "A ___ room is found in the 'Comedor' room?",
+        type: "input",
+        correctAnswer: "dining"
+      },
+
+      {
+        question: "What is the purpose of a 'Banggerahan' in the old kitchen?",
+        options: ["a) Dish-drying", "b) Rice cooking", "c) Dishwashing", "d) Food storage"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "What is the significance of the 'Azotea' in a traditional house?",
+        options: ["a) Hanging garden and recreation area", "b) Prayer room", "c) Bedroom for guests", "d) Dining area"],
+        correctAnswer: "a"
+      },
+
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function displayQuestion() {
+      const questionContainer = document.getElementById('question-container');
+      const question = document.getElementById('question');
+      const optionsList = document.getElementById('options');
+
+      // Clear previous question content
+      question.innerHTML = '';
+      optionsList.innerHTML = '';
+
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion.type === "input") {
+        const inputId = `inputAnswer${currentQuestionIndex}`;
+        question.innerHTML = `
+      <label for="${inputId}">${currentQuestion.question}</label><br>
+      <input type="text" id="${inputId}" placeholder="Type your answer">
+    `;
+      } else {
+        // Handle multiple-choice questions
+        question.innerText = currentQuestion.question;
+
+        currentQuestion.options.forEach((option, index) => {
+          const listItem = document.createElement('li');
+
+          const radioInput = document.createElement('input');
+          const optionId = `option${index}`;
+          radioInput.type = 'radio';
+          radioInput.name = 'option';
+          radioInput.id = optionId;
+          radioInput.value = String.fromCharCode(97 + index);
+
+          const label = document.createElement('label');
+          label.setAttribute('for', optionId);
+          label.textContent = option;
+
+          listItem.appendChild(radioInput);
+          listItem.appendChild(label);
+          optionsList.appendChild(listItem);
+        });
+      }
+    }
+
+    function checkAnswer() {
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion.type !== "input") {
+        const selectedOption = document.querySelector('input[name="option"]:checked');
+
+        if (selectedOption) {
+          console.log('Selected Option:', selectedOption.value);
+          if (selectedOption.value === currentQuestion.correctAnswer.toLowerCase()) {
+            score++;
+            console.log('Score:', score);
+          }
+        }
+      } else {
+        checkInputAnswer(); // Call the separate input box checking function
+      }
+    }
+
+    function checkInputAnswer() {
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion.type === "input") {
+        const inputAnswer = document.getElementById(`inputAnswer${currentQuestionIndex}`).value.toLowerCase();
+        console.log('Input Answer:', inputAnswer);
+        if (inputAnswer === currentQuestion.correctAnswer.toLowerCase()) {
+          score++;
+          console.log('Score:', score);
+        }
+      }
+    }
+
+
+
+    function nextQuestion() {
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion.type !== "input") {
+        const selectedOption = document.querySelector('input[name="option"]:checked');
+
+        if (selectedOption) {
+          checkAnswer(selectedOption.value);
+        }
+      }
+
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        displayQuestion();
+      } else {
+        alert('Game Over! Your score is: ' + score);
+        gameOver(score);
+      }
+    }
+
+    // Call this function when the game is over and you have the user's score
+    function gameOver(score) {
+      // Set the score value in the hidden input field
+      document.getElementById("scoreInput").value = score;
+
+      // Submit the form
+      document.getElementById("scoreForm").submit();
+    }
+
+    displayQuestion();
+
+    let inactivityTimeout;
+    // Function to reset the inactivity timer
+    function resetInactivityTimeout() {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(() => {
+        // Send a request to the server to reset the session timeout
+        fetch("/reset-inactivity").then((response) => {
+          if (response.ok) {
+            console.log("Inactivity timer reset.");
+            // Redirect to the logout route after 1 minute of inactivity
+            window.location.href = "/logout";
+          }
+        });
+      }, 300000); // 300,000 milliseconds = 5 minutes
+    }
+    // Listen for user interactions
+    window.addEventListener("mousemove", resetInactivityTimeout);
+    window.addEventListener("keydown", resetInactivityTimeout);
+    // Initial reset
+    resetInactivityTimeout(); 
+  </script>
+
+</body>
+
+</html>

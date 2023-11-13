@@ -1,0 +1,254 @@
+
+        
+         body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, rgb(179, 211, 178), rgb(255, 255, 255))    
+        }
+
+        .donation-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            font-family: 'Figtree';
+            flex-basis: 45%;
+            text-align: center; 
+        }
+
+        .donation-option {
+            flex-basis: calc(33.33% - 10px); /* Three options per row, adjust as needed */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .donation-option img {
+            max-width: 300px;
+            margin-bottom: 0.5rem;
+            margin-left: 30px;
+        }
+
+        .donation-option p {
+            text-align: center;
+            margin: 0;
+            margin-left: 30px;
+        }
+
+
+        .navbar {
+            background-color: #6c9249 !important;
+        }
+
+
+        .nav-link {
+            color: #f7f8f2;
+            font-size: 16px !important;
+        }
+
+        .navbar-brand {
+            color: #f7f8f2;
+            font-size: 32px !important;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        footer {
+            background-color: #6c9249 !important;
+            color: #f7f8f2;
+        }
+
+        .about-us-section {
+            padding: 40px 0;
+        }
+
+        .about-us-content {
+            text-align: center;
+        }
+
+        .about-us-heading {
+            font-family: 'Bebas Neue';
+            font-size: 120px;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        .about-us-description {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #333; 
+        }
+
+        .goals-features-section {
+            padding: 40px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .goals-features-section h2 {
+            text-align: center;
+            font-family: 'Bebas Neue';
+            font-size: 55px;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        .goals-features-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .goals,
+        .features {
+            font-family: 'Figtree';
+            flex-basis: 45%;
+            text-align: center;         
+        }
+
+        .goals h3,
+        .features h3 {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .goals ul,
+        .features ul {
+            list-style: disc;
+            padding-left: 20px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 600px;
+        }
+
+        .card {
+            background: linear-gradient(to right, #6c9249, #c2e2dd);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex-basis: calc(33.33% - 20px);
+            box-sizing: border-box;
+            transition: box-shadow 0.3s ease;
+            margin-right: 6px;
+        }
+
+        .card2 {
+            background: linear-gradient(to right, #496f92, #c2e2dd);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex-basis: calc(33.33% - 20px);
+            box-sizing: border-box;
+            transition: box-shadow 0.3s ease;
+            margin-right: 6px;
+        }
+
+        .card3 {
+            background: linear-gradient(to right, #8d2727, #d7e4e2);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex-basis: calc(33.33% - 20px);
+            box-sizing: border-box;
+            transition: box-shadow 0.3s ease;
+            margin-right: 6px;
+        }
+
+        .card h2 {
+            font-family: 'Permanent Marker';
+            font-size: 32px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card h3 {
+            font-family: 'Permanent Marker';
+            font-size: 28px;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .card ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .card p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .card2 h2 {
+            font-family: 'Permanent Marker';
+            font-size: 32px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card2 h3 {
+            font-family: 'Permanent Marker';
+            font-size: 28px;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .card2 ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .card2 p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .card3 h2 {
+            font-family: 'Permanent Marker';
+            font-size: 32px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card3 h3 {
+            font-family: 'Permanent Marker';
+            font-size: 28px;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .card3 ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .card3 p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .card2, .card, .card3 {
+        text-align: center;
+        align-items: center;
+    }
+

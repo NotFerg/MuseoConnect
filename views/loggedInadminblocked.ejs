@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>MuseoConnect - Admin - Blocked Date List</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-default navbar-trans navbar-expand-lg fixed-top">
+        <div class="container">
+            <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <a class="navbar-brand text-brand" href="/loggedInindex">Museo<span class="color-b">Connect </span>ADMIN</a>
+
+            <div class="navbar-collapse collapse justify-content-center" id="navbarDefault">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link " href="/loggedInadmin">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="/loggedInadminreservation">Reservations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/loggedInadminblocked">Blocked</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="/loggedInadminartifacts">Artifacts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/loggedInadminreports">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="/logout">Log Out</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav><!-- End Header/Navbar -->
+
+    <main id="main">
+        <!-- Blocked Reservation -->
+        <section class="intro-single">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-lg-8">
+                        <div class="title-single-box d-flex align-items-center">
+                            <img src="/images/blocked.png" alt="Image" class="img-fluid"
+                                style="max-width: 100px; max-height: 100px;">
+                            <h1 class="title-single">Blocked Date List</h1>
+                        </div>
+                    </div>
+                    <br><br><br><br><br><br><br><br>
+
+                    <form id="setDate" action="/loggedIn/admin/addBlockedDates" method="post" class="mb-3">
+                        <div class="input-group">
+                            <input type="date" id="blockedDate" class="form-control" name="blockedDate"
+                                autocomplete="off" required>
+                            <div class="mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="10:30" id="checkbox1030"
+                                        name="blockedTimes">
+                                    <label class="form-check-label" for="checkbox1030">
+                                        10:30 AM
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="13:30" id="checkbox1330"
+                                        name="blockedTimes">
+                                    <label class="form-check-label" for="checkbox1330">
+                                        1:30 PM
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="button" id="btnsubmitDate" class="btn btn-primary mt-2">Block Date</button>
+                        </div>
+                    </form>
+
+                    <div class="row">
+                        <% blocked.forEach(blocked=> { %>
+                            <div class="col-12 col-md-6 col-lg-4 reservation-card">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6>Blocked Dates</h6>
+
+                                        <!-- Update Blocked Date -->
+                                        <form
+                                            action="/loggedIn/admin/blocked/<%= blocked._id %>/blockedDate?_method=PUT"
+                                            method="post" class="mt-2">
+                                            <div class="input-group">
+                                                <input type="date" name="updblockedDate"
+                                                    value="<%= blocked.blockedDate ? blocked.blockedDate.toISOString().split('T')[0] : '' %>"
+                                                    required class="form-control" autocomplete="off">
+                                                <button type="submit" class="btn btn-success">Update blocked
+                                                    Date</button>
+                                            </div>
+                                        </form>
+
+                                        <!-- Update Blocked Times -->
+                                        <form action="/loggedIn/admin/removeBlockedTime/<%= blocked._id %>"
+                                            method="POST" class="mt-2">
+                                            <div class="">
+                                                <% if (blocked.blockedTimes && blocked.blockedTimes.length> 0) { %>
+                                                    <h6>Blocked Times:</h6>
+                                                    <% blocked.blockedTimes.forEach(function (time) { %>
+                                                        <div class="d-flex align-items-center my-2">
+                                                            <%= time %>
+                                                                <% if ((time==='10:30' || time==='13:30' ) &&
+                                                                    blocked.blockedTimes.includes('10:30') &&
+                                                                    blocked.blockedTimes.includes('13:30')) { %>
+                                                                    <form
+                                                                        action="/loggedIn/admin/removeBlockedTime/<%= blocked._id %>"
+                                                                        method="POST">
+                                                                        <input type="hidden" name="time"
+                                                                            value="<%= time %>">
+                                                                        <button type="submit"
+                                                                            class="btn btn-danger btn-sm ms-2">Remove</button>
+                                                                    </form>
+                                                                    <% } %>
+                                                        </div>
+                                                        <% }); %>
+                                                            <% } %>
+                                            </div>
+                                        </form>
+
+
+                                        <!-- Add a button to remove the reservation -->
+                                        <form action="/loggedIn/admin/removeBlockedDate/<%= blocked._id %>"
+                                            method="POST">
+                                            <button type="submit" class="btn btn-danger btn-sm mt-2">Remove
+                                                Block</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="copyright-footer">
+                        <p class="copyright color-text-a">
+                            <span class="color-a"> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel
+                                Palgan
+                        </p>
+                        <% if (admin && admin.name) { %>
+                            <p hidden>Welcome, <%= admin.name %>
+                            </p>
+                            <% } else { %>
+                                <p hidden>User is not logged in</p>
+                                <script>
+                                    // Redirect to the logout route when user.name is empty
+                                    window.location.href = "/logout";
+                                </script>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer><!-- End  Footer -->
+
+    <div id="preloader"></div>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
+
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/index.js"></script>
+    <script>
+        //FOR BLOCKED DATES
+
+        const btnSubmitDate = document.getElementById("btnsubmitDate");
+
+btnSubmitDate.addEventListener("click", () => {
+  const datetimeInput = document.getElementById("blockedDate");
+  const checkbox1030 = document.getElementById("checkbox1030");
+  const checkbox1330 = document.getElementById("checkbox1330");
+
+  const blockedDate = datetimeInput.value;
+  const blockedTimes = [];
+
+  if (checkbox1030.checked) {
+    blockedTimes.push("10:30");
+  }
+  if (checkbox1330.checked) {
+    blockedTimes.push("13:30");
+  }
+
+  const data = {
+    blockedDate: blockedDate,
+    blockedTimes: blockedTimes,
+  };
+
+  // Make sure data is being constructed correctly
+  console.log("Data to be sent:", data);
+
+  const blockedTimesParam = blockedTimes.join(",");
+
+  const url = `/loggedIn/admin/addBlockedDates?blockedDate=${blockedDate}&blockedTimes=${blockedTimesParam}`;
+
+  // Make a POST request to the server using the constructed URL
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data), // Send data as JSON
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Response from server:", data);
+    })
+    .catch((error) => console.error("Error:", error));
+
+  window.location.href = "/loggedInadminblocked";
+});
+    </script>
+</body>
+
+</html>

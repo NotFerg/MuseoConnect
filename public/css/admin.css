@@ -1,0 +1,76 @@
+.navbar {
+  background-color: #6c9249 !important;
+  padding: 10px;
+}
+
+.nav-link {
+  color: #f7f8f2 !important;
+  font-size: 16px !important;
+}
+
+.navbar-brand {
+  color: #f7f8f2 !important;
+  font-size: 32px !important;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+}
+
+footer {
+  background-color: #6c9249 !important;
+  color: #f7f8f2;
+  padding: 20px 0;
+}
+
+.card {
+  background-color: #f7f7f7;
+  border: none;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-img-top {
+  height: 400px;
+  object-fit: cover;
+  object-position: center;
+}
+
+#search-form {
+  display: flex;
+  align-items: center;
+}
+
+#search-input {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.user-list {
+  margin-top: 30px;
+}
+
+.user-list table {
+  margin-top: 20px;
+}
+
+.user-list th {
+  font-weight: bold;
+}
+
+.user-list input[type="text"],
+.user-list input[type="email"],
+.user-list input[type="password"] {
+  width: 150px;
+  margin-right: 5px;
+}
+
+body{
+    background: linear-gradient(to right, rgb(179, 211, 178), rgb(255, 255, 255))
+}

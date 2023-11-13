@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+
+    body {
+      /* font-family: 'Montserrat', sans-serif; */
+      background-color: #f7f8f2;
+      background: linear-gradient(to right, rgb(179, 211, 178), rgb(255, 255, 255))
+    }
+
+    .navbar {
+      background-color: #6c9249 !important;
+    }
+
+    .nav-link {
+      color: #f7f8f2 !important;
+      font-size: 16px !important;
+    }
+
+    .navbar-brand {
+      color: #f7f8f2 !important;
+      font-size: 32px !important;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+    }
+
+    footer {
+      background-color: #6c9249 !important;
+      color: #f7f8f2 !important;
+      padding: 20px 0;
+    }
+
+    .card {
+      background-color: #f7f7f7;
+      border: none;
+      transition: transform 0.3s;
+    }
+
+    /* .card:hover {
+      transform: scale(1.03);
+    } */
+
+    .card-body {
+      padding: 1.5rem;
+      height: 300px; /* Set the desired height for the card bodies */
+      overflow: hidden; /* Hide any overflowing content within the card body */
+      padding: 1.5rem;
+    }
+
+    .card-img-top {
+      height: 400px;
+      /* Set the desired height for the card images */
+      object-fit: contain;
+      /* object-fit: fill; */
+      /* object-fit: cover; */
+      object-position: 50% 25%;
+      /* Ensure the images cover the entire card without distortion */
+    }
+

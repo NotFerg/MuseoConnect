@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <style>
+    .navbar {
+      background-color: #6c9249 !important;
+      padding: 10px;
+    }
+
+    .nav-link {
+      color: #f7f8f2 !important;
+      font-size: 16px !important;
+    }
+
+    .navbar-brand {
+      color: #f7f8f2 !important;
+      font-size: 32px !important;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+    }
+
+    footer {
+      background-color: #6c9249 !important;
+      color: #f7f8f2;
+      padding: 20px 0;
+    }
+
+    .card {
+      background-color: #f7f7f7;
+      border: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-img-top {
+      height: 400px;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    #search-form {
+      display: flex;
+      align-items: center;
+    }
+
+    #search-input {
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .user-list {
+      margin-top: 30px;
+    }
+
+    .user-list table {
+      margin-top: 20px;
+    }
+
+    .user-list th {
+      font-weight: bold;
+    }
+
+    .user-list input[type="text"],
+    .user-list input[type="email"],
+    .user-list input[type="password"] {
+      width: 150px;
+      margin-right: 5px;
+    }
+
+    body {
+      background: linear-gradient(to right, rgb(179, 211, 178), rgb(255, 255, 255))
+    }
+  </style>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin - MuseoConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <!-- <link rel="stylesheet" href="/css/admin.css"> -->
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top nav-underline">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/loggedIn/Index">
+        <img src="https://www.dlsud.edu.ph/images/about-logo.png" alt="dlsud-logo" class="logo">
+        MuseoConnect </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto py-1">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/loggedIn/index">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/aboutUs">About Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/donation">Donation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/artifacts">Artifacts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/virtualTour">Virtual Tour</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/games">Games</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/reservation">Reservation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIn/evaluation">Evaluation</a>
+          </li>
+          <li class="nav-item dropdown">
+            <button class="btn btn-success btn-sm mt-1 dropdown-toggle" type="button" data-bs-toggle="dropdown"
+              data-bs-auto-close="true" aria-expanded="false">
+              Account Settings
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/loggedIn/accountInformation">Account Information</a></li>
+              <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+            </ul>
+          </li>
+      </div>
+      </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- User Accounts -->
+  <section class="user-list py-2">
+    <div class="container">
+      <h2 class="mt-5">User List</h2>
+      <form id="search-form" class="mb-3">
+        <div class="input-group">
+          <input type="text" id="search-input" class="form-control" placeholder="Search by name or email"
+            autocomplete="off">
+          <button type="button" class="btn btn-primary" onclick="searchUsers()">Search</button>
+          <button type="button" class="btn btn-secondary" onclick="resetSearch()">Reset</button>
+        </div>
+      </form>
+
+
+      <div class="row">
+        <% users.forEach(user=> { %>
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <%= user.name %>
+                </h5>
+                <p class="card-text"><strong>Email:</strong>
+                  <%= user.email %>
+                </p>
+                <form action="/loggedIn/admin/users/<%= user._id %>?_method=DELETE" method="POST">
+                  <button type="submit" class="btn btn-danger">Delete User</button>
+                </form>
+
+                <form action="/loggedIn/admin/users/<%= user._id %>?_method=PUT" method="post" class="mt-2">
+                  <div class="input-group">
+                    <input type="text" name="name" value="<%= user.name %>" required class="form-control"
+                      autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Update Name</button>
+                  </div>
+                </form>
+
+                <form action="/loggedIn/admin/users/<%= user._id %>/email?_method=PUT" method="post" class="mt-2">
+                  <div class="input-group">
+                    <input type="email" name="email" value="<%= user.email %>" required class="form-control"
+                      autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Update Email</button>
+                  </div>
+                </form>
+
+                <form action="/loggedIn/admin/users/<%= user._id %>/score?_method=PUT" method="post" class="mt-2">
+                  <div class="input-group">
+                    <input type="number" name="score" value="<%= user.score %>" required class="form-control"
+                      autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Update Score</button>
+                  </div>
+                </form>
+
+                <form action="/loggedIn/admin/users/<%= user._id %>/password?_method=PUT" method="post" class="mt-2">
+                  <div class="input-group">
+                    <input type="password" name="password" required class="form-control" autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reservation Display -->
+  <section class="user-list py-2">
+    <div class="container">
+      <h2>Reservation List</h2>
+      <form id="reservation-search-form" class="mb-3">
+        <div class="input-group">
+          <input type="text" id="reservation-search-input" class="form-control" placeholder="Search by name or email"
+            autocomplete="off">
+          <button type="button" id="reservation-search-button" class="btn btn-primary">Search</button>
+          <button type="button" id="reservation-reset-button" class="btn btn-secondary">Reset</button>
+        </div>
+      </form>
+
+      <div class="row">
+        <% reservations.forEach(reservation=> { %>
+          <div class="col-12 col-md-6 col-lg-4 reservation-card">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <%= reservation.fullName %>
+                </h5>
+                <p class="card-text"><strong>Email:</strong>
+                  <%= reservation.emailAddress %>
+                </p>
+                <!-- Display reservations for the user -->
+                <h6>Reservations:</h6>
+
+                <!-- Update Visit Date -->
+                <form action="/loggedIn/admin/reservations/<%= reservation._id %>/visitDate?_method=PUT" method="post"
+                  class="mt-2">
+                  <div class="input-group">
+                    <input type="date" name="visitDate" value="<%= reservation.visitDate.toISOString().split('T')[0] %>"
+                      required class="form-control" autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Update Visit Date</button>
+                  </div>
+                </form>
+
+                <!-- Update Visit Time -->
+                <form action="/loggedIn/admin/reservations/<%= reservation._id %>/visitTime?_method=PUT" method="post"
+                  class="mt-2">
+                  <div class="form-check-inline">
+                    <input type="radio" name="visitTime" id="radio1030" value="10:30" class="form-check-input" required>
+                    <label for="radio1030" class="form-check-label">10:30 AM</label>
+                  </div>
+                  <div class="form-check-inline">
+                    <input type="radio" name="visitTime" id="radio1330" value="13:30" class="form-check-input" required>
+                    <label for="radio1330" class="form-check-label">1:30 PM</label>
+                  </div>
+                  <button type="submit" class="btn btn-primary ml-2">Update Visit Time</button>
+                </form>
+
+                <!-- Update Contact Number -->
+                <form action="/loggedIn/admin/reservations/<%= reservation._id %>/contactNumber?_method=PUT"
+                  method="post" class="mt-2">
+                  <div class="input-group">
+                    <input type="number" name="contactNumber" value="<%= reservation.contactNumber %>" required
+                      class="form-control" autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Update Contact Number</button>
+                  </div>
+                </form>
+
+                <!-- Update Number of Visitors -->
+                <form action="/loggedIn/admin/reservations/<%= reservation._id %>/numberOfVisitors?_method=PUT"
+                  method="post" class="mt-2">
+                  <div class="input-group">
+                    <input type="number" name="numberOfVisitors" value="<%= reservation.numberOfVisitors %>" required
+                      class="form-control" autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Update Number of Visitors</button>
+                  </div>
+                </form>
+
+                <!-- Add a button to remove the reservation -->
+                <form action="/loggedIn/admin/removeBlockedDate/<%= blocked._id %>" method="post">
+                  <button type="submit" class="btn btn-danger btn-sm mt-2">Remove Block</button>
+                </form>
+
+              </div>
+            </div>
+          </div>
+          <% }) %>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- BLOCKED RESERVATION -->
+  <section class="user-list py-2">
+    <div class="container">
+      <h2>Blocked Date List</h2>
+      <form id="setDate" action="/loggedIn/admin/addBlockedDates" method="post" class="mb-3">
+        <div class="input-group">
+          <input type="date" id="blockedDate" class="form-control" name="blockedDate" autocomplete="off" required>
+          <div class="mt-2">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="10:30" id="checkbox1030" name="blockedTimes">
+              <label class="form-check-label" for="checkbox1030">
+                10:30 AM
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="13:30" id="checkbox1330" name="blockedTimes">
+              <label class="form-check-label" for="checkbox1330">
+                1:30 PM
+              </label>
+            </div>
+          </div>
+          <button type="button" id="btnsubmitDate" class="btn btn-primary mt-2">Block Date</button>
+        </div>
+      </form>
+
+      <div class="row">
+        <% blocked.forEach(blocked=> { %>
+          <div class="col-12 col-md-6 col-lg-4 reservation-card">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h6>Blocked Dates</h6>
+
+                <!-- Update Blocked Date -->
+                <form action="/loggedIn/admin/blocked/<%= blocked._id %>/blockedDate?_method=PUT" method="post"
+                  class="mt-2">
+                  <div class="input-group">
+                    <input type="date" name="updblockedDate"
+                      value="<%= blocked.blockedDate ? blocked.blockedDate.toISOString().split('T')[0] : '' %>" required
+                      class="form-control" autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Update blocked Date</button>
+                  </div>
+                </form>
+
+                <!-- Update Blocked Times -->
+                <form action="/loggedIn/admin/blocked/<%= blocked._id %>/blockedTimes?_method=PUT" method="post"
+                  class="mt-2">
+                  <div class="">
+                    <% if (blocked.blockedTimes && blocked.blockedTimes.length> 0) { %>
+                      <h6>Blocked Times:</h6>
+                      <% blocked.blockedTimes.forEach(function (time) { %>
+                        <div class="d-flex align-items-center my-2">
+                          <%= time %>
+                            <!-- Show the "Remove" button only when both 10:30 and 13:30 are blocked -->
+                            <% if (blocked.blockedTimes.includes("10:30") && blocked.blockedTimes.includes("13:30")) {
+                              %>
+                              <form action="/loggedIn/admin/removeBlockedTime/<%= blocked._id %>?time=<%= time %>"
+                                method="POST">
+                                <button type="submit" class="btn btn-danger btn-sm ms-2">Remove</button>
+                              </form>
+                              <% } %>
+                        </div>
+                        <% }); %>
+                          <% } else { %>
+                            <!-- Render an input field with a default value if blocked.blockedTimes is empty -->
+                            <input type="Time" name="updblockedTime" value="" required class="form-control"
+                              autocomplete="off">
+                            <% } %>
+                  </div>
+                </form>
+
+
+                <!-- Add a button to remove the reservation -->
+                <form action="/loggedIn/admin/removeBlockedDate/<%= blocked._id %>" method="POST">
+                  <button type="submit" class="btn btn-danger btn-sm mt-2">Remove Block</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+      </div>
+  </section>
+
+  <!-- Add Artifacts -->
+  <section class="user-list py-2">
+    <div class="container">
+      <h2>Add Artifact</h2>
+      <form id="add-artifact-form" action="/loggedIn/admin/addArtifact" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="image" class="form-label">Artifact Image</label>
+          <input type="file" class="form-control" id="image" name="image" required>
+        </div>
+        <div class="mb-3">
+          <label for="title" class="form-label">Artifact Title</label>
+          <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Artifact Description</label>
+          <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Artifact</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Display Artifacts -->
+  <section class="user-list py-2">
+    <div class="container">
+      <h2>Artifacts</h2>
+      <div class="row">
+        <% artifacts.forEach(artifact=> { %>
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card mb-3">
+              <img src="/uploads/<%= artifact.image %>" class="card-img-top" alt="<%= artifact.title %>">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <%= artifact.title %>
+                </h5>
+                <p class="card-text">
+                  <%= artifact.description %>
+                </p>
+                <form action="/loggedIn/admin/artifacts/<%= artifact._id %>?_method=DELETE" method="POST">
+                  <button type="submit" class="btn btn-danger">Remove Artifact</button>
+                </form>
+                <form action="/loggedIn/admin/artifacts/<%= artifact._id %>?_method=PUT" method="post" class="mt-2" enctype="multipart/form-data">
+                  <div class="mb-3">
+                    <label for="updateTitle" class="form-label">Update Title</label>
+                    <input type="text" name="updateTitle" value="<%= artifact.title %>" class="form-control" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="updateDescription" class="form-label">Update Description</label>
+                    <textarea name="updateDescription" class="form-control" rows="4" required><%= artifact.description %></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label for="updateImage" class="form-label">Update Image</label>
+                    <input type="file" name="updateImage" class="form-control" accept="image/*">
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Artifact</button>
+                </form>
+                
+              </div>
+            </div>
+          </div>
+          <% }) %>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+  <!-- FOOTER -->
+  <footer class="pt-2">
+    <div class="container-fluid py-2 text-center">
+      <p> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel Palgan</p>
+      <% if (admin && admin.name) { %>
+        <p hidden>Welcome, <%= admin.name %>
+        </p>
+        <% } else { %>
+          <p hidden>User is not logged in</p>
+          <script>
+            // Redirect to the logout route when user.name is empty
+            window.location.href = "/logout";
+          </script>
+          <% } %>
+    </div>
+  </footer>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+  <script src="/js/admin.js"></script>
+
+</body>
+
+</html>

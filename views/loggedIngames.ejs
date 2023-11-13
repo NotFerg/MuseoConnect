@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>MuseoConnect - Games</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
+
+  <link href="assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-default navbar-trans navbar-expand-lg fixed-top">
+    <div class="container">
+      <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDefault"
+        aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a class="navbar-brand text-brand" href="/loggedInindex">Museo<span class="color-b">Connect</span></a>
+
+      <div class="navbar-collapse collapse justify-content-center" id="navbarDefault">
+        <ul class="navbar-nav">
+
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedInindex">Home</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link " href="/loggedInaboutUs">About us</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedIndonation">Donation</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedInartifacts">Artifacts</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="/loggedInvirtualTour">Virtual Tour</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link active" href="/loggedIngames">Games</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link " href="/loggedInreservation">Reservation</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link " href="/loggedInevaluation">Evaluation</a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">Account</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item " href="/loggedInaccountInformation">Account Information</a>
+              <a class="dropdown-item " href="/logout">Log Out</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav><!-- End Header/Navbar -->
+
+  <main id="main">
+    <!-- ======= Intro Single ======= -->
+    <section class="intro-single">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 col-lg-8">
+            <div class="title-single-box d-flex align-items-center">
+              <img src="/images/games.png" alt="Image" class="img-fluid"
+                style="max-width: 100px; max-height: 100px;">
+              <h1 class="title-single">Games</h1>
+            </div>
+          </div>
+          <div class="col-md-12 col-lg-4">
+            <nav aria-label="breadcrumb" class="breadcrumb-box d-flex justify-content-lg-end">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                  <a href="/loggedInindex">Home</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                  Games
+                </li>
+              </ol>
+            </nav>
+          </div>
+          <div class="container my-5">
+            <div class="row justify-content-center">
+              <div class="col-12 col-md-9 col-lg-10">
+                <div class="card-games">
+                  <div class="card-body text-center">
+                    <div id="question-container">
+                      <h1>Test your knowledge!</h1>
+                      <p id="question"></p>
+                      <ul id="options"></ul>
+                      <button onclick="checkInputAnswer(); nextQuestion();"
+                        class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Next Question</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form id="scoreForm" method="POST" action="/saveScore">
+            <input type="hidden" id="scoreInput" value="" name="score">
+            <button type="submit" style="display: none;"></button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <br><br><br><br><br><br><br><br><br>
+
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+
+          <div class="copyright-footer">
+            <p class="copyright color-text-a">
+              <span class="color-a"> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel
+                Palgan
+            </p>
+            <% if (user && user.name) { %>
+              <p hidden>Welcome, <%= user.name %>
+              </p>
+              <% } else { %>
+                <p hidden>User is not logged in</p>
+                <script>
+                  // Redirect to the logout route when user.name is empty
+                  window.location.href = "/logout";
+                </script>
+                <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer><!-- End  Footer -->
+
+
+  <div id="preloader"></div>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <script src="/js/index.js"></script>
+
+  <script>
+    const questions = [
+      {
+        question: "When was Museo De La Salle inaugurated?",
+        options: ["a) March 25, 2000", "b) October 1996", "c) April 10, 2005", "d) February 14, 1999"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "What is the meaning of 'Zaguan'?",
+        type: "input",
+        correctAnswer: "bedroom"
+      },
+
+      {
+        question: "What does 'cuarto' refer to in the museum?",
+        options: ["a) A prayer room", "b) A passageway or ground floor storage area", "c) A dining room", "d) A drawing room"],
+        correctAnswer: "b"
+      },
+
+      {
+        question: "The 'Oratorio' room served as a _ froom in old bahay-na-bato houses?",
+        type: "input",
+        correctAnswer: "prayer"
+      },
+
+      {
+        question: "What is depicted on the ceiling of the 'Pink Room' (Cuarto) at Museo De La Salle?",
+        options: ["a) Trompe l'oeil butterflies", "b) Religious scenes", "c) Victorian motifs", "d) Abstract patterns"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "What does the 'Sala Mayor' traditionally serve as in a bahay-na-bato house?",
+        options: ["a) Main living room for big parties", "b) Bedroom for the master of the house", "c) Kitchen and dining area", "d) Study and office space"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "What were the traditional materials used for making furniture in the Sala Mayor?",
+        options: ["a) Balayong and Narra wood", "b) Oak and Pine wood", "c) Bamboo and Rattan", "d) Teak and Cedar"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "A _ room is found in the 'Comedor' room?",
+        type: "input",
+        correctAnswer: "dining"
+      },
+
+      {
+        question: "What is the purpose of a 'Banggerahan' in the old kitchen?",
+        options: ["a) Dish-drying", "b) Rice cooking", "c) Dishwashing", "d) Food storage"],
+        correctAnswer: "a"
+      },
+
+      {
+        question: "What is the significance of the 'Azotea' in a traditional house?",
+        options: ["a) Hanging garden and recreation area", "b) Prayer room", "c) Bedroom for guests", "d) Dining area"],
+        correctAnswer: "a"
+      },
+
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function displayQuestion() {
+      const questionContainer = document.getElementById('question-container');
+      const question = document.getElementById('question');
+      const optionsList = document.getElementById('options');
+
+      // Clear previous question content
+      question.innerHTML = '';
+      optionsList.innerHTML = '';
+
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion.type === "input") {
+        const inputId = `inputAnswer${currentQuestionIndex}`;
+        question.innerHTML = `
+      <label for="${inputId}">${currentQuestion.question}</label><br>
+      <input type="text" id="${inputId}" placeholder="Type your answer">
+    `;
+      } else {
+        // Handle multiple-choice questions
+        question.innerText = currentQuestion.question;
+
+        currentQuestion.options.forEach((option, index) => {
+          const listItem = document.createElement('li');
+
+          const radioInput = document.createElement('input');
+          const optionId = `option${index}`;
+          radioInput.type = 'radio';
+          radioInput.name = 'option';
+          radioInput.id = optionId;
+          radioInput.value = String.fromCharCode(97 + index);
+
+          const label = document.createElement('label');
+          label.setAttribute('for', optionId);
+          label.textContent = option;
+
+          listItem.appendChild(radioInput);
+          listItem.appendChild(label);
+          optionsList.appendChild(listItem);
+        });
+      }
+    }
+
+    function checkAnswer() {
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion.type !== "input") {
+        const selectedOption = document.querySelector('input[name="option"]:checked');
+
+        if (selectedOption) {
+          console.log('Selected Option:', selectedOption.value);
+          if (selectedOption.value === currentQuestion.correctAnswer.toLowerCase()) {
+            score++;
+            console.log('Score:', score);
+          }
+        }
+      } else {
+        checkInputAnswer(); // Call the separate input box checking function
+      }
+    }
+
+    function checkInputAnswer() {
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion.type === "input") {
+        const inputAnswer = document.getElementById(`inputAnswer${currentQuestionIndex}`).value.toLowerCase();
+        console.log('Input Answer:', inputAnswer);
+        if (inputAnswer === currentQuestion.correctAnswer.toLowerCase()) {
+          score++;
+          console.log('Score:', score);
+        }
+      }
+    }
+
+
+
+    function nextQuestion() {
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion.type !== "input") {
+        const selectedOption = document.querySelector('input[name="option"]:checked');
+
+        if (selectedOption) {
+          checkAnswer(selectedOption.value);
+        }
+      }
+
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        displayQuestion();
+      } else {
+        alert('Game Over! Your score is: ' + score);
+        gameOver(score);
+      }
+    }
+
+    // Call this function when the game is over and you have the user's score
+    function gameOver(score) {
+      // Set the score value in the hidden input field
+      document.getElementById("scoreInput").value = score;
+
+      // Submit the form
+      document.getElementById("scoreForm").submit();
+    }
+
+    displayQuestion();
+
+    let inactivityTimeout;
+    // Function to reset the inactivity timer
+    function resetInactivityTimeout() {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(() => {
+        // Send a request to the server to reset the session timeout
+        fetch("/reset-inactivity").then((response) => {
+          if (response.ok) {
+            console.log("Inactivity timer reset.");
+            // Redirect to the logout route after 1 minute of inactivity
+            window.location.href = "/logout";
+          }
+        });
+      }, 300000); // 300,000 milliseconds = 5 minutes
+    }
+    // Listen for user interactions
+    window.addEventListener("mousemove", resetInactivityTimeout);
+    window.addEventListener("keydown", resetInactivityTimeout);
+    // Initial reset
+    resetInactivityTimeout(); 
+  </script>
+
+</body>
+
+</html>
