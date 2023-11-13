@@ -474,7 +474,6 @@ app.get("/loggedInadminreservation", async (req, res) => {
   }
 });
 
-
 //mongodb Paths
 app.post("/signIn", async (req, res) => {
   const email = req.body.email;
