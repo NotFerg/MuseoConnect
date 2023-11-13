@@ -8,8 +8,7 @@
     "builds": [
       {
         "src": "app.js",
-        "use": "@vercel/node",
-        "maxDuration":300
+        "use": "@vercel/node"
       }
     ],
     "routes": [
