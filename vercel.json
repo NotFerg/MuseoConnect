@@ -11,7 +11,12 @@
         "src": "/(.*)",
         "dest": "/app.js"
       }
-    ]
+    ],
+    "functons":{
+      "*":{
+        "maxDuration":300
+      }
+    }
   }
   
   
