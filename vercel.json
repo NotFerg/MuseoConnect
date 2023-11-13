@@ -3,15 +3,11 @@
   "functions": {
     "*": {
       "memory": 3008,
-      "maxDuration": 300
-    }
-  },
-  "builds": [
-    {
+      "maxDuration": 300,
       "src": "app.js",
       "use": "@vercel/node"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/(.*)",
