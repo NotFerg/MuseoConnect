@@ -173,9 +173,8 @@
 
                                   <div class="form-outline mb-4">
                                     <input type="number" name="numberOfVisitors" id="numberOfVisitors"
-                                      class="form-control form-control-lg" required autocomplete="off" max="10">
-                                    <label class="form-label" for="numberOfVisitors">Number Of
-                                      Visitors (Max: 10)</label>
+                                      class="form-control form-control-lg" required autocomplete="off" min="1" max="10">
+                                    <label class="form-label" for="numberOfVisitors">Number Of Visitors (1-10)</label>
                                   </div>
 
                                   <div class="form-outline mb-4">
@@ -396,8 +395,6 @@
       window.addEventListener("keydown", resetInactivityTimeout);
       // Initial reset
       resetInactivityTimeout();
-
-
 
     });
   </script>
