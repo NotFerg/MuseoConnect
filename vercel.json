@@ -12,7 +12,7 @@
         "dest": "/app.js"
       }
     ],
-    "functons":{
+    "functions":{
       "*":{
         "maxDuration":300
       }
