@@ -394,13 +394,27 @@ app.get("/loggedInadminblocked", async (req, res) => {
     }
     req.session.active = true;
 
+    let users = await User.find();
     let reservations = await Reservation.find();
     let blocked = await Blocked.find();
+    let artifacts = await Artifact.find()
+
+    const { search } = req.query;
+    if (search) {
+      users = users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(search.toLowerCase()) ||
+          user.email.toLowerCase().includes(search.toLowerCase())
+      );
+    }
 
     res.render("loggedInadminblocked", {
+      users,
+      search,
       admin,
       reservations,
       blocked,
+      artifacts,
     });
   } catch (error) {
     console.error("Error fetching users:", error);
