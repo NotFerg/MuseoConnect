@@ -114,7 +114,8 @@
                                         <form
                                             action="/loggedIn/admin/reservations/<%= reservation._id %>/visitTime?_method=PUT"
                                             method="post" class="mt-2">
-                                            <div class="form-check-inline">
+                                            <p>Current Reservation Time: <%= reservation.visitTime %></p>
+                                            <div class="form-check-inline">                                             
                                                 <input type="radio" name="visitTime" id="radio1030" value="10:30"
                                                     class="form-check-input" required>
                                                 <label for="radio1030" class="form-check-label">10:30 AM</label>

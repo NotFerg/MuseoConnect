@@ -897,7 +897,7 @@ app.put(
       await reservation.save();
 
       // Redirect or send a response as needed
-      //res.redirect("/loggedInadminreservation");
+      res.redirect("/loggedInadminreservation");
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Server error" });
