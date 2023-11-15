@@ -20,6 +20,97 @@
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
 
+  <style>
+    .quiz-card {
+      background-color: #f8f9fa;
+      border-radius: 15px;
+      box-shadow: 10px 10px 10px rgba(45, 192, 16, 0.13);
+      padding: 30px; /* Increase padding for a larger card */
+      border: 2px solid #28a745; /* Set border color to success color */
+    }
+  
+    .quiz-title {
+      font-size: 40px; /* Increase font size for the title */
+      font-weight: bold;
+      color: #000000;
+      margin-bottom: 30px; /* Increase margin for spacing */
+      text-align: center;
+    }
+  
+    .quiz-question {
+      font-size: 24px; /* Increase font size for the question */
+      color: #495057;
+      margin-bottom: 20px; /* Increase margin for spacing */
+    }
+  
+    .quiz-options {
+      list-style-type: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+    }
+  
+    .quiz-options li {
+      margin-bottom: 15px; /* Increase margin between options */
+    }
+  
+    .quiz-options label {
+      display: inline-block;
+      cursor: pointer;
+      border: 2px solid #28a745;
+      background-color: #fff;
+      color: #000000;
+      padding: 20px; /* Increase padding for larger buttons */
+      border-radius: 8px; /* Increase border radius for rounded corners */
+      transition: background-color 0.3s ease, color 0.3s ease;
+      width: 100%;
+      text-align: left; /* Align text to the left */
+      font-size: 18px; /* Increase font size for the options */
+    }
+  
+    .quiz-options input[type="radio"] {
+      display: none;
+    }
+  
+    .quiz-options input[type="radio"]:checked+label {
+      background-color: #0056b3;
+      color: #fff;
+    }
+  
+    .quiz-btn {
+      margin-top: 30px; /* Increase margin for spacing */
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 20px; /* Increase padding for a larger button */
+      font-size: 20px; /* Increase font size for the button */
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+  
+    .quiz-btn:hover {
+      background-color: #218838;
+    }
+  
+    .quiz-options label:hover {
+      background-color: #28a745;
+      color: #fff;
+    }
+  
+    .quiz-options input[type="radio"]:checked+label {
+      background-color: #28a745;
+      color: #fff;
+    }
+  
+    .quiz-progress {
+      font-size: 18px;
+      text-align: center;
+      margin-top: 15px;
+      color: #28a745; /* Change color to your preference */
+    }
+  </style>
 </head>
 
 <body>
@@ -89,8 +180,7 @@
         <div class="row">
           <div class="col-md-12 col-lg-8">
             <div class="title-single-box d-flex align-items-center">
-              <img src="/images/games.png" alt="Image" class="img-fluid"
-                style="max-width: 100px; max-height: 100px;">
+              <img src="/images/games.png" alt="Image" class="img-fluid" style="max-width: 100px; max-height: 100px;">
               <h1 class="title-single">Games</h1>
             </div>
           </div>
@@ -106,23 +196,25 @@
               </ol>
             </nav>
           </div>
+
           <div class="container my-5">
             <div class="row justify-content-center">
-              <div class="col-12 col-md-9 col-lg-10">
-                <div class="card-games">
-                  <div class="card-body text-center">
+              <div class="col-12 col-md-9 col-lg-8">
+                <div class="card quiz-card">
+                  <div class="card-body">
                     <div id="question-container">
-                      <h1>Test your knowledge!</h1>
-                      <p id="question"></p>
-                      <ul id="options"></ul>
+                      <h1 class="quiz-title">Test your knowledge!</h1>
+                      <p id="question" class="quiz-question"></p>
+                      <ul id="options" class="quiz-options"></ul>
                       <button onclick="checkInputAnswer(); nextQuestion();"
-                        class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Next Question</button>
+                        class="btn btn-success btn-lg gradient-custom-4 text-body quiz-btn">Next Question</button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
 
           <form id="scoreForm" method="POST" action="/saveScore">
             <input type="hidden" id="scoreInput" value="" name="score">
@@ -173,7 +265,7 @@
   <script src="assets/vendor/php-email-form/validate.js"></script>
 
   <script src="/js/index.js"></script>
-
+  
   <script>
     const questions = [
       {
@@ -183,19 +275,19 @@
       },
 
       {
-        question: "What is the meaning of 'Zaguan'?",
+        question: "What is the meaning of 'Zaguan'? (1 word only)",
         type: "input",
-        correctAnswer: "bedroom"
+        correctAnswer: "Passageway"
       },
 
       {
         question: "What does 'cuarto' refer to in the museum?",
-        options: ["a) A prayer room", "b) A passageway or ground floor storage area", "c) A dining room", "d) A drawing room"],
+        options: ["a) A prayer room", "b) A specific area or room within the museum where certain exhibits or collections are housed.", "c) A dining room", "d) A drawing room"],
         correctAnswer: "b"
       },
 
       {
-        question: "The 'Oratorio' room served as a _ froom in old bahay-na-bato houses?",
+        question: "The 'Oratorio' room served as a ______ room in old bahay-na-bato houses? (1 word only)",
         type: "input",
         correctAnswer: "prayer"
       },
@@ -213,13 +305,13 @@
       },
 
       {
-        question: "What were the traditional materials used for making furniture in the Sala Mayor?",
-        options: ["a) Balayong and Narra wood", "b) Oak and Pine wood", "c) Bamboo and Rattan", "d) Teak and Cedar"],
+        question: "Sala Mayor is also know as ____",
+        options: ["a) Salon De Baile", "b) Oak and Pine wood", "c) Bamboo and Rattan", "d) Teak and Cedar"],
         correctAnswer: "a"
       },
 
       {
-        question: "A _ room is found in the 'Comedor' room?",
+        question: "A ______ room is found in the 'Comedor' room? (1 word only)",
         type: "input",
         correctAnswer: "dining"
       },

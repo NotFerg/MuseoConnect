@@ -2172,34 +2172,34 @@ footer .credits {
   transition: transform 0.3s;
 }
 
-.card-games {
+/* .card-games {
   border: none;
   background-color: #ececec;
-}
+} */
 
-#question-container {
+/* #question-container { */
   /* background-color: white; */
-  padding: 20px;
+  /* padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+} */
 
-#question-container h1 {
+/* #question-container h1 {
   font-size: 28px;
   font-weight: bold;
   margin-bottom: 20px;
-}
+} */
 
-#question {
+/* #question {
   font-size: 18px;
   margin-bottom: 20px;
-}
+} */
 
-ul#options li {
+/* ul#options li {
   list-style-type: none;
   font-size: 16px;
   margin-bottom: 10px;
-}
+} */
 
 .card-evaluation {
   border: none;
