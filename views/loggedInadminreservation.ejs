@@ -103,9 +103,9 @@
                                             action="/loggedIn/admin/reservations/<%= reservation._id %>/visitDate?_method=PUT"
                                             method="post" class="mt-2">
                                             <div class="input-group">
-                                                <input type="date" name="visitDate"
+                                                <input type="text" name="visitDate" class="visitDate form-control"
                                                     value="<%= reservation.visitDate.toISOString().split('T')[0] %>"
-                                                    required class="form-control" autocomplete="off">
+                                                    required autocomplete="off">
                                                 <button type="submit" class="btn btn-success">Update Visit Date</button>
                                             </div>
                                         </form>
@@ -113,20 +113,15 @@
                                         <!-- Update Visit Time -->
                                         <form
                                             action="/loggedIn/admin/reservations/<%= reservation._id %>/visitTime?_method=PUT"
-                                            method="post" class="mt-2">
-                                            <p>Current Reservation Time: <%= reservation.visitTime %></p>
-                                            <div class="form-check-inline">                                             
-                                                <input type="radio" name="visitTime" id="radio1030" value="10:30"
-                                                    class="form-check-input" required>
-                                                <label for="radio1030" class="form-check-label">10:30 AM</label>
-                                            </div>
-                                            <div class="form-check-inline">
-                                                <input type="radio" name="visitTime" id="radio1330" value="13:30"
-                                                    class="form-check-input" required>
-                                                <label for="radio1330" class="form-check-label">1:30 PM</label>
-                                            </div>
-                                            <button type="submit" class="btn btn-success ml-2">Update Visit
-                                                Time</button>
+                                            method="post" class="mt-2 update-visit-time-form">
+                                            <input type="hidden" name="visitTime" value="<%= reservation.visitTime %>">
+                                            <p>Current Reservation Time: <%= reservation.visitTime %>
+                                            </p>
+                                            <button type="button" class="btn btn-success update-visit-time"
+                                                data-new-time="<%= reservation.visitTime === '10:30' ? '13:30' : '10:30' %>">
+                                                Update Visit Time to <%= reservation.visitTime==='10:30' ? '13:30'
+                                                    : '10:30' %>
+                                            </button>
                                         </form>
 
                                         <!-- Update Contact Number -->
@@ -190,7 +185,7 @@
                                 <p hidden>User is not logged in</p>
                                 <script>
                                     // Redirect to the logout route when user.name is empty
-                                      window.location.href = "/logout";
+                                    window.location.href = "/logout";
                                 </script>
                                 <% } %>
                     </div>
@@ -215,6 +210,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/js/admin.js"></script>
     <script src="/js/index.js"></script>
+    <!-- Include jQuery UI CSS and JS -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $(".visitDate").datepicker({
+                minDate: 0, // Disable past dates
+                dateFormat: 'yy-mm-dd', // Set the date format as per your needs
+            });
+        });
+
+        $(function () {
+    $(".update-visit-time").on('click', function () {
+        const newVisitTime = $(this).data('new-time');
+        const form = $(this).closest('.update-visit-time-form');
+
+        // Add console.log statements for debugging
+        console.log('Updating visit time to:', newVisitTime);
+        console.log('Form data before update:', form.serialize());
+
+        // Update the hidden input value before submitting the form
+        form.find('input[name="visitTime"]').val(newVisitTime);
+
+        // Add another console.log statement to check the form data after the update
+        console.log('Form data after update:', form.serialize());
+
+        // Submit the form
+        form.submit();
+    });
+});
+
+    </script>
+
 
 </body>
 
