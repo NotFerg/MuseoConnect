@@ -1032,8 +1032,17 @@ app.post("/saveScore", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // Update the user's score
     user.score = score;
     await user.save();
+
+    // Update the session user with the new data
+    req.session.user = user;
+
+    console.log("Score updated successfully:", user.score);
+
+    // Log the session user before redirecting
+    console.log("Session user before redirect:", req.session.user);
 
     res.redirect("/loggedInaccountInformation");
   } catch (error) {
@@ -1041,6 +1050,7 @@ app.post("/saveScore", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 // Adding artifact route
 app.post("/loggedIn/admin/addArtifact",upload.single('image'),async (req, res) => {
