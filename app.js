@@ -59,6 +59,11 @@ const userSchema = new mongoose.Schema({
   password: String,
   type: String,
   score: String,
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationCode: String,
 });
 const User = mongoose.model("User", userSchema);
 
@@ -222,7 +227,6 @@ app.get("/logout", (req, res) => {
 });
 
 //Logged In
-
 app.get("/loggedInindex", (req, res) => {
   const user = req.session.user;
   // Check if the user's session is still active
@@ -500,6 +504,11 @@ app.post("/signIn", async (req, res) => {
       return res.render("notFound");
     }
 
+    // Check if the user is verified
+    if (!user.isVerified) {
+      return res.render("notVerified");
+    }
+
     // Compare the entered password with the stored hashed password using bcryptjs
     const passwordMatch = await bcrypt.compare(password, user.password);
 
@@ -512,7 +521,7 @@ app.post("/signIn", async (req, res) => {
       res.redirect("/loggedInaccountInformation");
     } else if (user.type === "admin") {
       req.session.user = user; // Store user data in the session
-      res.redirect("loggedInadmin");
+      res.redirect("/loggedInadmin"); // Corrected the route
     } else {
       req.session.user = user; // Store user data in the session
       res.redirect("/loggedInaccountInformation");
@@ -523,38 +532,130 @@ app.post("/signIn", async (req, res) => {
   }
 });
 
+// Define a function to generate a random verification code
+function generateVerificationCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Signup route with email verification
 app.post("/signUp", async (req, res) => {
-  const name = req.body.name;
-  const email = req.body.email;
-  const type = req.body.userType;
-  const password = req.body.password; // Plain text password
+  const { name, email, userType, password } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
-      return res.send(
-        `<script>alert("User already exists"); window.location.href = "/signIn";</script>`
-      );
+      return res.send(`<script>alert("User already exists"); window.location.href = "/signIn";</script>`);
     }
 
+    const verificationCode = generateVerificationCode();
+
     // Hash the user's password before saving it using bcryptjs
-    const saltRounds = 10; // You can adjust the number of salt rounds for security
+    const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newUser = new User({
       name,
       email,
-      password: hashedPassword, // Store the hashed password
-      type,
+      password: hashedPassword,
+      type: userType,
+      isVerified: false,
+      verificationCode,
     });
 
     await newUser.save();
-    return res.send(
-      `<script>alert("Account Created."); window.location.href = "/signIn";</script>`
-    );
+
+    // Send verification email
+    await sendVerificationEmail(email, verificationCode);
+
+    // You may want to redirect the user to a "check your email" page
+    return res.send(`<script>alert("Account Created. Please check your email for verification."); window.location.href = "/signIn";</script>`);
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).send("An error occurred during registration.");
+  }
+});
+
+// Define a function to send a verification email
+async function sendVerificationEmail(email, verificationCode) {
+  const gmailTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+  
+  const outlookTransporter = nodemailer.createTransport({
+    service: 'outlook',
+    auth: {
+      user: process.env.OUTLOOK_USER,
+      pass: process.env.OUTLOOK_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  const verificationLink = `https://museo-connect.vercel.app/verify?code=${encodeURIComponent(verificationCode)}`;
+  const verificationTest = 'localhost:3000/verify'
+
+  const mailOptions = {
+    from: 'rasheed.taban12@gmail.com', 
+    to: email,
+    subject: 'Account Verification',
+    html: `
+      <p>Thank you for signing up! To verify your email, click the following link:</p>
+      <a href="${verificationTest}">Verify Email</a>
+    `,
+  };
+  
+  try {
+    const gmailInfo = await gmailTransporter.sendMail(mailOptions);
+    console.log('Verification email sent via Gmail:', gmailInfo.response);
+    return { success: true, service: 'Gmail' };
+  } catch (gmailError) {
+    console.error('Error sending verification email via Gmail:', gmailError);
+  }
+
+  try {
+    const outlookInfo = await outlookTransporter.sendMail(mailOptions);
+    console.log('Verification email sent via Outlook:', outlookInfo.response);
+    return { success: true, service: 'Outlook' };
+  } catch (outlookError) {
+    console.error('Error sending verification email via Outlook:', outlookError);
+  }
+
+  throw new Error('Error sending verification email');
+}
+
+// Verification route
+app.all("/verify", async (req, res) => {
+  const verificationCode = req.query.code || req.body.code;
+
+  try {
+    const user = await User.findOne({ verificationCode });
+
+    if (!user) {
+      return res.send( 'Invalid Verification Code');
+    }
+
+    // Update user's verification status
+    user.isVerified = true;
+    user.verificationCode = undefined; // Clear verification code after verification
+    await user.save();
+
+    if (req.method === 'POST') {
+      return res.send(`<script>alert("Email Verified. You can now login."); window.location.href = "/signIn";</script>`);
+    } else {
+      return res.redirect("/signIn");
+    }
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res.status(500).render("errorVerification");
   }
 });
 
