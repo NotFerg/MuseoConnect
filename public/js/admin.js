@@ -29,55 +29,24 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("search-input").value = "";
   }
 
+  const searchInput = document.getElementById("search-input");
+
+  // Listen for "Enter" key press in the search input field
+  searchInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      // Prevent the default form submission behavior
+      event.preventDefault();
+      // Trigger the search function
+      searchUsers();
+    }
+  });
+
   // Add event listeners to search and reset buttons
   const searchButton = document.querySelector(".btn-primary");
   const resetButton = document.querySelector(".btn-secondary");
 
   searchButton.addEventListener("click", searchUsers);
   resetButton.addEventListener("click", resetSearch);
-
-  //RESERVATION SEARCH AND CLEAR FUNCTION
-  function searchReservations() {
-    const searchInput = document.getElementById("reservation-search-input");
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    const cards = document.querySelectorAll(".reservation-card");
-
-    cards.forEach((card) => {
-      const name = card
-        .querySelector(".card-title")
-        .textContent.trim()
-        .toLowerCase();
-      const email = card
-        .querySelector(".card-text")
-        .textContent.trim()
-        .toLowerCase();
-      if (name.includes(searchTerm) || email.includes(searchTerm)) {
-        card.style.display = "block";
-      } else {
-        card.style.display = "none";
-      }
-    });
-  }
-
-  function resetReservationSearch() {
-    const cards = document.querySelectorAll(".reservation-card");
-    cards.forEach((card) => {
-      card.style.display = "block";
-    });
-    document.getElementById("reservation-search-input").value = "";
-  }
-
-  // Add event listeners to search and reset buttons for reservations
-  const reservationSearchButton = document.querySelector(
-    "#reservation-search-button"
-  );
-  const reservationResetButton = document.querySelector(
-    "#reservation-reset-button"
-  );
-
-  reservationSearchButton.addEventListener("click", searchReservations);
-  reservationResetButton.addEventListener("click", resetReservationSearch);
-
 
   let inactivityTimeout;
   // Function to reset the inactivity timer
