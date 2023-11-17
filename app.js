@@ -719,7 +719,7 @@ app.post("/loggedIn/reservation", async (req, res) => {
     });
 
     // Check if the visit date is less than today
-    if (new Date(visitDate) < today) {
+    if (new Date(visitDate) < new Date(today.toISOString().split('T')[0])) {
       return res.send(
         `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInreservation";</script>`
       );
