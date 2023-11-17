@@ -601,7 +601,7 @@ async function sendVerificationEmail(email, verificationCode) {
   });
 
   const verificationLink = `https://museo-connect.vercel.app/verify?code=${encodeURIComponent(verificationCode)}`;
-  const verificationTest = 'localhost:3000/verify'
+  const verificationTest = 'localhost:3000/verify?code=${encodeURIComponent(verificationCode)}'
 
   const mailOptions = {
     from: 'rasheed.taban12@gmail.com', 
