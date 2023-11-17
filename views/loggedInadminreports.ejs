@@ -73,42 +73,55 @@
                                 style="max-width: 100px; max-height: 100px;">
                             <h1 class="title-single">Reports</h1>
                         </div>
+                        <!-- <br>
+                        <button onclick="printAllCharts()" id="printAllChartsButton">Print All Charts</button> -->
                     </div>
 
                     <div class="col-md-6 my-3">
                         <h2>User Type Distribution</h2>
                         <canvas id="userTypeChart" width="400" height="400"></canvas>
+                        <button onclick="printUserTypeChart()" id="printUserTypeChartButton">Print User Type
+                            Chart</button>
                     </div>
 
                     <!-- User Score Distribution Chart Container -->
                     <div class="col-md-6 my-3">
                         <h2>User Score Distribution</h2>
                         <canvas id="userScoreChart" width="400" height="400"></canvas>
+                        <button onclick="printUserScoreChart()" id="printUserScoreChartButton">Print User Score
+                            Chart</button>
                     </div>
 
                     <!-- Monthly Reservation Count Line Chart Container -->
                     <div class="col-md-6 my-3">
                         <h2>Monthly Reservation Counts</h2>
                         <canvas id="monthlyReservationCountChart" width="400" height="400"></canvas>
+                        <button onclick="printMonthlyReservationChart()" id="printMonthlyReservationChartButton">Print
+                            Monthly Reservation Chart</button>
                     </div>
 
                     <!-- Visitor count per month HTML body -->
                     <div class="col-md-6 my-3">
-                        <h2>Visitor Count per Month</h2>
+                        <h2>Monthly number of visitors per reservation</h2>
                         <canvas id="visitorCountChart" width="400" height="400"></canvas>
+                        <button onclick="printMonthlyVisitorChart()" id="printMonthlyVisitorsChartButton">Print Monthly
+                            Visitors Chart</button>
                     </div>
 
                     <!-- Blocked dates by week -->
                     <div class="col-md-6 my-3">
                         <h2>Blocked Dates by Week</h2>
                         <canvas id="blockedDatesByWeekChart" width="400" height="400"></canvas>
+                        <button onclick="printBlockDateChart()" id="printBlockDateChartButton">Print Blocked Dates
+                            Chart</button>
                     </div>
-
 
                     <!-- Artifacts by Type -->
                     <div class="col-md-6 my-3">
                         <h2>Artifacts by Type</h2>
                         <canvas id="artifactsByTypeChart" width="400" height="400"></canvas>
+                        <button onclick="printArtifactsChart()" id="printArtifactsChartButton">Print Artifacts
+                            Chart</button>
                     </div>
 
                 </div>
@@ -417,6 +430,64 @@
                     ],
                 },
             });
+
+            function printUserTypeChart() {
+                printChart('User Type Distribution', 'userTypeChart');
+            }
+
+            function printUserScoreChart() {
+                printChart('User Score Distribution', 'userScoreChart');
+            }
+
+            function printMonthlyReservationChart() {
+                printChart('Monthly Reservation Counts per visitor', 'monthlyReservationCountChart');
+            }
+
+            function printMonthlyVisitorChart() {
+                printChart('Monthly Reservation Counts', 'visitorCountChart');
+            }
+
+            function printBlockDateChart() {
+                printChart('Block Date Chart', 'blockedDatesByWeekChart');
+            }
+
+            function printArtifactsChart() {
+                printChart('Artifacts Chart', 'artifactsByTypeChart');
+            }
+
+
+            //print all chart function
+            function printAllCharts() {
+                printChart('User Type Distribution', 'userTypeChart');
+                printChart('User Score Distribution', 'userScoreChart');
+                printChart('Monthly Reservation Counts per visitor', 'monthlyReservationCountChart');
+                printChart('Monthly Reservation Counts', 'visitorCountChart');
+                printChart('Block Date Chart', 'blockedDatesByWeekChart');
+                printChart('Artifacts Chart', 'artifactsByTypeChart');
+            }
+
+            function printChart(chartTitle, chartId) {
+                const canvas = document.getElementById(chartId);
+                const imageDataUrl = canvas.toDataURL(); // Convert canvas to image data URL
+
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`<h2>${chartTitle}</h2><img src="${imageDataUrl}" alt="${chartTitle}">`);
+
+                // Introduce a delay of 1 second (1000 milliseconds) before triggering the print function
+                setTimeout(() => {
+                    printWindow.print();
+                }, 1000);
+            }
+
+            // Attach print functions to buttons or links
+            document.getElementById('printUserTypeChartButton').addEventListener('click', printUserTypeChart);
+            document.getElementById('printUserScoreChartButton').addEventListener('click', printUserScoreChart);
+            document.getElementById('printMonthlyReservationChartButton').addEventListener('click', printMonthlyReservationChart);
+            document.getElementById('printMonthlyVisitorsChartButton').addEventListener('click', printMonthlyVisitorChart);
+            document.getElementById('printBlockDateChartButton').addEventListener('click', printBlockDateChart);
+            document.getElementById('printArtifactsChartButton').addEventListener('click', printArtifactsChart);
+            document.getElementById('printAllChartsButton').addEventListener('click', printAllCharts);
+
         });
 
     </script>
