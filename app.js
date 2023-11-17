@@ -609,7 +609,7 @@ async function sendVerificationEmail(email, verificationCode) {
     subject: 'Account Verification',
     html: `
       <p>Thank you for signing up! To verify your email, click the following link:</p>
-      <a href="${verificationTest}">Verify Email</a>
+      <a href="${verificationLink}">Verify Email</a>
     `,
   };
   
