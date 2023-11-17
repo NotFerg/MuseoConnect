@@ -718,7 +718,12 @@ app.post("/loggedIn/reservation", async (req, res) => {
       return blockDate === visitDate && blockTimes.includes(inpVisitTime);
     });
 
-    if (existingReservation) {
+    // Check if the visit date is less than today
+    if (new Date(visitDate) < today) {
+      return res.send(
+        `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInreservation";</script>`
+      );
+    } else if (existingReservation) {
       return res.send(
         `<script>alert("You already have a reservation."); window.location.href = "/loggedInreservation";</script>`
       );
@@ -784,6 +789,7 @@ app.post("/loggedIn/reservation", async (req, res) => {
     res.status(500).send("An error occurred while saving the reservation.");
   }
 });
+
 
 // Removal of Reservation by admin
 app.post("/loggedIn/admin/remove-reservation/:id", async (req, res) => {

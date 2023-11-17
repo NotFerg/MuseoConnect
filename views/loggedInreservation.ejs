@@ -166,7 +166,7 @@
                                 <% } %>
 
                                   <div class="form-outline mb-4">
-                                    <input type="number" name="contactNumber" id="contactNumber"
+                                    <input type="text" name="contactNumber" id="contactNumber"
                                       class="form-control form-control-lg" required autocomplete="off">
                                     <label class="form-label" for="contactNumber">Contact Number</label>
                                   </div>
@@ -308,6 +308,7 @@
           visitTimeDropdown.prop("disabled", false);
         }
       }
+
       $("#visitDate").datepicker({
         dateFormat: "yy-mm-dd",
         minDate: 0,
@@ -345,6 +346,11 @@
           }
         },
       });
+
+      // Function to allow only numeric input for the contact number
+      $('#contactNumber').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+        });
 
       $("#reservationForm").submit(function (event) {
         const selectedTime = selectedVisitTime.value;
@@ -398,8 +404,6 @@
 
     });
   </script>
-
-
 </body>
 
 </html>
