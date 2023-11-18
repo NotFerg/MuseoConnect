@@ -127,6 +127,12 @@
                           <label class="form-label" for="password">Password</label>
                         </div>
 
+                        <div class="form-outline mb-4">
+                          <input type="password" id="confirmPassword" class="form-control form-control-lg"
+                            name="confirmPassword" autocomplete="off" required />
+                          <label class="form-label" for="confirmPassword">Confirm Password</label>
+                        </div>
+
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="userType" id="teacherRadio" value="Teacher"
                             required>
@@ -213,47 +219,55 @@
   <script src="/js/index.js"></script>
   <script>
     const othersRadio = document.querySelector('#othersRadio');
-  const othersInput = document.querySelector('#othersInput');
-  const othersText = document.querySelector('#others');
-  const teacherRadio = document.querySelector('#teacherRadio');
-  const studentRadio = document.querySelector('#studentRadio');
+    const othersInput = document.querySelector('#othersInput');
+    const othersText = document.querySelector('#others');
+    const teacherRadio = document.querySelector('#teacherRadio');
+    const studentRadio = document.querySelector('#studentRadio');
 
-  othersRadio.addEventListener('change', function () {
-    if (this.checked) {
-      othersInput.style.display = 'block';
-    } else {
-      othersInput.style.display = 'none';
-    }
-  });
+    othersRadio.addEventListener('change', function () {
+      if (this.checked) {
+        othersInput.style.display = 'block';
+      } else {
+        othersInput.style.display = 'none';
+      }
+    });
 
-  teacherRadio.addEventListener('change', function () {
-    if (this.checked) {
-      othersInput.style.display = 'none';
-    }
-  });
+    teacherRadio.addEventListener('change', function () {
+      if (this.checked) {
+        othersInput.style.display = 'none';
+      }
+    });
 
-  studentRadio.addEventListener('change', function () {
-    if (this.checked) {
-      othersInput.style.display = 'none';
-    }
-  });
+    studentRadio.addEventListener('change', function () {
+      if (this.checked) {
+        othersInput.style.display = 'none';
+      }
+    });
 
-  othersText.addEventListener('input', function () {
-    othersRadio.value = this.value;
-  });
+    othersText.addEventListener('input', function () {
+      othersRadio.value = this.value;
+    });
 
-  function validateForm() {
-    const othersInput = document.getElementById('others');
-    const othersValue = othersInput.value.toLowerCase(); // Convert the input value to lowercase for case-insensitive check
+    function validateForm() {
+  const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirmPassword');
+  const othersInput = document.getElementById('others');
+  const othersValue = othersInput.value.toLowerCase(); // Convert the input value to lowercase for case-insensitive check
 
-    if (othersValue.includes('admin')) {
-      alert('The word "admin" is not allowed in the Others field.');
-      return false; // Prevent form submission
-    }
-
-    // Continue with the form submission if "admin" is not found
-    return true;
+  if (othersValue.includes('admin')) {
+    alert('The word "admin" is not allowed in the Others field.');
+    return false; // Prevent form submission
   }
+
+  if (passwordInput.value !== confirmPasswordInput.value) {
+    alert('Passwords do not match. Please enter matching passwords.');
+    return false;
+  }
+
+  // Continue with the form submission if "admin" is not found and passwords match
+  return true;
+}
+
   </script>
 
 </body>
