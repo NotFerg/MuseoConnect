@@ -249,24 +249,24 @@
     });
 
     function validateForm() {
-  const passwordInput = document.getElementById('password');
-  const confirmPasswordInput = document.getElementById('confirmPassword');
-  const othersInput = document.getElementById('others');
-  const othersValue = othersInput.value.toLowerCase(); // Convert the input value to lowercase for case-insensitive check
+      const passwordInput = document.getElementById('password');
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+      const othersInput = document.getElementById('others');
+      const othersValue = othersInput.value.toLowerCase(); // Convert the input value to lowercase for case-insensitive check
 
-  if (othersValue.includes('admin')) {
-    alert('The word "admin" is not allowed in the Others field.');
-    return false; // Prevent form submission
-  }
+      if (othersValue.includes('admin')) {
+        alert('The word "admin" is not allowed in the Others field.');
+        return false; // Prevent form submission
+      }
 
-  if (passwordInput.value !== confirmPasswordInput.value) {
-    alert('Passwords do not match. Please enter matching passwords.');
-    return false;
-  }
+      if (passwordInput.value !== confirmPasswordInput.value) {
+        alert('Passwords do not match. Please enter matching passwords.');
+        return false;
+      }
 
-  // Continue with the form submission if "admin" is not found and passwords match
-  return true;
-}
+      // Continue with the form submission if "admin" is not found and passwords match
+      return true;
+    }
 
   </script>
 

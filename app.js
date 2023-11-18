@@ -64,7 +64,10 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
   verificationCode: String,
+  resetPasswordToken: String,        // New field for reset token
+  resetPasswordExpires: Date,       // New field for reset token expiration time
 });
+
 const User = mongoose.model("User", userSchema);
 
 //nodemailer
@@ -215,6 +218,10 @@ app.get("/wrongPassword", (req, res) => {
 
 app.get("/notFound", (req, res) => {
   res.render("notFound");
+});
+
+app.get("/forgotPassword", (req, res) => {
+  res.render("forgotPassword");
 });
 
 app.get("/logout", (req, res) => {
@@ -656,6 +663,137 @@ app.all("/verify", async (req, res) => {
   } catch (error) {
     console.error("Error verifying email:", error);
     res.status(500).render("errorVerification");
+  }
+});
+
+// Handle the form submission for the "Forgot Password" functionality
+app.post('/forgotPassword', async (req, res) => {
+  const userEmail = req.body.forgotEmail;
+
+  // Generate a unique reset token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email: userEmail });
+
+    if (!user) {
+      return res.render('notFound'); // Render a page indicating that the user was not found
+    }
+
+    // Store the reset token and its expiration time in the user's document
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+    await user.save();
+
+    // For testing on localhost
+    // const resetLink = `http://localhost:3000/reset?code=${encodeURIComponent(resetToken)}`;
+
+    // For production
+    const resetLink = `https://museo-connect.vercel.app/reset?code=${encodeURIComponent(resetToken)}`;
+
+    // Send the password reset email
+    await sendPasswordResetEmail(userEmail, resetLink);
+
+    // For testing on localhost, you can also send the resetLink to the client as JSON
+    // res.json({ resetLink });
+
+    // For production, you can redirect or send a success message
+    res.send(`<script>alert("Please check your email for password reset"); window.location.href = "/signIn";</script>`);
+
+  } catch (error) {
+    console.error('Error processing forgot password request:', error);
+    res.status(500).send('An error occurred during the forgot password process.');
+  }
+});
+
+// Function to send a password reset email
+async function sendPasswordResetEmail(email, resetLink) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS, // Use an app password if two-factor authentication is enabled
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  const mailOptions = {
+    from: 'rasheed.taban12@gmail.com',
+    to: email,
+    subject: 'Password Reset Request',
+    html: `
+      <p>We received a request to reset your password. Click the link below to reset your password:</p>
+      <a href="${resetLink}">${resetLink}</a>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent:', info.response);
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+  }
+}
+
+// Reset route
+app.get('/reset', async (req, res) => {
+  const resetToken = req.query.code;
+
+  try {
+    // Find the user by the reset token
+    const user = await User.findOne({
+      resetPasswordToken: resetToken,
+      resetPasswordExpires: { $gt: Date.now() }, // Check if the token is still valid
+    });
+
+    if (!user) {
+      res.send(`<script>alert("Token is no longer valid"); window.location.href = "/signIn";</script>`);
+    }
+
+    // Render a page with a form to reset the password
+    res.render('passwordReset', { token: resetToken });
+  } catch (error) {
+    console.error('Error processing password reset request:', error);
+    res.status(500).render('errorReset');
+  }
+});
+
+// Handle the password reset form submission
+app.post('/reset/:token', async (req, res) => {
+  const resetToken = req.params.token;
+  const newPassword = req.body.newPassword;
+
+  try {
+    // Find the user by the reset token
+    const user = await User.findOne({
+      resetPasswordToken: resetToken,
+      resetPasswordExpires: { $gt: Date.now() }, // Check if the token is still valid
+    });
+
+    if (!user) {
+      return res.send(`<script>alert("Token is no longer valid"); window.location.href = "/signIn";</script>`);
+    }
+
+    // Hash the new password and update the user's password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    user.password = hashedPassword;
+
+    // Clear the reset token and its expiration time
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    // Save the updated user information
+    await user.save();
+
+    // Render a page indicating that the password has been reset successfully
+    return res.send(`<script>alert("Password Reset Success"); window.location.href = "/signIn";</script>`);
+  } catch (error) {
+    console.error('Error processing password reset request:', error);
+    return res.status(500).render('errorReset');
   }
 });
 
