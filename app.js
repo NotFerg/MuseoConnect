@@ -1089,6 +1089,14 @@ app.put("/loggedIn/admin/reservations/:id/visitDate", async (req, res) => {
   try {
     const reservationId = req.params.id;
     const newVisitDate = req.body.visitDate;
+    const today = new Date();
+
+    // Check if the new visit date is less than today
+    if (new Date(newVisitDate) < new Date(today.toISOString().split("T")[0])) {
+      return res.send(
+        `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInreservation";</script>`
+      );
+    }
 
     // Find the reservation by ID and update the visitDate field
     const reservation = await Reservation.findById(reservationId);
@@ -1373,7 +1381,17 @@ app.put(
       if (req.file) {
         // Update the image with the new file's content (base64-encoded)
         const imageBuffer = req.file.buffer;
-        artifact.image = imageBuffer.toString("base64");
+
+        // Resize the image
+        const resizedImageBuffer = await sharp(imageBuffer)
+          .resize({
+            width: 1920,
+            height: 1080,
+            fit: sharp.fit.inside,
+          })
+          .toBuffer();
+
+        artifact.image = resizedImageBuffer.toString("base64");
       }
 
       // Update the title and description
