@@ -14,10 +14,9 @@ const path = require("path");
 const fs = require("fs");
 const Chart = require("chart.js");
 const nodemailer = require("nodemailer");
-const crypto = require('crypto');
-const sharp = require('sharp');
-require('dotenv').config();
-
+const crypto = require("crypto");
+const sharp = require("sharp");
+require("dotenv").config();
 
 const MongoDBStore = require("connect-mongodb-session")(session); // Import the MongoDB session store
 
@@ -31,25 +30,21 @@ app.use(methodOverride("_method"));
 app.use(express.json());
 
 mongoose
-  .connect(
-    process.env.MONGODB_URI,
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Error connecting to MongoDB:", err));
 
-
 const store = new MongoDBStore({
   uri: process.env.MONGODB_URI,
-  collection: 'sessions', // Collection name for sessions
+  collection: "sessions", // Collection name for sessions
   expires: 1000 * 60 * 60 * 24 * 7, // Session expiration (1 week)
 });
 
-store.on('error', (error) => {
-  console.error('MongoDB session store error:', error);
+store.on("error", (error) => {
+  console.error("MongoDB session store error:", error);
 });
 
 //Users
@@ -64,15 +59,15 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
   verificationCode: String,
-  resetPasswordToken: String,        // New field for reset token
-  resetPasswordExpires: Date,       // New field for reset token expiration time
+  resetPasswordToken: String, // New field for reset token
+  resetPasswordExpires: Date, // New field for reset token expiration time
 });
 
 const User = mongoose.model("User", userSchema);
 
 //nodemailer
 const transporter = nodemailer.createTransport({
-  service: 'Gmail',
+  service: "Gmail",
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
@@ -123,7 +118,7 @@ const artifactSchema = new mongoose.Schema({
 const Artifact = mongoose.model("Artifact", artifactSchema);
 
 const generateSecureSecret = () => {
-  return crypto.randomBytes(64).toString('hex');
+  return crypto.randomBytes(64).toString("hex");
 };
 
 //MIDDLEWARE FOR FETCHING DATA FROM ROUTE AND SENDING TO ANOTHER ROUTE
@@ -132,7 +127,7 @@ app.use(
     secret: "your-secret-key",
     resave: false,
     saveUninitialized: true,
-    store: store, 
+    store: store,
   })
 );
 
@@ -188,7 +183,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Set up the multer middleware with the storage and file filter
-const upload = multer({ storage: storage , fileFilter:fileFilter});
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 //NOT LOGGED IN
 
@@ -273,10 +268,10 @@ app.get("/loggedInartifacts", async (req, res) => {
   let artifacts = await Artifact.find();
 
   artifacts = artifacts.map((artifact) => {
-    const decodedImage = Buffer.from(artifact.image, 'base64');
-    return{...artifact.toObject(),decodedImage};
+    const decodedImage = Buffer.from(artifact.image, "base64");
+    return { ...artifact.toObject(), decodedImage };
   });
-  
+
   res.render("loggedInartifacts", { user, artifacts });
 });
 
@@ -350,7 +345,7 @@ app.get("/loggedInadmin", async (req, res) => {
       return res.redirect("/logout");
     }
     req.session.active = true;
-    let users = await User.find(); 
+    let users = await User.find();
 
     const { search } = req.query;
     if (search) {
@@ -383,13 +378,14 @@ app.get("/loggedInadminartifacts", async (req, res) => {
 
     // Decode Base64 image data in artifacts
     artifacts = artifacts.map((artifact) => {
-      const decodedImage = Buffer.from(artifact.image, 'base64');
+      const decodedImage = Buffer.from(artifact.image, "base64");
       // Assuming you have a property like "decodedImage" in your artifact schema
       return { ...artifact.toObject(), decodedImage };
     });
 
     res.render("loggedInadminartifacts", {
-      admin,artifacts,
+      admin,
+      artifacts,
     });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -408,7 +404,7 @@ app.get("/loggedInadminblocked", async (req, res) => {
     let users = await User.find();
     let reservations = await Reservation.find();
     let blocked = await Blocked.find();
-    let artifacts = await Artifact.find()
+    let artifacts = await Artifact.find();
 
     const { search } = req.query;
     if (search) {
@@ -486,7 +482,7 @@ app.get("/loggedInadminreservation", async (req, res) => {
           user.email.toLowerCase().includes(search.toLowerCase())
       );
     }
-    
+
     res.render("loggedInadminreservation", {
       users,
       search,
@@ -552,7 +548,9 @@ app.post("/signUp", async (req, res) => {
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.send(`<script>alert("User already exists"); window.location.href = "/signIn";</script>`);
+      return res.send(
+        `<script>alert("User already exists"); window.location.href = "/signIn";</script>`
+      );
     }
 
     const verificationCode = generateVerificationCode();
@@ -576,7 +574,9 @@ app.post("/signUp", async (req, res) => {
     await sendVerificationEmail(email, verificationCode);
 
     // You may want to redirect the user to a "check your email" page
-    return res.send(`<script>alert("Account Created. Please check your email for verification."); window.location.href = "/signIn";</script>`);
+    return res.send(
+      `<script>alert("Account Created. Please check your email for verification. Please also check your junk/spam folders for the email"); window.location.href = "/signIn";</script>`
+    );
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).send("An error occurred during registration.");
@@ -586,7 +586,7 @@ app.post("/signUp", async (req, res) => {
 // Define a function to send a verification email
 async function sendVerificationEmail(email, verificationCode) {
   const gmailTransporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASS,
@@ -595,9 +595,9 @@ async function sendVerificationEmail(email, verificationCode) {
       rejectUnauthorized: false,
     },
   });
-  
+
   const outlookTransporter = nodemailer.createTransport({
-    service: 'outlook',
+    service: "outlook",
     auth: {
       user: process.env.OUTLOOK_USER,
       pass: process.env.OUTLOOK_PASS,
@@ -607,36 +607,42 @@ async function sendVerificationEmail(email, verificationCode) {
     },
   });
 
-  const verificationLink = `https://museo-connect.vercel.app/verify?code=${encodeURIComponent(verificationCode)}`;
-  const verificationTest = 'localhost:3000/verify?code=${encodeURIComponent(verificationCode)}'
+  const verificationLink = `https://museo-connect.vercel.app/verify?code=${encodeURIComponent(
+    verificationCode
+  )}`;
+  const verificationTest =
+    "localhost:3000/verify?code=${encodeURIComponent(verificationCode)}";
 
   const mailOptions = {
-    from: 'rasheed.taban12@gmail.com', 
+    from: "rasheed.taban12@gmail.com",
     to: email,
-    subject: 'Account Verification',
+    subject: "Account Verification",
     html: `
       <p>Thank you for signing up! To verify your email, click the following link:</p>
       <a href="${verificationLink}">Verify Email</a>
     `,
   };
-  
+
   try {
     const gmailInfo = await gmailTransporter.sendMail(mailOptions);
-    console.log('Verification email sent via Gmail:', gmailInfo.response);
-    return { success: true, service: 'Gmail' };
+    console.log("Verification email sent via Gmail:", gmailInfo.response);
+    return { success: true, service: "Gmail" };
   } catch (gmailError) {
-    console.error('Error sending verification email via Gmail:', gmailError);
+    console.error("Error sending verification email via Gmail:", gmailError);
   }
 
   try {
     const outlookInfo = await outlookTransporter.sendMail(mailOptions);
-    console.log('Verification email sent via Outlook:', outlookInfo.response);
-    return { success: true, service: 'Outlook' };
+    console.log("Verification email sent via Outlook:", outlookInfo.response);
+    return { success: true, service: "Outlook" };
   } catch (outlookError) {
-    console.error('Error sending verification email via Outlook:', outlookError);
+    console.error(
+      "Error sending verification email via Outlook:",
+      outlookError
+    );
   }
 
-  throw new Error('Error sending verification email');
+  throw new Error("Error sending verification email");
 }
 
 // Verification route
@@ -647,7 +653,7 @@ app.all("/verify", async (req, res) => {
     const user = await User.findOne({ verificationCode });
 
     if (!user) {
-      return res.send( 'Invalid Verification Code');
+      return res.send("Invalid Verification Code");
     }
 
     // Update user's verification status
@@ -655,8 +661,10 @@ app.all("/verify", async (req, res) => {
     user.verificationCode = undefined; // Clear verification code after verification
     await user.save();
 
-    if (req.method === 'POST') {
-      return res.send(`<script>alert("Email Verified. You can now login."); window.location.href = "/signIn";</script>`);
+    if (req.method === "POST") {
+      return res.send(
+        `<script>alert("Email Verified. You can now login."); window.location.href = "/signIn";</script>`
+      );
     } else {
       return res.redirect("/signIn");
     }
@@ -667,18 +675,18 @@ app.all("/verify", async (req, res) => {
 });
 
 // Handle the form submission for the "Forgot Password" functionality
-app.post('/forgotPassword', async (req, res) => {
+app.post("/forgotPassword", async (req, res) => {
   const userEmail = req.body.forgotEmail;
 
   // Generate a unique reset token
-  const resetToken = crypto.randomBytes(20).toString('hex');
+  const resetToken = crypto.randomBytes(20).toString("hex");
 
   try {
     // Find the user by email
     const user = await User.findOne({ email: userEmail });
 
     if (!user) {
-      return res.render('notFound'); // Render a page indicating that the user was not found
+      return res.render("notFound"); // Render a page indicating that the user was not found
     }
 
     // Store the reset token and its expiration time in the user's document
@@ -690,7 +698,9 @@ app.post('/forgotPassword', async (req, res) => {
     // const resetLink = `http://localhost:3000/reset?code=${encodeURIComponent(resetToken)}`;
 
     // For production
-    const resetLink = `https://museo-connect.vercel.app/reset?code=${encodeURIComponent(resetToken)}`;
+    const resetLink = `https://museo-connect.vercel.app/reset?code=${encodeURIComponent(
+      resetToken
+    )}`;
 
     // Send the password reset email
     await sendPasswordResetEmail(userEmail, resetLink);
@@ -699,18 +709,21 @@ app.post('/forgotPassword', async (req, res) => {
     // res.json({ resetLink });
 
     // For production, you can redirect or send a success message
-    res.send(`<script>alert("Please check your email for password reset"); window.location.href = "/signIn";</script>`);
-
+    res.send(
+      `<script>alert("Please check your email for password reset. Please also check your junk/spam folders for the email "); window.location.href = "/signIn";</script>`
+    );
   } catch (error) {
-    console.error('Error processing forgot password request:', error);
-    res.status(500).send('An error occurred during the forgot password process.');
+    console.error("Error processing forgot password request:", error);
+    res
+      .status(500)
+      .send("An error occurred during the forgot password process.");
   }
 });
 
 // Function to send a password reset email
 async function sendPasswordResetEmail(email, resetLink) {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASS, // Use an app password if two-factor authentication is enabled
@@ -721,9 +734,9 @@ async function sendPasswordResetEmail(email, resetLink) {
   });
 
   const mailOptions = {
-    from: 'rasheed.taban12@gmail.com',
+    from: "rasheed.taban12@gmail.com",
     to: email,
-    subject: 'Password Reset Request',
+    subject: "Password Reset Request",
     html: `
       <p>We received a request to reset your password. Click the link below to reset your password:</p>
       <a href="${resetLink}">${resetLink}</a>
@@ -732,14 +745,14 @@ async function sendPasswordResetEmail(email, resetLink) {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Password reset email sent:', info.response);
+    console.log("Password reset email sent:", info.response);
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    console.error("Error sending password reset email:", error);
   }
 }
 
 // Reset route
-app.get('/reset', async (req, res) => {
+app.get("/reset", async (req, res) => {
   const resetToken = req.query.code;
 
   try {
@@ -750,19 +763,21 @@ app.get('/reset', async (req, res) => {
     });
 
     if (!user) {
-      res.send(`<script>alert("Token is no longer valid"); window.location.href = "/signIn";</script>`);
+      res.send(
+        `<script>alert("Token is no longer valid"); window.location.href = "/signIn";</script>`
+      );
     }
 
     // Render a page with a form to reset the password
-    res.render('passwordReset', { token: resetToken });
+    res.render("passwordReset", { token: resetToken });
   } catch (error) {
-    console.error('Error processing password reset request:', error);
-    res.status(500).render('errorReset');
+    console.error("Error processing password reset request:", error);
+    res.status(500).render("errorReset");
   }
 });
 
 // Handle the password reset form submission
-app.post('/reset/:token', async (req, res) => {
+app.post("/reset/:token", async (req, res) => {
   const resetToken = req.params.token;
   const newPassword = req.body.newPassword;
 
@@ -774,7 +789,9 @@ app.post('/reset/:token', async (req, res) => {
     });
 
     if (!user) {
-      return res.send(`<script>alert("Token is no longer valid"); window.location.href = "/signIn";</script>`);
+      return res.send(
+        `<script>alert("Token is no longer valid"); window.location.href = "/signIn";</script>`
+      );
     }
 
     // Hash the new password and update the user's password
@@ -790,10 +807,12 @@ app.post('/reset/:token', async (req, res) => {
     await user.save();
 
     // Render a page indicating that the password has been reset successfully
-    return res.send(`<script>alert("Password Reset Success"); window.location.href = "/signIn";</script>`);
+    return res.send(
+      `<script>alert("Password Reset Success"); window.location.href = "/signIn";</script>`
+    );
   } catch (error) {
-    console.error('Error processing password reset request:', error);
-    return res.status(500).render('errorReset');
+    console.error("Error processing password reset request:", error);
+    return res.status(500).render("errorReset");
   }
 });
 
@@ -958,7 +977,7 @@ app.post("/loggedIn/reservation", async (req, res) => {
     });
 
     // Check if the visit date is less than today
-    if (new Date(visitDate) < new Date(today.toISOString().split('T')[0])) {
+    if (new Date(visitDate) < new Date(today.toISOString().split("T")[0])) {
       return res.send(
         `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInreservation";</script>`
       );
@@ -1028,7 +1047,6 @@ app.post("/loggedIn/reservation", async (req, res) => {
     res.status(500).send("An error occurred while saving the reservation.");
   }
 });
-
 
 // Removal of Reservation by admin
 app.post("/loggedIn/admin/remove-reservation/:id", async (req, res) => {
@@ -1174,7 +1192,9 @@ app.post("/loggedIn/admin/addBlockedDates", async (req, res) => {
     console.log("Received blockedDate:", blockedDate);
     console.log("Received blockedTimes:", blockedTimes);
 
-    let existingBlockedDate = await Blocked.findOne({ blockedDate: blockedDate });
+    let existingBlockedDate = await Blocked.findOne({
+      blockedDate: blockedDate,
+    });
 
     if (existingBlockedDate) {
       // If a record exists, append the new blockedTimes to the existing ones
@@ -1198,7 +1218,6 @@ app.post("/loggedIn/admin/addBlockedDates", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
 
 // Update Blocked Date
 app.put("/loggedIn/admin/blocked/:id/blockedDate", async (req, res) => {
@@ -1296,30 +1315,34 @@ app.post("/saveScore", async (req, res) => {
   }
 });
 
-
 // Adding artifact route
-app.post("/loggedIn/admin/addArtifact",upload.single('image'),async (req, res) => {
+app.post(
+  "/loggedIn/admin/addArtifact",
+  upload.single("image"),
+  async (req, res) => {
     const { title, description, type } = req.body;
     const imageBuffer = req.file.buffer; // Get the uploaaded image as a buffer
 
-  console.log("Received data from the form:");
-  console.log("Title:", title);
-  console.log("Type:", type);
-  console.log("Description:", description);
-  console.log("image buffer: ",imageBuffer)
+    console.log("Received data from the form:");
+    console.log("Title:", title);
+    console.log("Type:", type);
+    console.log("Description:", description);
+    console.log("image buffer: ", imageBuffer);
 
-  const resizedImageBuffer = await sharp(imageBuffer).resize({
-    width:1920,
-    height:1080,
-    fit: sharp.fit.insde
-  }).toBuffer();
+    const resizedImageBuffer = await sharp(imageBuffer)
+      .resize({
+        width: 1920,
+        height: 1080,
+        fit: sharp.fit.insde,
+      })
+      .toBuffer();
 
     try {
       const artifact = new Artifact({
         title,
         type,
         description,
-        image: resizedImageBuffer.toString('base64'), // Store Image as base64 string
+        image: resizedImageBuffer.toString("base64"), // Store Image as base64 string
       });
       await artifact.save();
       res.redirect("/loggedInadminartifacts"); // Redirect to the admin page after adding the artifact
@@ -1350,7 +1373,7 @@ app.put(
       if (req.file) {
         // Update the image with the new file's content (base64-encoded)
         const imageBuffer = req.file.buffer;
-        artifact.image = imageBuffer.toString('base64');
+        artifact.image = imageBuffer.toString("base64");
       }
 
       // Update the title and description
@@ -1386,7 +1409,6 @@ app.delete("/loggedIn/admin/artifacts/:artifactId", async (req, res) => {
     res.status(500).send("Error removing artifact: " + error.message);
   }
 });
-
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
