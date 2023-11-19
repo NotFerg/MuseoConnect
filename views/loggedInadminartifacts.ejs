@@ -96,6 +96,11 @@
                             <textarea class="form-control" id="description" name="description" rows="4" required
                                 autocomplete="off"></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label for="sketchfabLink" class="form-label">Sketchfab Embed Link</label>
+                            <input type="text" class="form-control" id="sketchfabLink" name="sketchfabLink" placeholder="Paste Sketchfab Embed Link here">
+                            <small class="form-text text-muted">If available, you can provide a Sketchfab embed link for a 3D model.</small>
+                        </div>
                         <button type="submit" class="btn btn-primary" onclick="insertArtifact()">Add Artifact</button>
                     </form>
                 </div>
@@ -146,7 +151,14 @@
                                             <div class="mb-3">
                                                 <label for="updateImage" class="form-label">Update Image</label>
                                                 <input type="file" name="updateImage" class="form-control" accept="image/*">
-                                              </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="updateSketchfabLink" class="form-label">Update
+                                                    Sketchfab Embed Link</label>
+                                                <textarea name="updateSketchfabLink" class="form-control" rows="4"
+                                                    autocomplete="off"><%= artifact.sketchfabLink %></textarea>
+                                                    <small class="form-text text-muted">Leave blank if there is no sketchfab embed link</small>    
+                                            </div>
                                             <button type="submit" class="btn btn-primary">Update Artifact</button>
                                         </form>
 
@@ -212,6 +224,7 @@
                 const type = document.getElementById('type').value;
                 const description = document.getElementById('description').value;
                 const imageInput = document.getElementById('image');
+                const sketchfabLink = docunment.getElementById('sketchfabLink').value;
 
                 console.log("title: " + title);
                 console.log("type: " + type);
@@ -222,6 +235,7 @@
                 formData.append('description', description);
                 formData.append('type', type);
                 formData.append('image', imageInput.files[0]);
+                fontData.append('sketchfabLink',sketchfabLink)
 
                 try {
                     const response = await fetch('/loggedIn/admin/addArtifact/', {

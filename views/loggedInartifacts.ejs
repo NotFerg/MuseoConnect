@@ -20,7 +20,7 @@
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
-  
+
   <style>
     .card-img-top {
       height: 400px;
@@ -134,7 +134,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center">Fish Trap</h1>
               <h5>Kitchen Ware</h5>
-              <p class="card-text expandable-description">Typical of Pangasinan, this wide shouldered wicker basket that is used to contain
+              <p class="card-text expandable-description">Typical of Pangasinan, this wide shouldered wicker basket that
+                is used to contain
                 caught fishes is made of split bamboo in various gauges. The mouth has flexible bamboo cone that traps
                 fish in.</p>
               <!-- Button trigger modal -->
@@ -181,7 +182,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center"> Prensa de Corona</h1>
               <h5>Laundry Ware</h5>
-              <p class="card-text expandable-description">A circular flat brass used to iron clothes, with a crown-like design and brass handle
+              <p class="card-text expandable-description">A circular flat brass used to iron clothes, with a crown-like
+                design and brass handle
                 with attached wood.</p>
               <!-- Button trigger modal -->
               <button type="button" class="btn btn-success  " data-bs-toggle="modal" data-bs-target="#ironModal">
@@ -227,7 +229,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center">Mortar and Pestle</h1>
               <h5>Kitchen Ware</h5>
-              <p class="card-text expandable-description">A vase shaped mass of wood with deep concavity where rice grains are being pounded to
+              <p class="card-text expandable-description">A vase shaped mass of wood with deep concavity where rice
+                grains are being pounded to
                 remove shells.</p>
               <!-- Button trigger modal -->
               <button type="button" class="btn btn-success " data-bs-toggle="modal" data-bs-target="#mortarModal">
@@ -273,7 +276,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center">Salacot</h1>
               <h5>Personal Wear and Adornment</h5>
-              <p class="card-text expandable-description">A ceremonial native hat made of dried, minutely woven nito leaves embellished with
+              <p class="card-text expandable-description">A ceremonial native hat made of dried, minutely woven nito
+                leaves embellished with
                 chased silver finial at the center top and 4 chased floral plaques surrounding it. At the rim are
                 attached floral silver plaques.The native town leaders, called cabezas de barangay, often reserve its
                 use during town celebrations and processions.</p>
@@ -322,7 +326,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center">Lunch Box</h1>
               <h5>Kitchen Ware</h5>
-              <p class="card-text expandable-description">A wooden round container for light meals and snack with lid that is halfway the size
+              <p class="card-text expandable-description">A wooden round container for light meals and snack with lid
+                that is halfway the size
                 of the container. A twisted rope is slung on opposite ends to serve as handle when farmers pack their
                 meals out in the field.</p>
               <!-- Button trigger modal -->
@@ -370,7 +375,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center">Wine Jar</h1>
               <h5>Kitchen Ware</h5>
-              <p class="card-text expandable-description">“Corgoreta or Gorgolla,” clay vessel for storing basi, tuba and other native wine,
+              <p class="card-text expandable-description">“Corgoreta or Gorgolla,” clay vessel for storing basi, tuba
+                and other native wine,
                 without handle and with long spout. Taller in size.</p>
               <button type="button" class="btn btn-success  " data-bs-toggle="modal" data-bs-target="#tallVModal">
                 VIEW 3D MODEL
@@ -416,7 +422,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center">Prensa de Corona</h1>
               <h5>Kitchen Ware</h5>
-              <p class="card-text expandable-description">A slender metal with a sharp-edged elliptical end attached on a Muslim inspired side
+              <p class="card-text expandable-description">A slender metal with a sharp-edged elliptical end attached on
+                a Muslim inspired side
                 carving block of wood. Known a “kudkuran” or “kayuran, it is common kitchen chattel used to grate or
                 scrape the coconut meat.</p>
               <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
@@ -430,7 +437,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center">Lamp</h1>
               <h5>Lighting Fixture</h5>
-              <p class="card-text expandable-description">A small European pulley lamp made of heavy ironcast designed with simple trimming of
+              <p class="card-text expandable-description">A small European pulley lamp made of heavy ironcast designed
+                with simple trimming of
                 curvilinear leaf at the 3 milkglass diffuser support attached at the bowl-like base.</p>
               <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
             </div>
@@ -443,7 +451,8 @@
             <div class="card-body text-center">
               <h1 class="card-title text-center">Saw Clamp</h1>
               <h5>Tool</h5>
-              <p class="card-text expandable-description">A wooden stand/encasing of saw blade for maintaining smooth filling. The saw blade is
+              <p class="card-text expandable-description">A wooden stand/encasing of saw blade for maintaining smooth
+                filling. The saw blade is
                 placed in between the two carved side boards.</p>
               <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
             </div>
@@ -453,7 +462,8 @@
         <% artifacts.forEach(function(artifact) { %>
           <div class="col-12 col-md-6">
             <div class="card my-2">
-              <img src="data:image/png;base64,<%= artifact.decodedImage.toString('base64')%>" class="card-img-top" alt="<%= artifact.title %>">
+              <img src="data:image/png;base64,<%= artifact.decodedImage.toString('base64')%>" class="card-img-top"
+                alt="<%= artifact.title %>">
               <div class="card-body text-center">
                 <h1 class="card-title text-center">
                   <%= artifact.title %>
@@ -464,11 +474,38 @@
                 <p class="card-text expandable-description">
                   <%= artifact.description %>
                 </p>
-                <!-- You can add a link or button here if needed -->
+                <!-- Button trigger modal -->
+                <% if (artifact.sketchfabLink) { %>
+                  <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                    data-bs-target="#<%= 'modal' + artifact._id %>">
+                    VIEW 3D MODEL
+                  </button>
+                  <!-- Modal -->
+                  <div class="modal fade" id="<%= 'modal' + artifact._id %>" tabindex="-1"
+                    aria-labelledby="<%= 'modalLabel' + artifact._id %>" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="<%= 'modalLabel' + artifact._id %>">
+                            <%= artifact.title %> 3D View
+                          </h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <!-- Check if it's an embed link -->
+                          <% if (artifact.sketchfabLink) { %>
+                            <%- artifact.sketchfabLink %>
+                              <% } %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <% } %>
               </div>
             </div>
           </div>
           <% }); %>
+
 
       </div> <!-- Row End-->
 

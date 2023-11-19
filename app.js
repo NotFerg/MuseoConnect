@@ -98,20 +98,23 @@ const Blocked = mongoose.model("blocked", blockedSchema);
 //ARTIFACTS
 const artifactSchema = new mongoose.Schema({
   title: {
-    type: String,
-    required: true,
+      type: String,
+      required: true,
   },
   type: {
-    type: String,
-    required: true,
+      type: String,
+      required: true,
   },
   description: {
-    type: String,
-    required: true,
+      type: String,
+      required: true,
   },
   image: {
-    type: String,
-    required: true,
+      type: String,
+      required: true,
+  },
+  sketchfabLink: {
+      type: String,
   },
 });
 
@@ -1324,107 +1327,87 @@ app.post("/saveScore", async (req, res) => {
 });
 
 // Adding artifact route
-app.post(
-  "/loggedIn/admin/addArtifact",
-  upload.single("image"),
-  async (req, res) => {
-    const { title, description, type } = req.body;
-    const imageBuffer = req.file.buffer; // Get the uploaaded image as a buffer
+app.post("/loggedIn/admin/addArtifact", upload.single("image"), async (req, res) => {
+  const { title, description, type, sketchfabLink } = req.body;
+  const imageBuffer = req.file.buffer;
 
-    console.log("Received data from the form:");
-    console.log("Title:", title);
-    console.log("Type:", type);
-    console.log("Description:", description);
-    console.log("image buffer: ", imageBuffer);
-
-    const resizedImageBuffer = await sharp(imageBuffer)
-      .resize({
-        width: 1920,
-        height: 1080,
-        fit: sharp.fit.insde,
-      })
-      .toBuffer();
-
-    try {
-      const artifact = new Artifact({
-        title,
-        type,
-        description,
-        image: resizedImageBuffer.toString("base64"), // Store Image as base64 string
-      });
-      await artifact.save();
-      res.redirect("/loggedInadminartifacts"); // Redirect to the admin page after adding the artifact
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Error adding artifact");
-    }
-  }
-);
-
-//Update an artifact
-app.put(
-  "/loggedIn/admin/artifacts/:artifactId",
-  upload.single("updateImage"),
-  async (req, res) => {
-    const { updateTitle, updateDescription, updateType } = req.body;
-    const artifactId = req.params.artifactId;
-
-    try {
-      // Find the artifact by ID
-      const artifact = await Artifact.findById(artifactId);
-
-      if (!artifact) {
-        return res.status(404).send("Artifact not found");
-      }
-
-      // Check if a new image was uploaded
-      if (req.file) {
-        // Update the image with the new file's content (base64-encoded)
-        const imageBuffer = req.file.buffer;
-
-        // Resize the image
-        const resizedImageBuffer = await sharp(imageBuffer)
+  try {
+      const resizedImageBuffer = await sharp(imageBuffer)
           .resize({
-            width: 1920,
-            height: 1080,
-            fit: sharp.fit.inside,
+              width: 1920,
+              height: 1080,
+              fit: sharp.fit.inside,
           })
           .toBuffer();
 
-        artifact.image = resizedImageBuffer.toString("base64");
+      const artifact = new Artifact({
+          title,
+          type,
+          description,
+          image: resizedImageBuffer.toString("base64"),
+          sketchfabLink,
+      });
+
+      await artifact.save();
+      res.redirect("/loggedInadminartifacts");
+  } catch (error) {
+      console.error(error);
+      res.status(500).send("Error adding artifact");
+  }
+});
+
+//Update an artifact
+app.put("/loggedIn/admin/artifacts/:artifactId", upload.single("updateImage"), async (req, res) => {
+  const { updateTitle, updateDescription, updateType, updateSketchfabLink } = req.body;
+  const artifactId = req.params.artifactId;
+
+  try {
+      const artifact = await Artifact.findById(artifactId);
+
+      if (!artifact) {
+          return res.status(404).send("Artifact not found");
       }
 
-      // Update the title and description
+      if (req.file) {
+          const imageBuffer = req.file.buffer;
+          const resizedImageBuffer = await sharp(imageBuffer)
+              .resize({
+                  width: 1920,
+                  height: 1080,
+                  fit: sharp.fit.inside,
+              })
+              .toBuffer();
+
+          artifact.image = resizedImageBuffer.toString("base64");
+      }
+
       artifact.title = updateTitle;
       artifact.description = updateDescription;
       artifact.type = updateType;
+      artifact.sketchfabLink = updateSketchfabLink; // Update Sketchfab link
 
-      // Save the updated artifact
       await artifact.save();
-
-      res.redirect("/loggedInadminartifacts"); // Redirect to the admin page after updating
-    } catch (error) {
+      res.redirect("/loggedInadminartifacts");
+  } catch (error) {
       res.status(500).send("Error updating artifact: " + error.message);
-    }
   }
-);
+});
 
 //Remove an artifact
 app.delete("/loggedIn/admin/artifacts/:artifactId", async (req, res) => {
   const artifactId = req.params.artifactId;
 
   try {
-    const artifact = await Artifact.findById(artifactId);
+      const artifact = await Artifact.findById(artifactId);
 
-    if (!artifact) {
-      return res.status(404).send("Artifact not found");
-    }
+      if (!artifact) {
+          return res.status(404).send("Artifact not found");
+      }
 
-    await Artifact.findByIdAndRemove(artifactId);
-
-    res.redirect("/loggedInadminartifacts");
+      await Artifact.findByIdAndRemove(artifactId);
+      res.redirect("/loggedInadminartifacts");
   } catch (error) {
-    res.status(500).send("Error removing artifact: " + error.message);
+      res.status(500).send("Error removing artifact: " + error.message);
   }
 });
 
