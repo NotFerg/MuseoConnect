@@ -73,8 +73,8 @@
                                 style="max-width: 100px; max-height: 100px;">
                             <h1 class="title-single">Reports</h1>
                         </div>
-                        <!-- <br>
-                        <button onclick="printAllCharts()" id="printAllChartsButton">Print All Charts</button> -->
+                        <br>
+                        <button onclick="printAllCharts()" id="printAllChartsButton">Print All Charts</button>
                     </div>
 
                     <div class="col-md-6 my-3">
@@ -455,15 +455,64 @@
                 printChart('Artifacts Chart', 'artifactsByTypeChart');
             }
 
-
             //print all chart function
             function printAllCharts() {
-                printChart('User Type Distribution', 'userTypeChart');
-                printChart('User Score Distribution', 'userScoreChart');
-                printChart('Monthly Reservation Counts per visitor', 'monthlyReservationCountChart');
-                printChart('Monthly Reservation Counts', 'visitorCountChart');
-                printChart('Block Date Chart', 'blockedDatesByWeekChart');
-                printChart('Artifacts Chart', 'artifactsByTypeChart');
+                const charts = [
+                    { title: 'User Type Distribution', id: 'userTypeChart' },
+                    { title: 'User Score Distribution', id: 'userScoreChart' },
+                    { title: 'Monthly Reservation Counts per visitor', id: 'monthlyReservationCountChart' },
+                    { title: 'Monthly Reservation Counts', id: 'visitorCountChart' },
+                    { title: 'Block Date Chart', id: 'blockedDatesByWeekChart' },
+                    { title: 'Artifacts Chart', id: 'artifactsByTypeChart' }
+                ];
+
+                // Create a canvas with a dynamic height based on the sum of individual chart heights
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                let totalHeight = 0;
+
+                // Calculate total height without title space
+                charts.forEach(({ id }) => {
+                    const chartCanvas = document.getElementById(id);
+                    totalHeight += chartCanvas.height;
+                });
+
+                // Add space for titles between charts
+                const titleSpace = 40;
+                totalHeight += (charts.length - 1) * titleSpace;
+
+                // Set canvas dimensions
+                canvas.width = 1200; // Adjust as needed
+                canvas.height = totalHeight; // Adjust as needed
+
+                // Variables to track the current Y coordinate
+                let currentY = 0;
+
+                // Draw each chart on the combined canvas
+                charts.forEach(({ title, id }) => {
+                    const chartCanvas = document.getElementById(id);
+
+                    // Add space for the title
+                    ctx.font = '18px Arial';
+                    ctx.fillStyle = '#000';
+                    ctx.fillText(title, 10, currentY + 20); // Adjust the position as needed
+
+                    // Draw the chart below the title
+                    ctx.drawImage(chartCanvas, 0, currentY + 30); // Adjust the position as needed
+
+                    // Add space between charts
+                    currentY += chartCanvas.height + titleSpace;
+                });
+
+                // Open a new window with the combined canvas
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`<h2>All Charts</h2><img src="${canvas.toDataURL()}" alt="All Charts">`);
+
+                // Introduce a delay before triggering the print function
+                setTimeout(() => {
+                    printWindow.print();
+                }, 1000);
             }
 
             function printChart(chartTitle, chartId) {
@@ -487,7 +536,6 @@
             document.getElementById('printBlockDateChartButton').addEventListener('click', printBlockDateChart);
             document.getElementById('printArtifactsChartButton').addEventListener('click', printArtifactsChart);
             document.getElementById('printAllChartsButton').addEventListener('click', printAllCharts);
-
         });
 
     </script>
