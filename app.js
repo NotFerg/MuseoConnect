@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   type: String,
   score: String,
+  gender: String,
   isVerified: {
     type: Boolean,
     default: false,
@@ -545,7 +546,7 @@ function generateVerificationCode() {
 
 // Signup route with email verification
 app.post("/signUp", async (req, res) => {
-  const { name, email, userType, password } = req.body;
+  const { name, email, userType, password, gender } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -567,6 +568,7 @@ app.post("/signUp", async (req, res) => {
       email,
       password: hashedPassword,
       type: userType,
+      gender,
       isVerified: false,
       verificationCode,
     });
@@ -585,6 +587,7 @@ app.post("/signUp", async (req, res) => {
     res.status(500).send("An error occurred during registration.");
   }
 });
+
 
 // Define a function to send a verification email
 async function sendVerificationEmail(email, verificationCode) {

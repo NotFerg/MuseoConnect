@@ -124,6 +124,14 @@
                             Chart</button>
                     </div>
 
+                    <!-- Gender Distribution -->
+                    <div class="col-md-6 my-3">
+                        <h2>Gender Distribution</h2>
+                        <canvas id="genderDistributionChart" width="400" height="400"></canvas>
+                        <button onclick="printGenderDistributionChart()" id="printGenderDistributionChartButton">Print
+                            Gender Distribution Chart</button>
+                    </div>
+
                 </div>
 
             </div>
@@ -175,7 +183,6 @@
     <script src="/js/index.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-
             // Get user data from your server-side rendering (Assuming you've already passed 'users' and 'reservations' from your route)
             const usersJSON = '<%- JSON.stringify(users) %>';
             const reservationsJSON = '<%- JSON.stringify(reservations) %>';
@@ -431,6 +438,46 @@
                 },
             });
 
+            // Initialize an object to store gender counts
+            const genderCounts = {
+                male: 0,
+                female: 0
+            };
+
+            // Count users by gender
+            users.forEach((user) => {
+                // Check if the user object has a 'gender' property before accessing it
+                if (user && user.gender) {
+                    const gender = user.gender.toLowerCase(); // Normalize to lowercase
+                    if (gender === 'male' || gender === 'female') {
+                        genderCounts[gender]++;
+                    }
+                }
+            });
+
+            // Create the bar graph for Gender Distribution
+            const genderDistributionChartCtx = document.getElementById("genderDistributionChart").getContext("2d");
+            const genderDistributionChart = new Chart(genderDistributionChartCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Male", "Female"],
+                    datasets: [
+                        {
+                            label: "Number of Users",
+                            data: [genderCounts.male, genderCounts.female],
+                            backgroundColor: ["rgba(75, 192, 192, 0.7)", "rgba(255, 99, 132, 0.7)"],
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+
             function printUserTypeChart() {
                 printChart('User Type Distribution', 'userTypeChart');
             }
@@ -455,65 +502,74 @@
                 printChart('Artifacts Chart', 'artifactsByTypeChart');
             }
 
+            function printGenderDistributionChart() {
+                printChart('Gender Distribution', 'genderDistributionChart');
+            }
+
+            console.log('User Type Data:', userTypeData);
+            console.log('Gender Counts:', genderCounts);
+
             //print all chart function
             function printAllCharts() {
-                const charts = [
-                    { title: 'User Type Distribution', id: 'userTypeChart' },
-                    { title: 'User Score Distribution', id: 'userScoreChart' },
-                    { title: 'Monthly Reservation Counts per visitor', id: 'monthlyReservationCountChart' },
-                    { title: 'Monthly Reservation Counts', id: 'visitorCountChart' },
-                    { title: 'Block Date Chart', id: 'blockedDatesByWeekChart' },
-                    { title: 'Artifacts Chart', id: 'artifactsByTypeChart' }
-                ];
+    const charts = [
+        { title: 'User Type Distribution', id: 'userTypeChart' },
+        { title: 'User Score Distribution', id: 'userScoreChart' },
+        { title: 'Monthly Reservation Counts per visitor', id: 'monthlyReservationCountChart' },
+        { title: 'Monthly Reservation Counts', id: 'visitorCountChart' },
+        { title: 'Block Date Chart', id: 'blockedDatesByWeekChart' },
+        { title: 'Artifacts Chart', id: 'artifactsByTypeChart' },
+        { title: 'Gender Distribution chart', id: 'genderDistributionChart' }
+    ];
 
-                // Create a canvas with a dynamic height based on the sum of individual chart heights
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+    // Create a canvas with a dynamic height based on the sum of individual chart heights
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
-                let totalHeight = 0;
+    let totalHeight = 0;
 
-                // Calculate total height without title space
-                charts.forEach(({ id }) => {
-                    const chartCanvas = document.getElementById(id);
-                    totalHeight += chartCanvas.height;
-                });
+    // Calculate total height without title space
+    charts.forEach(({ id }) => {
+        const chartCanvas = document.getElementById(id);
+        totalHeight += chartCanvas.height;
+    });
 
-                // Add space for titles between charts
-                const titleSpace = 40;
-                totalHeight += (charts.length - 1) * titleSpace;
+    // Add space for titles between charts
+    const titleSpace = 80; // Adjust as needed
+    totalHeight += (charts.length - 1) * titleSpace;
 
-                // Set canvas dimensions
-                canvas.width = 1200; // Adjust as needed
-                canvas.height = totalHeight; // Adjust as needed
+    // Set canvas dimensions
+    canvas.width = 1200; // Adjust as needed
+    canvas.height = totalHeight +100; // Adjust as needed
 
-                // Variables to track the current Y coordinate
-                let currentY = 0;
+    // Variables to track the current Y coordinate
+    let currentY = 0;
 
-                // Draw each chart on the combined canvas
-                charts.forEach(({ title, id }) => {
-                    const chartCanvas = document.getElementById(id);
+    // Draw each chart on the combined canvas
+    charts.forEach(({ title, id }) => {
+        const chartCanvas = document.getElementById(id);
 
-                    // Add space for the title
-                    ctx.font = '18px Arial';
-                    ctx.fillStyle = '#000';
-                    ctx.fillText(title, 10, currentY + 20); // Adjust the position as needed
+        // Add space for the title
+        ctx.font = '18px Arial';
+        ctx.fillStyle = '#000';
+        ctx.fillText(title, 10, currentY + 40); // Adjust the position as needed
 
-                    // Draw the chart below the title
-                    ctx.drawImage(chartCanvas, 0, currentY + 30); // Adjust the position as needed
+        // Draw the chart below the title
+        ctx.drawImage(chartCanvas, 0, currentY + 30); // Adjust the position as needed
 
-                    // Add space between charts
-                    currentY += chartCanvas.height + titleSpace;
-                });
+        // Add space between charts
+        currentY += chartCanvas.height + titleSpace;
+    });
 
-                // Open a new window with the combined canvas
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(`<h2>All Charts</h2><img src="${canvas.toDataURL()}" alt="All Charts">`);
+    // Open a new window with the combined canvas
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`<h2>All Charts</h2><img src="${canvas.toDataURL()}" alt="All Charts">`);
 
-                // Introduce a delay before triggering the print function
-                setTimeout(() => {
-                    printWindow.print();
-                }, 1000);
-            }
+    // Introduce a delay before triggering the print function
+    setTimeout(() => {
+        printWindow.print();
+    }, 1000);
+}
+
 
             function printChart(chartTitle, chartId) {
                 const canvas = document.getElementById(chartId);
@@ -535,6 +591,7 @@
             document.getElementById('printMonthlyVisitorsChartButton').addEventListener('click', printMonthlyVisitorChart);
             document.getElementById('printBlockDateChartButton').addEventListener('click', printBlockDateChart);
             document.getElementById('printArtifactsChartButton').addEventListener('click', printArtifactsChart);
+            document.getElementById('printGenderDistributionChartButton').addEventListener('click', printGenderDistributionChart);    
             document.getElementById('printAllChartsButton').addEventListener('click', printAllCharts);
         });
 
