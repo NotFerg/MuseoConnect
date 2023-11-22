@@ -588,7 +588,6 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
-
 // Define a function to send a verification email
 async function sendVerificationEmail(email, verificationCode) {
   const gmailTransporter = nodemailer.createTransport({
@@ -967,10 +966,6 @@ app.post("/loggedIn/reservation", async (req, res) => {
   const visitDate = inpVisitDate.split("T")[0];
 
   try {
-    const existingReservation = await Reservation.findOne({
-      emailAddress: loggedInUser.email,
-    });
-
     const blockedSlots = await Blocked.find();
     const isDateBlocked = blockedSlots.some((blockedSlot) => {
       return blockedSlot.blockedDate === visitDate;
@@ -986,10 +981,6 @@ app.post("/loggedIn/reservation", async (req, res) => {
     if (new Date(visitDate) < new Date(today.toISOString().split("T")[0])) {
       return res.send(
         `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInreservation";</script>`
-      );
-    } else if (existingReservation) {
-      return res.send(
-        `<script>alert("You already have a reservation."); window.location.href = "/loggedInreservation";</script>`
       );
     } else if (isDateBlocked && isTimeBlocked) {
       return res.send(
@@ -1019,26 +1010,45 @@ app.post("/loggedIn/reservation", async (req, res) => {
       // Save the reservation
       await newReservation.save();
 
-      // automated email code
+      // automated email to admin
       const adminEmail = process.env.GMAIL_USER;
       const reservationName = req.body.fullName;
       const reservationDate = moment(req.body.visitDate).format("YYYY-MM-DD");
       const reservationTime = req.body.visitTime;
 
-      const mailOptions = {
+      const adminMailOptions = {
         from: process.env.GMAIL_USER,
         to: adminEmail,
         subject: "New Reservation",
         text: `A new reservation has been made by ${reservationName} for ${reservationDate} at ${reservationTime}.`,
       };
 
-      // Send the email
-      transporter.sendMail(mailOptions, (error, info) => {
+      // Send the email to admin
+      transporter.sendMail(adminMailOptions, (error, adminInfo) => {
         if (error) {
-          console.error("Error sending email:", error);
+          console.error("Error sending admin email:", error);
           // Handle the error, e.g., log it or take other actions
         } else {
-          console.log("Email sent:", info.response);
+          console.log("Admin email sent:", adminInfo.response);
+          // Handle the success, e.g., log it or take other actions
+        }
+      });
+
+      // automated email to user
+      const userMailOptions = {
+        from: process.env.GMAIL_USER,
+        to: loggedInUser.email,
+        subject: "Reservation Confirmation",
+        text: `Thank you for your reservation, ${reservationName}! Your reservation is confirmed for ${reservationDate} at ${reservationTime}.`,
+      };
+
+      // Send the email to user
+      transporter.sendMail(userMailOptions, (error, userInfo) => {
+        if (error) {
+          console.error("Error sending user email:", error);
+          // Handle the error, e.g., log it or take other actions
+        } else {
+          console.log("User email sent:", userInfo.response);
           // Handle the success, e.g., log it or take other actions
         }
       });

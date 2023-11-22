@@ -14,7 +14,7 @@
     }
 
     .partialBlock {
-      background-color: rgb(108, 102, 8) !important;
+      background-color: rgb(250, 238, 65) !important;
     }
   </style>
 
@@ -130,7 +130,7 @@
                           <input type="text" id="visitDate" name="visitDate" class="form-control" id="visitdate"
                             required autocomplete="off">
                           <p><span style="color: #FF0000;">Red</span> dates are full or have been blocked</p>
-                          <p><span style="color: yellow;">Yellow</span> dates only have one timeslot remaining</p>    
+                          <p><span style="color: yellow;">Yellow</span> dates only have one timeslot remaining</p>
                         </div>
 
                         <div class="form-outline mb-4">
@@ -351,37 +351,49 @@
 
       // Function to allow only numeric input for the contact number
       $('#contactNumber').on('input', function () {
-            this.value = this.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
-        });
+        this.value = this.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+      });
 
       $("#reservationForm").submit(function (event) {
-        const selectedTime = selectedVisitTime.value;
+      const selectedTime = $("#selectedVisitTime").val();
+      const selectedDate = $("#visitDate").val();
+      const numberOfVisitors = $("#numberOfVisitors").val();
 
-        // Check if the selected time is still the default "Visit Time"
-        if (selectedTime === "") {
-          alert("Please select a visit time.");
-          event.preventDefault(); // Prevent the form from submitting
-        }
+      // Check if the selected date, time, and number of visitors are valid
+      if (selectedDate === "" || selectedTime === "" || numberOfVisitors < 1 || numberOfVisitors > 10) {
+        alert("Please select a valid date, time, and ensure the number of visitors is between 1 and 10.");
+        event.preventDefault(); // Prevent the form from submitting
+        return;
+      }
 
-        // Validate the contact number
-        const enteredContactNumber = $('#contactNumber').val();
-        const cleanedContactNumber = enteredContactNumber.replace(/^0+/, ''); // Remove leading '0'
+      // Validate the contact number
+      const enteredContactNumber = $('#contactNumber').val();
+      const cleanedContactNumber = enteredContactNumber.replace(/^0+/, ''); // Remove leading '0'
 
-        // Add '63' prefix if the number does not start with '63'
-        const processedContactNumber = cleanedContactNumber.startsWith('63') ? cleanedContactNumber : '63' + cleanedContactNumber;
+      // Add '63' prefix if the number does not start with '63'
+      const processedContactNumber = cleanedContactNumber.startsWith('63') ? cleanedContactNumber : '63' + cleanedContactNumber;
 
-        if (/^63\d{10}$/.test(processedContactNumber)) {
-          // Valid Philippine phone number
-          // alert('Valid Philippine phone number: ' + processedContactNumber);
-          // Update the input field with the processed contact number
-          $("#contactNumber").val(processedContactNumber);
-        } else {
-          // Invalid phone number, handle accordingly (e.g., show an error message)
-          alert('Invalid Philippine phone number');
-          event.preventDefault(); // Prevent the form from submitting
-        }
+      if (/^63\d{10}$/.test(processedContactNumber)) {
+        // Valid Philippine phone number
+        // alert('Valid Philippine phone number: ' + processedContactNumber);
+        // Update the input field with the processed contact number
+        $("#contactNumber").val(processedContactNumber);
+      } else {
+        // Invalid phone number, handle accordingly (e.g., show an error message)
+        alert('Invalid Philippine phone number');
+        event.preventDefault(); // Prevent the form from submitting
+        return;
+      }
 
-      });
+      // Display a confirmation dialog
+      const isConfirmed = confirm("Are you sure about your reservation?");
+
+      // Check the user's response
+      if (!isConfirmed) {
+        alert("Reservation canceled.");
+        event.preventDefault(); // Prevent the form from submitting
+      }
+    });
 
       let inactivityTimeout;
       // Function to reset the inactivity timer
