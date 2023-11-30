@@ -21,6 +21,8 @@
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
 
+
+
 </head>
 
 <body>
@@ -77,8 +79,8 @@
 
                     <form id="setDate" action="/loggedIn/admin/addBlockedDates" method="post" class="mb-3">
                         <div class="input-group">
-                            <input type="date" id="blockedDate" class="form-control" name="blockedDate"
-                                autocomplete="off" required>
+                            <input type="input" id="blockedDate" class="form-control datePicker me-2" name="blockedDate"
+                                autocomplete="off" placeholder = "yyyy-mm-dd"required>
                             <div class="mt-2">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="10:30" id="checkbox1030"
@@ -100,6 +102,13 @@
                     </form>
 
                     <div class="row">
+                        <div class="col-12">
+                            <button type="button" id="toggle-view-button" class="btn btn-primary mb-2">Toggle View</button>
+                        </div>
+                    </div>
+
+                    <!-- Showing Cards-->
+                    <div class="row" id="card-view">
                         <% blocked.forEach(blocked=> { %>
                             <div class="col-12 col-md-6 col-lg-4 reservation-card">
                                 <div class="card mb-3">
@@ -111,9 +120,9 @@
                                             action="/loggedIn/admin/blocked/<%= blocked._id %>/blockedDate?_method=PUT"
                                             method="post" class="mt-2">
                                             <div class="input-group">
-                                                <input type="date" name="updblockedDate"
+                                                <input type="text" name="updblockedDate"
                                                     value="<%= blocked.blockedDate ? blocked.blockedDate.toISOString().split('T')[0] : '' %>"
-                                                    required class="form-control" autocomplete="off">
+                                                    required class="form-control datePicker" autocomplete="off">
                                                 <button type="submit" class="btn btn-success">Update blocked
                                                     Date</button>
                                             </div>
@@ -162,6 +171,107 @@
 
             </div>
         </section>
+
+        <section class="" id="blocked-table-section">
+            <div class="container">
+                <div class="table-responsive">
+                    <div class="row" id="table-view">
+                        <div class="col-12 col-md-6">
+                            <label for="sort-order-select" class="form-label">Sort Order:</label>
+                            <select id="sort-order-select" class="form-select ">
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                            <button type="button" id="sort-date-button" class="btn btn-primary my-2">Sort by
+                                Date</button>
+                            <button type="button" id="reset-sort-button"
+                                class="btn btn-secondary my-2">Reset</button>
+                        </div>
+                        <div class="col-md-12">
+                            <h2>Blocked Date Table</h2>
+                            <table class="table table-bordered" id="blockedDateTable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Blocked Date</th>
+                                        <th scope="col">Blocked Times</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% blocked.forEach(blocked=> { %>
+                                        <tr>
+                                            <td>
+                                                <%= blocked.blockedDate ?
+                                                    blocked.blockedDate.toISOString().split('T')[0] : '' %>
+                                            </td>
+                                            <td>
+                                                <% if (blocked.blockedTimes && blocked.blockedTimes.length> 0) { %>
+                                                    <% blocked.blockedTimes.forEach(function (time) { %>
+                                                        <%= time %><br>
+                                                            <% }); %>
+                                                                <% } else { %>
+                                                                    No blocked times
+                                                                    <% } %>
+                                            </td>
+                                            <td>
+                                                <!-- Update Blocked Date -->
+                                                <form
+                                                    action="/loggedIn/admin/blocked/<%= blocked._id %>/blockedDate?_method=PUT"
+                                                    method="post">
+                                                    <input type="text" name="updblockedDate"
+                                                        value="<%= blocked.blockedDate ? blocked.blockedDate.toISOString().split('T')[0] : '' %>"
+                                                        required class="form-control datePicker" autocomplete="off">
+                                                    <button type="submit" class="btn btn-success">Update Blocked
+                                                        Date</button>
+                                                </form>
+
+                                                <!-- Update Blocked Times -->
+                                                <form action="/loggedIn/admin/removeBlockedTime/<%= blocked._id %>"
+                                                    method="POST" class="mt-2">
+                                                    <div class="">
+                                                        <% if (blocked.blockedTimes && blocked.blockedTimes.length> 0) {
+                                                            %>
+                                                            <h6>Blocked Times:</h6>
+                                                            <% blocked.blockedTimes.forEach(function (time) { %>
+                                                                <div class="d-flex align-items-center my-2">
+                                                                    <%= time %>
+                                                                        <% if ((time==='10:30' || time==='13:30' ) &&
+                                                                            blocked.blockedTimes.includes('10:30') &&
+                                                                            blocked.blockedTimes.includes('13:30')) { %>
+                                                                            <form
+                                                                                action="/loggedIn/admin/removeBlockedTime/<%= blocked._id %>"
+                                                                                method="POST">
+                                                                                <input type="hidden" name="time"
+                                                                                    value="<%= time %>">
+                                                                                <button type="submit"
+                                                                                    class="btn btn-danger btn-sm ms-2">Remove</button>
+                                                                            </form>
+                                                                            <% } %>
+                                                                </div>
+                                                                <% }); %>
+                                                                    <% } else { %>
+                                                                        No blocked times
+                                                                        <% } %>
+                                                    </div>
+                                                </form>
+
+                                                <!-- Remove Blocked Date -->
+                                                <form action="/loggedIn/admin/removeBlockedDate/<%= blocked._id %>"
+                                                    method="POST">
+                                                    <button type="submit" class="btn btn-danger btn-sm mt-2">Remove
+                                                        Block</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Footer -->
@@ -169,7 +279,6 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-
                     <div class="copyright-footer">
                         <p class="copyright color-text-a">
                             <span class="color-a"> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel
@@ -194,7 +303,6 @@
     <div id="preloader"></div>
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
-
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="assets/vendor/php-email-form/validate.js"></script>
@@ -206,55 +314,62 @@
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/js/index.js"></script>
+    <script src="/js/adminBlocked.js"></script>
+    <!-- Include jQuery UI CSS and JS -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-        //FOR BLOCKED DATES
+        $(document).ready(function () {
+            // Function to sort the table based on the selected option
+            function sortTable(order) {
+                var rows = $('#blockedDateTable tbody tr').get();
+    
+                rows.sort(function (a, b) {
+                    var dateA = new Date($(a).children('td:first').text());
+                    var dateB = new Date($(b).children('td:first').text());
+    
+                    if (order === 'asc') {
+                        return dateA - dateB;
+                    } else {
+                        return dateB - dateA;
+                    }
+                });
+    
+                $.each(rows, function (index, row) {
+                    $('#blockedDateTable tbody').append(row);
+                });
+            }
+    
+            // Event listener for the sort button
+            $('#sort-date-button').click(function () {
+                var sortOrder = $('#sort-order-select').val();
+                sortTable(sortOrder);
+            });
+    
+            // Event listener for the reset button
+            $('#reset-sort-button').click(function () {
+                // Reload the page to reset the table to its original order
+                location.reload();
+            });
 
-        const btnSubmitDate = document.getElementById("btnsubmitDate");
+            function toggleView() {
+        var cardView = $('#card-view');
+        var tableView = $('#table-view');
 
-btnSubmitDate.addEventListener("click", () => {
-  const datetimeInput = document.getElementById("blockedDate");
-  const checkbox1030 = document.getElementById("checkbox1030");
-  const checkbox1330 = document.getElementById("checkbox1330");
+        // Toggle visibility of card and table views
+        cardView.toggle();
+        tableView.toggle();
+    }
 
-  const blockedDate = datetimeInput.value;
-  const blockedTimes = [];
+    // Event listener for the toggle view button
+    $('#toggle-view-button').click(function () {
+        toggleView();
+    });
 
-  if (checkbox1030.checked) {
-    blockedTimes.push("10:30");
-  }
-  if (checkbox1330.checked) {
-    blockedTimes.push("13:30");
-  }
+    // Initially hide one of the views (assuming card view is initially shown)
+    $('#table-view').hide();
 
-  const data = {
-    blockedDate: blockedDate,
-    blockedTimes: blockedTimes,
-  };
-
-  // Make sure data is being constructed correctly
-  console.log("Data to be sent:", data);
-
-  const blockedTimesParam = blockedTimes.join(",");
-
-  const url = `/loggedIn/admin/addBlockedDates?blockedDate=${blockedDate}&blockedTimes=${blockedTimesParam}`;
-
-  // Make a POST request to the server using the constructed URL
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data), // Send data as JSON
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Response from server:", data);
-    })
-    .catch((error) => console.error("Error:", error));
-
-  window.location.href = "/loggedInadminblocked";
-});
+        });
     </script>
 </body>
-
 </html>
