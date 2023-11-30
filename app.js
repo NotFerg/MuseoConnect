@@ -1233,7 +1233,6 @@ app.post("/loggedIn/admin/addBlockedDates", async (req, res) => {
         blockedTimes: blockedTimes,
       });
     }
-
     // Save the changes to the database
     await existingBlockedDate.save();
     console.log("Database updated successfully!");
