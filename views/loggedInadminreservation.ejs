@@ -63,7 +63,7 @@
 
     <main id="main">
         <!-- Reservation List -->
-        <section class="intro-single">
+        <section class="intro-single" id="reservation-section">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 col-lg-8">
@@ -71,13 +71,17 @@
                             <img src="images/reserved.png" alt="Image" class="img-fluid"
                                 style="max-width: 100px; max-height: 100px;">
                             <h1 class="title-single">Reservation List</h1>
+                            
                         </div>
+                        <button id="toggleViewButtonCard" class="btn btn-primary mt-2">Toggle View</button>
                     </div>
                     <br><br><br><br><br><br><br><br>
                     <form id="reservation-search-form" class="mb-3">
                         <div class="input-group">
                             <input type="text" id="reservation-search-input" class="form-control"
                                 placeholder="Search by name or email" autocomplete="off">
+                            <input type="text" id="reservation-date-input" class="form-control"
+                                placeholder="Search by date (YYYY-MM-DD)" autocomplete="off">
                             <button type="button" id="reservation-search-button" class="btn btn-primary">Search</button>
                             <button type="button" id="reservation-reset-button" class="btn btn-secondary">Reset</button>
                         </div>
@@ -165,6 +169,142 @@
                 </div>
             </div>
         </section>
+
+        <!-- Reservation List Table row -->
+        <section class="intro-single" id="reservation-table-section" style="display: none;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-lg-8">
+                        <div class="title-single-box d-flex align-items-center">
+                            <img src="images/reserved.png" alt="Image" class="img-fluid"
+                                style="max-width: 100px; max-height: 100px;">
+                            <h1 class="title-single">Reservation List</h1>
+                            
+                        </div>
+                        <button id="toggleViewButtonTable" class="btn btn-primary mt-2">Toggle View</button>
+                    </div>
+                    <br><br><br><br><br><br><br><br>
+                    <form id="reservation-search-form" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" id="reservation-table-search-input" class="form-control"
+                                placeholder="Search by name,email or date (YYYY-MM-DD)" autocomplete="off">
+                            <button type="button" id="reservation-table-search-button"
+                                class="btn btn-primary">Search</button>
+                            <button type="button" id="reservation-table-reset-button"
+                                class="btn btn-secondary">Reset</button>
+                        </div>
+                    </form>
+
+                    <!-- Table for Reservations -->
+                    <div class="table-responsive">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <label for="sort-order-select" class="form-label">Sort Order:</label>
+                                <select id="sort-order-select" class="form-select ">
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+                                <button type="button" id="sort-date-button" class="btn btn-primary my-2">Sort by
+                                    Date</button>
+                                <button type="button" id="sort-time-button" class="btn btn-primary my-2">Sort by
+                                    Time</button>
+                                <button type="button" id="sort-visitors-button" class="btn btn-primary my-2">Sort by
+                                    Number of Visitors</button>
+                                <button type="button" id="reservation-reset-sort-button"
+                                    class="btn btn-secondary my-2">Reset</button>
+                            </div>
+                        </div>
+
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Visit Date</th>
+                                    <th>Visit Time</th>
+                                    <th>Contact Number</th>
+                                    <th>Number of Visitors</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% reservations.forEach(reservation=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= reservation.fullName %>
+                                        </td>
+                                        <td>
+                                            <%= reservation.emailAddress %>
+                                        </td>
+                                        <td>
+                                            <!-- Update Visit Date -->
+                                            <form
+                                                action="/loggedIn/admin/reservations/<%= reservation._id %>/visitDate?_method=PUT"
+                                                method="post" class="d-flex justify-content-between">
+                                                <input type="text" name="visitDate" class="visitDate form-control"
+                                                    value="<%= reservation.visitDate.toISOString().split('T')[0] %>"
+                                                    required autocomplete="off">
+                                                
+                                                <button type="submit" class="btn btn-success ">Update Visit Date</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <!-- Update Visit Time -->
+                                            <form
+                                                action="/loggedIn/admin/reservations/<%= reservation._id %>/visitTime?_method=PUT"
+                                                method="post" class="update-visit-time-form">
+                                                <input type="hidden" name="visitTime"
+                                                    value="<%= reservation.visitTime %>">
+                                                <p>Current Reservation Time: <%= reservation.visitTime %>
+                                                </p>
+                                                <button type="button" class="btn btn-success update-visit-time"
+                                                    data-new-time="<%= reservation.visitTime === '10:30' ? '13:30' : '10:30' %>">
+                                                    Update Visit Time to <%= reservation.visitTime==='10:30' ? '13:30'
+                                                        : '10:30' %>
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <!-- Update Contact Number -->
+                                            <form
+                                                action="/loggedIn/admin/reservations/<%= reservation._id %>/contactNumber?_method=PUT"
+                                                method="post">
+                                                <input type="number" name="contactNumber"
+                                                    value="<%= reservation.contactNumber %>" required
+                                                    class="form-control " autocomplete="off">
+                                                <button type="submit" class="btn btn-success">Update Contact
+                                                    Number</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <!-- Update Number of Visitors -->
+                                            <form
+                                                action="/loggedIn/admin/reservations/<%= reservation._id %>/numberOfVisitors?_method=PUT"
+                                                method="post">
+                                                <input type="number" name="numberOfVisitors"
+                                                    value="<%= reservation.numberOfVisitors %>" required
+                                                    class="form-control " autocomplete="off" min="1">
+                                                <button type="submit" class="btn btn-success">Update Number of
+                                                    Visitors</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <!-- Remove Reservation -->
+                                            <form action="/loggedIn/admin/remove-reservation/<%= reservation._id %>"
+                                                method="post">
+                                                <button type="submit" class="btn btn-danger btn-sm ">Remove
+                                                    Reservation</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Footer -->
@@ -201,123 +341,224 @@
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="assets/vendor/php-email-form/validate.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- <script src="/js/admin.js"></script> -->
+    <script src="/js/adminReservation.js"></script>
     <script src="/js/index.js"></script>
     <!-- Include jQuery UI CSS and JS -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            //RESERVATION SEARCH AND CLEAR FUNCTION
-            function searchReservations() {
-                const searchInput = document.getElementById("reservation-search-input");
-                const searchTerm = searchInput.value.trim().toLowerCase();
-                const cards = document.querySelectorAll(".reservation-card");
+            function filterTable() {
+                const searchInputTable = document.getElementById('reservation-table-search-input');
+                const searchValue = searchInputTable.value.toLowerCase();
 
-                cards.forEach((card) => {
-                    const name = card
-                        .querySelector(".card-title")
-                        .textContent.trim()
-                        .toLowerCase();
-                    const email = card
-                        .querySelector(".card-text")
-                        .textContent.trim()
-                        .toLowerCase();
-                    if (name.includes(searchTerm) || email.includes(searchTerm)) {
-                        card.style.display = "block";
-                    } else {
-                        card.style.display = "none";
-                    }
+                const reservationsData = '<%- JSON.stringify(reservations) %>';
+                let reservationsArray = [];
+
+                if (reservationsData) {
+                    reservationsArray = JSON.parse(reservationsData);
+                }
+
+                const filteredReservations = reservationsArray.filter(reservation => {
+                    const fullName = reservation.fullName.toLowerCase();
+                    const emailAddress = reservation.emailAddress.toLowerCase();
+                    const visitDate = reservation.visitDate ? new Date(reservation.visitDate).toISOString().split('T')[0] : '';
+
+                    return fullName.includes(searchValue) || emailAddress.includes(searchValue) || visitDate.includes(searchValue);
                 });
+
+                updateTable(filteredReservations);
             }
 
-            function resetReservationSearch() {
-                const cards = document.querySelectorAll(".reservation-card");
-                cards.forEach((card) => {
-                    card.style.display = "block";
-                });
-                document.getElementById("reservation-search-input").value = "";
-            }
-
-            // Add event listeners to search and reset buttons for reservations
-            const reservationSearchButton = document.querySelector(
-                "#reservation-search-button"
-            );
-            const reservationResetButton = document.querySelector(
-                "#reservation-reset-button"
-            );
-
-            reservationSearchButton.addEventListener("click", searchReservations);
-            reservationResetButton.addEventListener("click", resetReservationSearch);
-
-            $(function () {
-                $(".visitDate").datepicker({
-                    minDate: 0, // Disable past dates
-                    dateFormat: 'yy-mm-dd', // Set the date format as per your needs
-                });
+            // Form submit event
+            document.getElementById('reservation-search-form').addEventListener('submit', function (event) {
+                // Prevent the default form submission behavior
+                event.preventDefault();
+                // Trigger the search function
+                filterTable();
             });
 
-            const searchInputReserv = document.getElementById("reservation-search-input");
+            // Search button click event (optional, as it's covered by the submit event)
+            document.getElementById('reservation-table-search-button').addEventListener('click', function () {
+                filterTable();
+            });
 
-            // Listen for "Enter" key press in the search input field
-            searchInputReserv.addEventListener("keydown", function (event) {
-                if (event.key === "Enter") {
-                    // Prevent the default form submission behavior
+            // Reset button click event
+            document.getElementById('reservation-table-reset-button').addEventListener('click', function () {
+                resetTable();
+            });
+
+            document.getElementById('reservation-table-search-input').addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
                     event.preventDefault();
-                    // Trigger the search function
-                    searchReservations();
+                    filterTable();
                 }
             });
 
-            let inactivityTimeout;
-            // Function to reset the inactivity timer
-            function resetInactivityTimeout() {
-                clearTimeout(inactivityTimeout);
-                inactivityTimeout = setTimeout(() => {
-                    // Send a request to the server to reset the session timeout
-                    fetch("/reset-inactivity").then((response) => {
-                        if (response.ok) {
-                            console.log("Inactivity timer reset.");
-                            // Redirect to the logout route after 1 minute of inactivity
-                            window.location.href = "/logout";
-                        }
-                    });
-                }, 300000); // 300,000 milliseconds = 5 minutes
+            // Original sorting function
+            function compareDates(a, b, sortOrder) {
+                const dateA = new Date(a.visitDate).getTime();
+                const dateB = new Date(b.visitDate).getTime();
+                return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
             }
-            // Listen for user interactions
-            window.addEventListener("mousemove", resetInactivityTimeout);
-            window.addEventListener("keydown", resetInactivityTimeout);
-            // Initial reset
-            resetInactivityTimeout();
 
-        });
+            function compareTimes(a, b, sortOrder) {
+                const timeA = a.visitTime;
+                const timeB = b.visitTime;
+                return sortOrder === 'asc' ? timeA.localeCompare(timeB) : timeB.localeCompare(timeA);
+            }
 
-        $(function () {
-            $(".update-visit-time").on('click', function () {
-                const newVisitTime = $(this).data('new-time');
-                const form = $(this).closest('.update-visit-time-form');
+            function compareVisitors(a, b, sortOrder) {
+                return sortOrder === 'asc' ? a.numberOfVisitors - b.numberOfVisitors : b.numberOfVisitors - a.numberOfVisitors;
+            }
 
-                // Add console.log statements for debugging
-                console.log('Updating visit time to:', newVisitTime);
-                console.log('Form data before update:', form.serialize());
+            // Function to update the table with sorted data
+            function updateTable(reservations) {
+                const tbody = document.querySelector('tbody');
+                tbody.innerHTML = '';
 
-                // Update the hidden input value before submitting the form
-                form.find('input[name="visitTime"]').val(newVisitTime);
+                reservations.forEach(reservation => {
+                    // Create table row and append it to the tbody
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+            <td>${reservation.fullName}</td>
+            <td>${reservation.emailAddress}</td>
+            <td>
+                <form action="/loggedIn/admin/reservations/${reservation._id}/visitDate?_method=PUT" method="post">
+                    <input type="text" name="visitDate" class="visitDate form-control" value="${reservation.visitDate ? new Date(reservation.visitDate).toISOString().split('T')[0] : ''}"
+                    required autocomplete="off">
+                    <button type="submit" class="btn btn-success mt-2">Update Visit Date</button>
+                </form>
+            </td>
+            <td>
+                <form action="/loggedIn/admin/reservations/${reservation._id}/visitTime?_method=PUT" method="post" class="update-visit-time-form">
+                    <input type="hidden" name="visitTime" value="${reservation.visitTime}">
+                    <p>Current Reservation Time: ${reservation.visitTime}</p>
+                    <button type="button" class="btn btn-success mt-2 update-visit-time" data-new-time="${reservation.visitTime === '10:30' ? '13:30' : '10:30'}">
+                        Update Visit Time to ${reservation.visitTime === '10:30' ? '13:30' : '10:30'}
+                    </button>
+                </form>
+            </td>
+            <td>
+                <form action="/loggedIn/admin/reservations/${reservation._id}/contactNumber?_method=PUT" method="post">
+                    <input type="number" name="contactNumber" value="${reservation.contactNumber}" required class="form-control" autocomplete="off">
+                    <button type="submit" class="btn btn-success mt-2">Update Contact Number</button>
+                </form>
+            </td>
+            <td>
+                <form action="/loggedIn/admin/reservations/${reservation._id}/numberOfVisitors?_method=PUT" method="post">
+                    <input type="number" name="numberOfVisitors" value="${reservation.numberOfVisitors}" required class="form-control" autocomplete="off" min="1">
+                    <button type="submit" class="btn btn-success mt-2">Update Number of Visitors</button>
+                </form>
+            </td>
+            <td>
+                <form action="/loggedIn/admin/remove-reservation/${reservation._id}" method="post">
+                    <button type="submit" class="btn btn-danger btn-sm mt-2">Remove Reservation</button>
+                </form>
+            </td>
+        `;
 
-                // Add another console.log statement to check the form data after the update
-                console.log('Form data after update:', form.serialize());
+                    tbody.appendChild(tr);
+                });
+            }
 
-                // Submit the form
-                form.submit();
+            // Function to reset the table to the default state
+            function resetTable() {
+                const reservationJSON = '<%- JSON.stringify(reservations) %>';
+                let reservationsData = [];
+
+                if (reservationJSON) {
+                    reservationsData = JSON.parse(reservationJSON);
+                }
+                updateTable(reservationsData); // Update the table with default data
+            }
+
+            // Sort button click event
+            document.getElementById('sort-date-button').addEventListener('click', function () {
+                const sortOrderSelect = document.getElementById('sort-order-select');
+                const sortOrder = sortOrderSelect.options[sortOrderSelect.selectedIndex].value;
+
+                const reservationJSON = '<%- JSON.stringify(reservations) %>';
+                let reservationsData = [];
+
+                if (reservationJSON) {
+                    reservationsData = JSON.parse(reservationJSON);
+                }
+
+                reservationsData.sort((a, b) => compareDates(a, b, sortOrder)); // Sort reservations by date
+                updateTable(reservationsData); // Update the table with sorted data
             });
+
+            // Button click event for sorting by time
+            document.getElementById('sort-time-button').addEventListener('click', function () {
+                const sortOrderSelect = document.getElementById('sort-order-select');
+                const sortOrder = sortOrderSelect.options[sortOrderSelect.selectedIndex].value;
+
+                const reservationJSON = '<%- JSON.stringify(reservations) %>';
+                let reservationsData = [];
+
+                if (reservationJSON) {
+                    reservationsData = JSON.parse(reservationJSON);
+                }
+
+                reservationsData.sort((a, b) => compareTimes(a, b, sortOrder));
+                updateTable(reservationsData);
+            });
+
+            // Sort button click event for number of visitors
+            document.getElementById('sort-visitors-button').addEventListener('click', function () {
+                const sortOrderSelect = document.getElementById('sort-order-select');
+                const sortOrder = sortOrderSelect.options[sortOrderSelect.selectedIndex].value;
+
+                const reservationJSON = '<%- JSON.stringify(reservations) %>';
+                let reservationsData = [];
+
+                if (reservationJSON) {
+                    reservationsData = JSON.parse(reservationJSON);
+                }
+
+                reservationsData.sort((a, b) => compareVisitors(a, b, sortOrder));
+                updateTable(reservationsData);
+            });
+
+            // Reset button click event
+            document.getElementById('reservation-reset-sort-button').addEventListener('click', function () {
+                resetTable();
+            });
+
+            //Initialize the table on page load
+            resetTable();
         });
+        
+        // Move the toggle functionality outside the DOMContentLoaded event
+        const toggleViewButtonCard = document.getElementById("toggleViewButtonCard");
+        const toggleViewButtonTable = document.getElementById("toggleViewButtonTable");
+        const cardSection = document.getElementById("reservation-section");
+        const tableSection = document.getElementById("reservation-table-section");
+
+        // Initial view (card view)
+        cardSection.style.display = "block";
+        tableSection.style.display = "none";
+
+        toggleViewButtonCard.addEventListener("click", function () {
+            // Toggle the display property of card and table sections
+            cardSection.style.display = "none";
+            tableSection.style.display = "block";
+        });
+
+        toggleViewButtonTable.addEventListener("click", function () {
+            // Toggle the display property of card and table sections
+            cardSection.style.display = "block";
+            tableSection.style.display = "none";
+        });
+
     </script>
 </body>
+
 </html>
