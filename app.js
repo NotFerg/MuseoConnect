@@ -474,31 +474,42 @@ app.get("/loggedInadminreports", async (req, res) => {
 app.get("/loggedInadminreservation", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
   try {
-    if (!req.session.active) {
-      return res.redirect("/logout");
-    }
-    req.session.active = true;
-    let users = await User.find();
-    let reservations = await Reservation.find();
+      if (!req.session.active) {
+          return res.redirect("/logout");
+      }
+      req.session.active = true;
+      let users = await User.find();
+      let reservations = await Reservation.find();
 
-    const { search } = req.query;
-    if (search) {
-      users = users.filter(
-        (user) =>
-          user.name.toLowerCase().includes(search.toLowerCase()) ||
-          user.email.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+      const { search, date } = req.query;
 
-    res.render("loggedInadminreservation", {
-      users,
-      search,
-      admin,
-      reservations,
-    });
+      // Filter users by name/email if search term is present
+      if (search) {
+          users = users.filter(
+              (user) =>
+                  user.name.toLowerCase().includes(search.toLowerCase()) ||
+                  user.email.toLowerCase().includes(search.toLowerCase())
+          );
+      }
+
+      // Filter reservations by date if date term is present
+      if (date) {
+          reservations = reservations.filter(
+              (reservation) =>
+                  reservation.visitDate &&
+                  reservation.visitDate.toISOString().split('T')[0].includes(date)
+          );
+      }
+
+      res.render("loggedInadminreservation", {
+          users,
+          search,
+          admin,
+          reservations,
+      });
   } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).send("An error occurred while fetching users.");
+      console.error("Error fetching users:", error);
+      res.status(500).send("An error occurred while fetching users.");
   }
 });
 

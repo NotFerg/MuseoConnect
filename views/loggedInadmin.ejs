@@ -21,6 +21,7 @@
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
 
+
 </head>
 
 <body>
@@ -64,7 +65,7 @@
     <main id="main">
 
         <!-- USER LIST -->
-        <section class="intro-single">
+        <section class="intro-single" id="card-section">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 col-lg-8">
@@ -75,13 +76,15 @@
                         </div>
                     </div>
                     <br><br><br><br><br><br><br>
-
+                    <div class="toggle-button-container">
+                        <button id="toggleTableButton" class="btn btn-primary my-2">Toggle Table View</button>
+                    </div>
                     <form id="search-form" class="mb-3">
                         <div class="input-group">
                             <input type="text" id="search-input" class="form-control"
                                 placeholder="Search by name or email" autocomplete="off">
-                            <button type="button" class="btn btn-primary" onclick="searchUsers()">Search</button>
-                            <button type="button" class="btn btn-secondary" onclick="resetSearch()">Reset</button>
+                            <button type="button" class="btn btn-primary" id="searchBtn" onclick="searchUsers()">Search</button>
+                            <button type="button" class="btn btn-secondary" id="resetBtn" onclick="resetSearch()">Reset</button>
                         </div>
                     </form>
 
@@ -144,6 +147,109 @@
                 </div>
             </div>
         </section>
+
+        <!-- USER LIST TABLE -->
+        <section class="intro-single" id="table-section" style="display: none;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12">
+                        <div class="title-single-box d-flex align-items-center">
+                            <img src="/images/users.png" alt="Image" class="img-fluid"
+                                style="max-width: 100px; max-height: 100px;">
+                            <h1 class="title-single">User List</h1>
+                        </div>
+                    </div>
+                    <br><br><br><br><br><br><br>
+                    <div class="toggle-button-container">
+                        <button id="toggleCardButton" class="btn btn-primary my-2">Toggle Card View</button>
+                    </div>
+                    <form id="search-form" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" id="search-input-table" class="form-control"
+                                placeholder="Search by name or email" autocomplete="off">
+                            <button type="button" class="btn btn-primary" id="searchTableBtn" onclick="searchUsersTable()">Search</button>
+                            <button type="button" class="btn btn-secondary" id="resetTableBtn" onclick="resetSearchTable()">Reset</button>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table id="user-table" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Delete</th>
+                                    <th>Update Name</th>
+                                    <th>Update Email</th>
+                                    <th style="width: 80px;">Update Score</th>
+                                    <th>Update Password</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% users.forEach(user=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= user.name %>
+                                        </td>
+                                        <td>
+                                            <%= user.email %>
+                                        </td>
+                                        <td>
+                                            <form action="/loggedIn/admin/users/<%= user._id %>?_method=DELETE"
+                                                method="POST">
+                                                <button type="submit" class="btn btn-danger">Delete User</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <form action="/loggedIn/admin/users/<%= user._id %>?_method=PUT"
+                                                method="post" class="mt-2">
+                                                <div class="input-group">
+                                                    <input type="text" name="name" value="<%= user.name %>" required
+                                                        class="form-control" autocomplete="off">
+                                                </div>
+                                                <button type="submit" class="btn btn-success mt-2">Update Name</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <form action="/loggedIn/admin/users/<%= user._id %>/email?_method=PUT"
+                                                method="post" class="mt-2">
+                                                <div class="input-group">
+                                                    <input type="email" name="email" value="<%= user.email %>" required
+                                                        class="form-control" autocomplete="off">
+                                                </div>
+                                                <button type="submit" class="btn btn-success mt-2">Update Email</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <form action="/loggedIn/admin/users/<%= user._id %>/score?_method=PUT"
+                                                method="post" class="mt-2">
+                                                <div class="input-group">
+                                                    <input type="number" name="score" value="<%= user.score %>" required
+                                                        class="form-control" autocomplete="off">
+                                                </div>
+                                                <button type="submit" class="btn btn-success mt-2">Update Score</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <form action="/loggedIn/admin/users/<%= user._id %>/password?_method=PUT"
+                                                method="post" class="mt-2">
+                                                <div class="input-group">
+                                                    <input type="password" name="password" required class="form-control"
+                                                        autocomplete="off">
+                                                </div>
+                                                <button type="submit" class="btn btn-success mt-2">Update
+                                                    Password</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <br><br><br><br><br>
@@ -192,9 +298,26 @@
     <script src="/js/admin.js"></script>
     <script src="/js/index.js"></script>
     <script>
-        
-
+        document.addEventListener("DOMContentLoaded", function () {
+            const cardSection = document.getElementById("card-section");
+            const tableSection = document.getElementById("table-section");
+            const toggleCardButton = document.getElementById('toggleCardButton');
+            const toggleTableButton = document.getElementById('toggleTableButton');
+    
+            toggleCardButton.addEventListener('click', function () {
+                cardSection.style.display = 'block';
+                tableSection.style.display = 'none';
+            });
+    
+            toggleTableButton.addEventListener('click', function () {
+                cardSection.style.display = 'none';
+                tableSection.style.display = 'block';
+            });
+        });
     </script>
+    
+
+
 </body>
 
 </html>

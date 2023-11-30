@@ -32,21 +32,62 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("search-input");
 
   // Listen for "Enter" key press in the search input field
-  searchInput.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-      // Prevent the default form submission behavior
-      event.preventDefault();
-      // Trigger the search function
-      searchUsers();
+  document.getElementById('search-input').addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        searchUsers();
     }
-  });
+});
 
   // Add event listeners to search and reset buttons
-  const searchButton = document.querySelector(".btn-primary");
-  const resetButton = document.querySelector(".btn-secondary");
+  const searchButton = document.getElementById("searchBtn")
+  const resetButton = document.getElementById("resetBtn")
 
   searchButton.addEventListener("click", searchUsers);
   resetButton.addEventListener("click", resetSearch);
+
+  //Table functionaility
+  function searchUsersTable() {
+    const searchInputTable = document.getElementById("search-input-table");
+    const searchTermTable = searchInputTable.value.trim().toLowerCase();
+    const rows = document.querySelectorAll("#user-table tbody tr");
+
+    rows.forEach((row) => {
+      const name = row.cells[0].textContent.trim().toLowerCase();
+      const email = row.cells[1].textContent.trim().toLowerCase();
+
+      if (name.includes(searchTermTable) || email.includes(searchTermTable)) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  }
+
+  function resetSearchTable() {
+    const rows = document.querySelectorAll("#user-table tbody tr");
+    rows.forEach((row) => {
+      row.style.display = "";
+    });
+    document.getElementById("search-input-table").value = "";
+  }
+
+  const searchInputTable = document.getElementById("search-input-table");
+
+  // Listen for "Enter" key press in the search input field
+  document.getElementById('search-input-table').addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        searchUsersTable();
+    }
+});
+
+ // Add event listeners to search and reset buttons for the table
+const searchButtonTable = document.getElementById("searchTableBtn")
+const resetButtonTable = document.getElementById("resetTableBtn")
+
+searchButtonTable.addEventListener("click", searchUsersTable); // Corrected function name
+resetButtonTable.addEventListener("click", resetSearchTable);
 
   let inactivityTimeout;
   // Function to reset the inactivity timer
