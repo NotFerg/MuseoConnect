@@ -192,7 +192,7 @@
                             </p>
 
                             <form action="/loggedInaccountInformation/rebook/<%= userReservation._id %>" method="post"
-                                class="mt-2" class="reservationForm">
+                                class="mt-2 reservationForm" >
 
                                 <div class="form-outline mb-3">
                                     <label for="visitDate">Visit Date</label>
@@ -466,11 +466,11 @@
                 }
 
                 // Display a confirmation dialog
-                const isConfirmed = confirm("Are you sure about your reservation?");
+                const isConfirmed = confirm("Are you sure about your rebooking?");
 
                 // Check the user's response
                 if (!isConfirmed) {
-                    alert("Reservation canceled.");
+                    alert("Rebooking canceled.");
                     event.preventDefault(); // Prevent the form from submitting
                 }
             });
