@@ -131,14 +131,7 @@
                                             </div>
                                         </form>
 
-                                        <form action="/loggedIn/admin/users/<%= user._id %>/password?_method=PUT"
-                                            method="post" class="mt-2">
-                                            <div class="input-group">
-                                                <input type="password" name="password" required class="form-control"
-                                                    autocomplete="off">
-                                                <button type="submit" class="btn btn-success">Update Password</button>
-                                            </div>
-                                        </form>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -182,7 +175,7 @@
                                     <th>Update Name</th>
                                     <th>Update Email</th>
                                     <th style="width: 80px;">Update Score</th>
-                                    <th>Update Password</th>
+                                   
                                 </tr>
                             </thead>
                             <tbody>
@@ -230,17 +223,7 @@
                                                 <button type="submit" class="btn btn-success mt-2">Update Score</button>
                                             </form>
                                         </td>
-                                        <td>
-                                            <form action="/loggedIn/admin/users/<%= user._id %>/password?_method=PUT"
-                                                method="post" class="mt-2">
-                                                <div class="input-group">
-                                                    <input type="password" name="password" required class="form-control"
-                                                        autocomplete="off">
-                                                </div>
-                                                <button type="submit" class="btn btn-success mt-2">Update
-                                                    Password</button>
-                                            </form>
-                                        </td>
+                                        
                                     </tr>
                                     <% }) %>
                             </tbody>
