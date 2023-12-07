@@ -19,6 +19,15 @@
 
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+        .blocked-date {
+            background-color: #FF0000 !important;
+        }
+
+        .partialBlock {
+            background-color: rgb(250, 238, 65) !important;
+        }
+    </style>
 
 </head>
 
@@ -179,43 +188,63 @@
                         </div>
                         <div class="card-body-c">
                             <p class="h3 content-c">
-                                <% reservations.forEach(function(reservation) { %>
+                                <% userReservations.forEach(function(userReservation) { %>
                             </p>
 
-                            <p class="h2 content-c" style="color: black;">
-                                Visit Date
-                            </p>
-                            <p class="h6 content-c">
-                                <%= reservation.visitDate.toLocaleDateString("en-US", { year: 'numeric' , month: 'short'
-                                    , day: 'numeric' }) %>
-                            </p>
-                            <br>
+                            <form action="/loggedInaccountInformation/rebook/<%= userReservation._id %>" method="post"
+                                class="mt-2" class="reservationForm">
 
-                            <p class="h2 content-c" style="color: black;">
-                                Visit Time
-                            </p>
-                            <p class="h6 content-c">
-                                <%= reservation.visitTime %>
-                            </p>
-                            <br>
+                                <div class="form-outline mb-3">
+                                    <label for="visitDate">Visit Date</label>
+                                    <input type="text" name="visitDate" class="visitDate form-control"
+                                        value="<%= userReservation.visitDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>"
+                                        required autocomplete="off">
+                                    </p>
+                                </div>
 
-                            <p class="h2 content-c" style="color: black;">
-                                Contact Number
-                            </p>
-                            <p class="h6 content-c">
-                                <%= reservation.contactNumber %>
-                            </p>
-                            <br>
+                                <div class="form-outline mb-4">
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle choice" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false" required>
+                                            <%= userReservation.visitTime %>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item visit1" href="#" data-time="10:30">10:30</a>
+                                            </li>
+                                            <li><a class="dropdown-item visit2" href="#" data-time="13:30">13:30</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <input type="hidden" name="visitTime" value=""
+                                        class="form-control form-control-lg selectedVisitTime" required
+                                        autocomplete="off">
+                                </div>
 
-                            <p class="h2 content-c" style="color: black;">
-                                Number of Visitors
-                            </p>
-                            <p class="h6 content-c">
-                                <%= reservation.numberOfVisitors %>
-                            </p>
-                            <br>
+                                <p hidden name="fullName">userReservation.fullName</p>
 
-                            <form action="/loggedInaccountInformation/remove-reservation/<%= reservation._id %>"
+                                <div class="form-outline mb-4">
+                                    <input type="text" name="contactNumber"
+                                        class="form-control form-control-lg contactNumber"
+                                        value="<%= userReservation.contactNumber %>" required autocomplete="off">
+                                    <label class="form-label" for="contactNumber">Contact Number</label>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <input type="number" name="numberOfVisitors" id="numberOfVisitors"
+                                        value="<%= userReservation.numberOfVisitors %>"
+                                        class="form-control form-control-lg numberOfVisitors" required
+                                        autocomplete="off" min="1" max="10">
+                                    <label class="form-label" for="numberOfVisitors">Number Of Visitors (1-10)</label>
+                                </div>
+
+                                <div class="form-outline mb-4 text-center">
+                                    <button type="submit" class="btn btn-lg btn-success gradient-custom-4" id="reserve"
+                                        style="color: white;">Rebook</button>
+                                </div>
+
+                            </form>
+
+                            <form action="/loggedInaccountInformation/remove-reservation/<%= userReservation._id %>"
                                 method="post" class="mt-2 text-center">
                                 <button type="submit" class="btn btn-danger">Remove Reservation</button>
                             </form>
@@ -262,30 +291,212 @@
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="assets/vendor/php-email-form/validate.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="/js/index.js"></script>
 
     <script>
-        let inactivityTimeout;
-        // Function to reset the inactivity timer
-        function resetInactivityTimeout() {
-            clearTimeout(inactivityTimeout);
-            inactivityTimeout = setTimeout(() => {
-                // Send a request to the server to reset the session timeout
-                fetch("/reset-inactivity").then((response) => {
-                    if (response.ok) {
-                        console.log("Inactivity timer reset.");
-                        // Redirect to the logout route after 1 minute of inactivity
-                        window.location.href = "/logout";
-                    }
+        $(document).ready(function () {
+            const blockedDateTimesJSON = '<%- JSON.stringify(blockedSlots) %>';
+            let blockedDates = [];
+
+            if (blockedDateTimesJSON) {
+                blockedDates = JSON.parse(blockedDateTimesJSON);
+            }
+
+            const reservationJSON = '<%- JSON.stringify(reservations) %>';
+            let reservation = [];
+
+            if (reservationJSON) {
+                reservation = JSON.parse(reservationJSON);
+            }
+
+            $(document).on('click', '.visit1', function (e) {
+                e.preventDefault(); // Prevent default anchor behavior
+                const parentForm = $(this).closest("form");
+                console.log("Visit 1 Clicked. Parent Form Found:", parentForm.length);
+                parentForm.find(".choice").text("10:30");
+                parentForm.find(".selectedVisitTime").val("10:30");
+                console.log("Visit Time set to 10:30");
+            });
+
+            $(document).on('click', '.visit2', function (e) {
+                e.preventDefault(); // Prevent default anchor behavior
+                const parentForm = $(this).closest("form");
+                console.log("Visit 2 Clicked. Parent Form Found:", parentForm.length);
+                parentForm.find(".choice").text("13:30");
+                parentForm.find(".selectedVisitTime").val("13:30");
+                console.log("Visit Time set to 13:30");
+            });
+
+            //   $(".visit1").click(function () {
+            //     console.log("visit 1 clicked");
+            //     $(".choice").text("10:30");
+            //     $(".selectedVisitTime").val("10:30");
+            //   });
+
+            //   $(".visit2").click(function () {
+            //     $(".choice").text("13:30 ");
+            //     $(".selectedVisitTime").val("13:30 ");
+            //   });
+
+            //console.log('Blocked Dates:', blockedDates);
+            //console.log('Reservations:', reservation);
+
+            // Declare 'filled' here so that it's accessible in the datepicker initialization below
+            const filled = [];
+            blockedDates.forEach((blockedDate) => {
+                //console.log('Blocked Date:', blockedDate);
+                blockedDate.blockedTimes.forEach((time) => {
+                    //console.log('Time:', time);
+                    filled.push({ date: blockedDate.blockedDate, time });
                 });
-            }, 300000); // 300,000 milliseconds = 5 minutes
-        }
-        // Listen for user interactions
-        window.addEventListener("mousemove", resetInactivityTimeout);
-        window.addEventListener("keydown", resetInactivityTimeout);
-        // Initial reset
-        resetInactivityTimeout(); 
+            });
+
+            reservation.forEach((reservation) => {
+                filled.push({ date: reservation.visitDate, time: reservation.visitTime });
+                //console.log('Reservation:', reservation);
+            });
+
+            function updateDropdown(selectedDate, form) {
+                const formattedDate = $.datepicker.formatDate("yy-mm-dd", selectedDate);
+                const choiceButton = form.find(".choice");
+                const selectedVisitTime = form.find(".selectedVisitTime");
+
+                // Logic to determine if the selected date has blocked times or existing reservations
+                const blockedTimes = blockedDates.find(slot => slot.blockedDate.startsWith(formattedDate))?.blockedTimes || [];
+                const has1030 = filled.some(item => item.date.split("T")[0] === formattedDate && item.time === "10:30");
+                const has1330 = filled.some(item => item.date.split("T")[0] === formattedDate && item.time === "13:30");
+
+                if ((blockedTimes.includes("10:30") && blockedTimes.includes("13:30")) || (has1030 && has1330)
+                    || (blockedTimes.includes("10:30") && has1330) || (has1330 && blockedTimes.includes("10:30"))) {
+                    choiceButton.text("Both time slots are fully booked");
+                    selectedVisitTime.val("");
+                    choiceButton.prop("disabled", true);
+                } else if (blockedTimes.includes("10:30") || has1030) {
+                    choiceButton.text("13:30");
+                    selectedVisitTime.val("13:30");
+                    choiceButton.prop("disabled", true);
+                } else if (blockedTimes.includes("13:30") || has1330) {
+                    choiceButton.text("10:30");
+                    selectedVisitTime.val("10:30");
+                    choiceButton.prop("disabled", true);
+                } else {
+                    choiceButton.text("Select Visit Time");
+                    selectedVisitTime.val("");
+                    choiceButton.prop("disabled", false);
+                }
+            }
+
+            $(".visitDate").datepicker({
+                dateFormat: "yy-mm-dd",
+                minDate: 0,
+                onSelect: function (dateText, inst) {
+                    const selectedDate = new Date(dateText);
+                    const parentForm = $(this).closest('form');
+                    updateDropdown(selectedDate, parentForm);
+                },
+                beforeShowDay: function (date) {
+                    const day = date.getDay(); // Get the day of the week (0 = Sunday, 1 = Monday, ...)
+
+                    // Disable weekends (Saturday and Sunday)
+                    if (day === 0 || day === 6) {
+                        return [false, "blocked-date"];
+                    }
+                    const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
+
+                    //console.log('Checking date:', formattedDate);
+                    //console.log('filled:', filled);
+
+                    const has1030 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "10:30");
+                    const has1330 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "13:30");
+
+                    //console.log('has1030:', has1030);
+                    //console.log('has1330:', has1330);
+
+                    if (has1030 && has1330) {
+                        //console.log('Disabling date:', formattedDate);
+                        return [false, "blocked-date"];
+                    } else if (has1030 || has1330) {
+                        //console.log('Partially blocking date:', formattedDate);
+                        return [true, "partialBlock"];
+                    } else {
+                        //console.log('Enabling date:', formattedDate);
+                        return [true, ""];
+                    }
+                },
+            });
+
+            // Function to allow only numeric input for the contact number
+            $(document).on('input', '.contactNumber', function () {
+                this.value = this.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+            });
+
+            $(document).on('submit', '.reservationForm', function (event) {
+                const form = $(this);
+                const selectedTime = form.find(".selectedVisitTime").val();
+                const selectedDate = form.find(".visitDate").val();
+                const numberOfVisitors = form.find(".numberOfVisitors").val();
+                const enteredContactNumber = form.find(".contactNumber").val();
+
+                // Check if the selected date, time, and number of visitors are valid
+                if (selectedDate === "" || selectedTime === "" || numberOfVisitors < 1 || numberOfVisitors > 10) {
+                    alert("Please select a valid date, time, and ensure the number of visitors is between 1 and 10.");
+                    event.preventDefault(); // Prevent the form from submitting
+                    return;
+                }
+
+                // Validate the contact number
+                const cleanedContactNumber = enteredContactNumber.replace(/^0+/, ''); // Remove leading '0'
+
+                // Add '63' prefix if the number does not start with '63'
+                const processedContactNumber = cleanedContactNumber.startsWith('63') ? cleanedContactNumber : '63' + cleanedContactNumber;
+
+                if (/^63\d{10}$/.test(processedContactNumber)) {
+                    // Valid Philippine phone number
+                    // alert('Valid Philippine phone number: ' + processedContactNumber);
+                    // Update the input field with the processed contact number
+                    $(".contactNumber").val(processedContactNumber);
+                } else {
+                    // Invalid phone number, handle accordingly (e.g., show an error message)
+                    alert('Invalid Philippine phone number');
+                    event.preventDefault(); // Prevent the form from submitting
+                    return;
+                }
+
+                // Display a confirmation dialog
+                const isConfirmed = confirm("Are you sure about your reservation?");
+
+                // Check the user's response
+                if (!isConfirmed) {
+                    alert("Reservation canceled.");
+                    event.preventDefault(); // Prevent the form from submitting
+                }
+            });
+
+            let inactivityTimeout;
+            // Function to reset the inactivity timer
+            function resetInactivityTimeout() {
+                clearTimeout(inactivityTimeout);
+                inactivityTimeout = setTimeout(() => {
+                    // Send a request to the server to reset the session timeout
+                    fetch("/reset-inactivity").then((response) => {
+                        if (response.ok) {
+                            console.log("Inactivity timer reset.");
+                            // Redirect to the logout route after 1 minute of inactivity
+                            window.location.href = "/logout";
+                        }
+                    });
+                }, 300000); // 300,000 milliseconds = 5 minutes
+            }
+            // Listen for user interactions
+            window.addEventListener("mousemove", resetInactivityTimeout);
+            window.addEventListener("keydown", resetInactivityTimeout);
+            // Initial reset
+            resetInactivityTimeout();
+
+        });
     </script>
 
 </body>

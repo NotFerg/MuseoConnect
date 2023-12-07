@@ -193,7 +193,6 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 //NOT LOGGED IN
-
 app.get("/", (req, res) => {
   res.render("index");
 });
@@ -336,8 +335,10 @@ app.get("/loggedInaccountInformation", async (req, res) => {
       return res.redirect("/logout");
     }
     req.session.active = true;
-    let reservations = await Reservation.find({ emailAddress: user.email });
-    res.render("loggedInaccountInformation", { user, reservations });
+    let userReservations = await Reservation.find({ emailAddress: user.email });
+    const blockedSlots = await Blocked.find();
+    let reservations = await Reservation.find();
+    res.render("loggedInaccountInformation", { user, userReservations,blockedSlots,reservations });
   } catch (error) {
     res.redirect("/logout");
     console.error("Error fetching reservations: ", error);
@@ -773,7 +774,6 @@ async function sendPasswordResetEmail(email, resetLink) {
 // Reset route
 app.get("/reset", async (req, res) => {
   const resetToken = req.query.code;
-
   try {
     // Find the user by the reset token
     const user = await User.findOne({
@@ -1078,10 +1078,112 @@ app.post("/loggedIn/reservation", async (req, res) => {
   }
 });
 
+
+// Rebook of Reservation
+app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
+  const reservationId = req.params.id;
+  const inpVisitDate = req.body.visitDate;
+  const inpVisitTime = req.body.visitTime;
+  const inpContactNumber = req.body.contactNumber;
+  const inpNumberOfVisitors = req.body.numberOfVisitors;
+  const today = new Date();
+  const loggedInUser = req.session.user;
+
+  const visitDate = new Date(inpVisitDate);
+
+  try {
+    // Check if the visit date is less than today
+    if (visitDate < today) {
+      return res.send(`<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInaccountInformation";</script>`);
+    }
+
+    // Check for blocked dates and times
+    const isDateOrTimeBlocked = await Blocked.findOne({
+      blockedDate: visitDate,
+      blockedTimes: inpVisitTime
+    });
+
+    if (isDateOrTimeBlocked) {
+      return res.send(`<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`);
+    }
+
+    // Check if there's already a reservation for the selected date and time (excluding the current reservation)
+    const existingReservation = await Reservation.findOne({
+      _id: { $ne: reservationId },
+      visitDate: visitDate,
+      visitTime: inpVisitTime
+    });
+
+    if (existingReservation) {
+      return res.send(`<script>alert("A reservation already exists for the selected date and time. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`);
+    }
+
+    // Update the reservation
+    await Reservation.findByIdAndUpdate(reservationId, {
+      visitDate: visitDate,
+      visitTime: inpVisitTime,
+      contactNumber: inpContactNumber,
+      numberOfVisitors: inpNumberOfVisitors
+    });
+
+    // Email setup
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS
+      },
+      tls: {
+        rejectUnauthorized: false,
+      }
+    });
+
+    // Send confirmation email to admin
+    const adminEmail = process.env.GMAIL_USER;
+    const reservationDate = moment(visitDate).format("YYYY-MM-DD");
+
+    const adminMailOptions = {
+      from: process.env.GMAIL_USER,
+      to: adminEmail,
+      subject: "Reservation Update",
+      text: `A reservation has been updated by ${loggedInUser.name} for ${reservationDate} at ${inpVisitTime}.`
+    };
+
+    transporter.sendMail(adminMailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending admin email:", error);
+      } else {
+        console.log("Admin email sent:", info.response);
+      }
+    });
+
+    // Send confirmation email to user
+    const userMailOptions = {
+      from: process.env.GMAIL_USER,
+      to: loggedInUser.email,
+      subject: "Reservation Update Confirmation",
+      text: `Your reservation has been updated successfully. New date and time: ${reservationDate} at ${inpVisitTime}.`
+    };
+
+    transporter.sendMail(userMailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending user email:", error);
+      } else {
+        console.log("User email sent:", info.response);
+      }
+    });
+
+    // Response to client
+    res.send(`<script>alert("Reservation updated successfully!"); window.location.href = "/loggedInaccountInformation";</script>`);
+  } catch (error) {
+    console.error("Error updating reservation:", error);
+    res.status(500).send("An error occurred while updating the reservation.");
+  }
+});
+
 // Removal of Reservation by admin
 app.post("/loggedIn/admin/remove-reservation/:id", async (req, res) => {
   const { id } = req.params;
-
   try {
     // Find the reservation by ID and remove it
     await Reservation.findByIdAndRemove(id);
