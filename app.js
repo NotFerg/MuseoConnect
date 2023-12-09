@@ -1641,10 +1641,12 @@ app.put("/loggedIn/admin/artifacts/:artifactId", upload.single("updateImage"), a
       if (req.file) {
           // Delete the old image from Cloudinary, if it exists
           if (artifact.image) {
-              const publicId = extractPublicId(artifact.image);
-              console.log(publicId);
-              await cloudinary.uploader.destroy("museo/"+publicId);
-          }
+            const publicId = extractPublicId(artifact.image);
+            const decodedPublicId = decodeURIComponent(publicId); // Decode URL-encoded public ID
+            console.log(decodedPublicId);
+            await cloudinary.uploader.destroy("museo/" + decodedPublicId);
+        }
+        
 
           // Upload the new image to Cloudinary
           let uploadResult;
@@ -1693,9 +1695,11 @@ app.delete("/loggedIn/admin/artifacts/:artifactId", async (req, res) => {
       // Delete the image from Cloudinary
       if (artifact.image) {
         const publicId = extractPublicId(artifact.image);
-        console.log(publicId);
-        await cloudinary.uploader.destroy("museo/"+publicId);
-      }
+        const decodedPublicId = decodeURIComponent(publicId); // Decode URL-encoded public ID
+        console.log(decodedPublicId);
+        await cloudinary.uploader.destroy("museo/" + decodedPublicId);
+    }
+    
 
       await Artifact.findByIdAndRemove(artifactId);
       res.redirect("/loggedInadminartifacts");
