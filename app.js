@@ -265,21 +265,34 @@ app.get("/loggedIndonation", (req, res) => {
   res.render("loggedIndonation", { user });
 });
 
+// app.get("/loggedInartifacts", async (req, res) => {
+//   const user = req.session.user;
+//   if (!req.session.active) {
+//     return res.redirect("/logout");
+//   }
+//   req.session.active = true;
+//   let artifacts = await Artifact.find();
+
+//   artifacts = artifacts.map((artifact) => {
+//     const decodedImage = Buffer.from(artifact.image, "base64");
+//     return { ...artifact.toObject(), decodedImage };
+//   });
+
+//   res.render("loggedInartifacts", { user, artifacts });
+// });
+
 app.get("/loggedInartifacts", async (req, res) => {
   const user = req.session.user;
   if (!req.session.active) {
-    return res.redirect("/logout");
+      return res.redirect("/logout");
   }
   req.session.active = true;
   let artifacts = await Artifact.find();
 
-  artifacts = artifacts.map((artifact) => {
-    const decodedImage = Buffer.from(artifact.image, "base64");
-    return { ...artifact.toObject(), decodedImage };
-  });
-
+  // No need to decode images, as we are using URLs
   res.render("loggedInartifacts", { user, artifacts });
 });
+
 
 app.get("/loggedInvirtualTour", (req, res) => {
   const user = req.session.user;
@@ -375,6 +388,32 @@ app.get("/loggedInadmin", async (req, res) => {
   }
 });
 
+// app.get("/loggedInadminartifacts", async (req, res) => {
+//   const admin = req.session.user; // Retrieve user data from the session
+//   try {
+//     if (!req.session.active) {
+//       return res.redirect("/logout");
+//     }
+//     req.session.active = true;
+//     let artifacts = await Artifact.find();
+
+//     // Decode Base64 image data in artifacts
+//     artifacts = artifacts.map((artifact) => {
+//       const decodedImage = Buffer.from(artifact.image, "base64");
+//       // Assuming you have a property like "decodedImage" in your artifact schema
+//       return { ...artifact.toObject(), decodedImage };
+//     });
+
+//     res.render("loggedInadminartifacts", {
+//       admin,
+//       artifacts,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching users:", error);
+//     res.status(500).send("An error occurred while fetching users.");
+//   }
+// });
+
 app.get("/loggedInadminartifacts", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
   try {
@@ -383,13 +422,6 @@ app.get("/loggedInadminartifacts", async (req, res) => {
     }
     req.session.active = true;
     let artifacts = await Artifact.find();
-
-    // Decode Base64 image data in artifacts
-    artifacts = artifacts.map((artifact) => {
-      const decodedImage = Buffer.from(artifact.image, "base64");
-      // Assuming you have a property like "decodedImage" in your artifact schema
-      return { ...artifact.toObject(), decodedImage };
-    });
 
     res.render("loggedInadminartifacts", {
       admin,
@@ -400,6 +432,7 @@ app.get("/loggedInadminartifacts", async (req, res) => {
     res.status(500).send("An error occurred while fetching users.");
   }
 });
+
 
 app.get("/loggedInadminblocked", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
@@ -447,7 +480,11 @@ app.get("/loggedInadminreports", async (req, res) => {
     let users = await User.find();
     let reservations = await Reservation.find();
     let blocked = await Blocked.find();
-    let artifacts = await Artifact.find();
+    // let artifactType = await Artifact.find();
+    // const artifacts = artifactType.map(artifactType => artifactType.type);
+
+    let artifacts = await Artifact.find().select('type');
+
 
     const { search } = req.query;
     if (search) {
@@ -1454,25 +1491,132 @@ app.post("/saveScore", async (req, res) => {
   }
 });
 
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET 
+});
+
 // Adding artifact route
+// app.post("/loggedIn/admin/addArtifact", upload.single("image"), async (req, res) => {
+//   const { title, description, type, sketchfabLink } = req.body;
+//   const imageBuffer = req.file.buffer;
+
+//   try {
+//       const resizedImageBuffer = await sharp(imageBuffer)
+//           .resize({
+//               width: 1920,
+//               height: 1080,
+//               fit: sharp.fit.inside,
+//           })
+//           .toBuffer();
+
+//       const artifact = new Artifact({
+//           title,
+//           type,
+//           description,
+//           image: resizedImageBuffer.toString("base64"),
+//           sketchfabLink,
+//       });
+
+//       await artifact.save();
+//       res.redirect("/loggedInadminartifacts");
+//   } catch (error) {
+//       console.error(error);
+//       res.status(500).send("Error adding artifact");
+//   }
+// });
+
+
+
+//Update an artifact
+// app.put("/loggedIn/admin/artifacts/:artifactId", upload.single("updateImage"), async (req, res) => {
+//   const { updateTitle, updateDescription, updateType, updateSketchfabLink } = req.body;
+//   const artifactId = req.params.artifactId;
+
+//   try {
+//       const artifact = await Artifact.findById(artifactId);
+
+//       if (!artifact) {
+//           return res.status(404).send("Artifact not found");
+//       }
+
+//       if (req.file) {
+//           const imageBuffer = req.file.buffer;
+//           const resizedImageBuffer = await sharp(imageBuffer)
+//               .resize({
+//                   width: 1920,
+//                   height: 1080,
+//                   fit: sharp.fit.inside,
+//               })
+//               .toBuffer();
+
+//           artifact.image = resizedImageBuffer.toString("base64");
+//       }
+
+//       artifact.title = updateTitle;
+//       artifact.description = updateDescription;
+//       artifact.type = updateType;
+//       artifact.sketchfabLink = updateSketchfabLink; // Update Sketchfab link
+
+//       await artifact.save();
+//       res.redirect("/loggedInadminartifacts");
+//   } catch (error) {
+//       res.status(500).send("Error updating artifact: " + error.message);
+//   }
+// });
+
+//Remove an artifact
+// app.delete("/loggedIn/admin/artifacts/:artifactId", async (req, res) => {
+//   const artifactId = req.params.artifactId;
+
+//   try {
+//       const artifact = await Artifact.findById(artifactId);
+
+//       if (!artifact) {
+//           return res.status(404).send("Artifact not found");
+//       }
+
+//       await Artifact.findByIdAndRemove(artifactId);
+//       res.redirect("/loggedInadminartifacts");
+//   } catch (error) {
+//       res.status(500).send("Error removing artifact: " + error.message);
+//   }
+// });
+
 app.post("/loggedIn/admin/addArtifact", upload.single("image"), async (req, res) => {
   const { title, description, type, sketchfabLink } = req.body;
-  const imageBuffer = req.file.buffer;
-
+  
   try {
-      const resizedImageBuffer = await sharp(imageBuffer)
-          .resize({
-              width: 1920,
-              height: 1080,
-              fit: sharp.fit.inside,
-          })
-          .toBuffer();
+      let imageUrl;
+      if (req.file) {
+          const uploadOptions = {
+              use_filename: true,
+              unique_filename: true,
+              overwrite: true,
+              folder: "museo", // Specify the folder name here
+              public_id: req.file.originalname.split('.')[0], // Set file name without extension
+              resource_type: 'auto'
+          };
+
+          // Upload the image to Cloudinary
+          const uploadResult = await new Promise((resolve, reject) => {
+              cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+              }).end(req.file.buffer);
+          });
+
+          imageUrl = uploadResult.url;
+      }
 
       const artifact = new Artifact({
           title,
           type,
           description,
-          image: resizedImageBuffer.toString("base64"),
+          image: imageUrl, // Using the URL from Cloudinary
           sketchfabLink,
       });
 
@@ -1480,56 +1624,77 @@ app.post("/loggedIn/admin/addArtifact", upload.single("image"), async (req, res)
       res.redirect("/loggedInadminartifacts");
   } catch (error) {
       console.error(error);
-      res.status(500).send("Error adding artifact");
+      res.status(500).send("Error adding artifact: " + error.message);
   }
 });
 
-//Update an artifact
 app.put("/loggedIn/admin/artifacts/:artifactId", upload.single("updateImage"), async (req, res) => {
   const { updateTitle, updateDescription, updateType, updateSketchfabLink } = req.body;
   const artifactId = req.params.artifactId;
 
   try {
       const artifact = await Artifact.findById(artifactId);
-
       if (!artifact) {
           return res.status(404).send("Artifact not found");
       }
 
       if (req.file) {
-          const imageBuffer = req.file.buffer;
-          const resizedImageBuffer = await sharp(imageBuffer)
-              .resize({
-                  width: 1920,
-                  height: 1080,
-                  fit: sharp.fit.inside,
-              })
-              .toBuffer();
+          // Delete the old image from Cloudinary, if it exists
+          if (artifact.image) {
+              const publicId = extractPublicId(artifact.image);
+              console.log(publicId);
+              await cloudinary.uploader.destroy("museo/"+publicId);
+          }
 
-          artifact.image = resizedImageBuffer.toString("base64");
+          // Upload the new image to Cloudinary
+          let uploadResult;
+          const uploadOptions = {
+            use_filename: true,
+            unique_filename: true,
+            overwrite: true,
+            folder: "museo", // Specify the folder name here
+            public_id: req.file.originalname.split('.')[0], // Set file name without extension
+            resource_type: 'auto'
+          };
+
+          uploadResult = await new Promise((resolve, reject) => {
+              cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+              }).end(req.file.buffer);
+          });
+
+          artifact.image = uploadResult.url; // Update with new image URL
       }
 
+      // Update other details
       artifact.title = updateTitle;
       artifact.description = updateDescription;
       artifact.type = updateType;
-      artifact.sketchfabLink = updateSketchfabLink; // Update Sketchfab link
+      artifact.sketchfabLink = updateSketchfabLink;
 
       await artifact.save();
       res.redirect("/loggedInadminartifacts");
   } catch (error) {
+      console.error(error);
       res.status(500).send("Error updating artifact: " + error.message);
   }
 });
 
-//Remove an artifact
+
 app.delete("/loggedIn/admin/artifacts/:artifactId", async (req, res) => {
   const artifactId = req.params.artifactId;
-
   try {
       const artifact = await Artifact.findById(artifactId);
-
       if (!artifact) {
           return res.status(404).send("Artifact not found");
+      }
+
+      // Delete the image from Cloudinary
+      if (artifact.image) {
+        const publicId = extractPublicId(artifact.image);
+        console.log(publicId);
+        await cloudinary.uploader.destroy("museo/"+publicId);
       }
 
       await Artifact.findByIdAndRemove(artifactId);
@@ -1538,6 +1703,13 @@ app.delete("/loggedIn/admin/artifacts/:artifactId", async (req, res) => {
       res.status(500).send("Error removing artifact: " + error.message);
   }
 });
+
+function extractPublicId(url) {
+  // Extract the public ID from the URL
+  // Adjust the logic based on your Cloudinary URL structure
+  const parts = url.split('/');
+  return parts[parts.length - 1].split('.')[0]; // Assuming the public ID is the last part before the file extension
+}
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

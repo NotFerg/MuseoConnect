@@ -179,7 +179,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/js/admin.js"></script>
+    <!-- <script src="/js/admin.js"></script> -->
     <script src="/js/index.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -637,6 +637,27 @@
             document.getElementById('printArtifactsChartButton').addEventListener('click', printArtifactsChart);
             document.getElementById('printGenderDistributionChartButton').addEventListener('click', printGenderDistributionChart);
             document.getElementById('printAllChartsButton').addEventListener('click', printAllCharts);
+
+            let inactivityTimeout;
+            // Function to reset the inactivity timer
+            function resetInactivityTimeout() {
+                clearTimeout(inactivityTimeout);
+                inactivityTimeout = setTimeout(() => {
+                    // Send a request to the server to reset the session timeout
+                    fetch("/reset-inactivity").then((response) => {
+                        if (response.ok) {
+                            console.log("Inactivity timer reset.");
+                            // Redirect to the logout route after 1 minute of inactivity
+                            window.location.href = "/logout";
+                        }
+                    });
+                }, 300000); // 300,000 milliseconds = 5 minutes
+            }
+            // Listen for user interactions
+            window.addEventListener("mousemove", resetInactivityTimeout);
+            window.addEventListener("keydown", resetInactivityTimeout);
+            // Initial reset
+            resetInactivityTimeout();
         });
 
     </script>

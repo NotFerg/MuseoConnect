@@ -111,14 +111,15 @@
                         <br><br><br>
                         <div class="title-single-box">
                             <h1 class="title-single">Display Artifacts</h1>
+                         
                         </div>
                     </div>
-                    <div class="row">
+            
+                    <div class="row mt-4">
                         <% artifacts.forEach(artifact=> { %>
                             <div class="col-12 col-md-6 col-lg-4">
                                 <div class="card mb-3">
-                                    <img src="data:image/png;base64,<%= artifact.decodedImage.toString('base64') %>"
-                                        class="card-img-top" alt="<%= artifact.title %>">
+                                    <img src="<%= artifact.image %>" class="card-img-top" alt="<%= artifact.title %>">
                                     <div class="card-body">
                                         <h5 class="card-title">
                                             <%= artifact.title %>
@@ -135,18 +136,18 @@
                                             <div class="mb-3">
                                                 <label for="updateTitle" class="form-label">Update Title</label>
                                                 <input type="text" name="updateTitle" value="<%= artifact.title %>"
-                                                    class="form-control" required>
+                                                    class="form-control" required autocomplete="off">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="updateTitle" class="form-label">Update Type</label>
                                                 <input type="text" name="updateType" value="<%= artifact.type %>"
-                                                    class="form-control" required>
+                                                    class="form-control" required autocomplete="off">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="updateDescription" class="form-label">Update
                                                     Description</label>
                                                 <textarea name="updateDescription" class="form-control" rows="4"
-                                                    required><%= artifact.description %></textarea>
+                                                    required autocomplete="off"><%= artifact.description %></textarea>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="updateImage" class="form-label">Update Image</label>
