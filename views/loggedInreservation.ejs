@@ -180,6 +180,25 @@
                                   </div>
 
                                   <div class="form-outline mb-4">
+                                    <div class="form-check form-check-inline">
+                                      <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                        id="inlineRadio1" value="option1" required>
+                                      <label class="form-check-label" for="inlineRadio1">DLSUD STUDENT</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                      <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                        id="inlineRadio2" value="option2" required>
+                                      <label class="form-check-label" for="inlineRadio2">OUTSIDER</label>
+                                    </div>
+                                  </div>
+
+                                  <div class="form-outline mb-4 text-center" id="extraImage" style="display:none;">
+                                    <img src="images/Gcash.jpg" alt="GCASH QR">
+                                    <p>You can choose to settle the payment here now or at the museum</p>
+                                    <p>please keep a screenshot of the payment receipt</p>
+                                  </div>
+
+                                  <div class="form-outline mb-4">
                                     <button type="submit"
                                       class="btn btn-success btn-block btn-lg gradient-custom-4 text-body w-100"
                                       id="reserve">Reserve</button>
@@ -237,6 +256,26 @@
 
   <script>
     $(document).ready(function () {
+      const radio1 = document.getElementById('inlineRadio1');
+      const radio2 = document.getElementById('inlineRadio2');
+      const extraImage = document.getElementById('extraImage');
+
+      // Function to toggle the display based on the radio button checked
+      function toggleExtraImageDisplay() {
+        if (radio2.checked) {
+          extraImage.style.display = 'block'; // Show the image and text
+        } else {
+          extraImage.style.display = 'none'; // Hide the image and text
+        }
+      }
+
+      // Add event listeners to both radio buttons
+      radio1.addEventListener('change', toggleExtraImageDisplay);
+      radio2.addEventListener('change', toggleExtraImageDisplay);
+
+      // Call the function initially to set the correct display state
+      toggleExtraImageDisplay();
+
       const blockedDateTimesJSON = '<%- JSON.stringify(blockedSlots) %>';
       let blockedDates = [];
 
@@ -355,45 +394,45 @@
       });
 
       $("#reservationForm").submit(function (event) {
-      const selectedTime = $("#selectedVisitTime").val();
-      const selectedDate = $("#visitDate").val();
-      const numberOfVisitors = $("#numberOfVisitors").val();
+        const selectedTime = $("#selectedVisitTime").val();
+        const selectedDate = $("#visitDate").val();
+        const numberOfVisitors = $("#numberOfVisitors").val();
 
-      // Check if the selected date, time, and number of visitors are valid
-      if (selectedDate === "" || selectedTime === "" || numberOfVisitors < 1 || numberOfVisitors > 10) {
-        alert("Please select a valid date, time, and ensure the number of visitors is between 1 and 10.");
-        event.preventDefault(); // Prevent the form from submitting
-        return;
-      }
+        // Check if the selected date, time, and number of visitors are valid
+        if (selectedDate === "" || selectedTime === "" || numberOfVisitors < 1 || numberOfVisitors > 10) {
+          alert("Please select a valid date, time, and ensure the number of visitors is between 1 and 10.");
+          event.preventDefault(); // Prevent the form from submitting
+          return;
+        }
 
-      // Validate the contact number
-      const enteredContactNumber = $('#contactNumber').val();
-      const cleanedContactNumber = enteredContactNumber.replace(/^0+/, ''); // Remove leading '0'
+        // Validate the contact number
+        const enteredContactNumber = $('#contactNumber').val();
+        const cleanedContactNumber = enteredContactNumber.replace(/^0+/, ''); // Remove leading '0'
 
-      // Add '63' prefix if the number does not start with '63'
-      const processedContactNumber = cleanedContactNumber.startsWith('63') ? cleanedContactNumber : '63' + cleanedContactNumber;
+        // Add '63' prefix if the number does not start with '63'
+        const processedContactNumber = cleanedContactNumber.startsWith('63') ? cleanedContactNumber : '63' + cleanedContactNumber;
 
-      if (/^63\d{10}$/.test(processedContactNumber)) {
-        // Valid Philippine phone number
-        // alert('Valid Philippine phone number: ' + processedContactNumber);
-        // Update the input field with the processed contact number
-        $("#contactNumber").val(processedContactNumber);
-      } else {
-        // Invalid phone number, handle accordingly (e.g., show an error message)
-        alert('Invalid Philippine phone number');
-        event.preventDefault(); // Prevent the form from submitting
-        return;
-      }
+        if (/^63\d{10}$/.test(processedContactNumber)) {
+          // Valid Philippine phone number
+          // alert('Valid Philippine phone number: ' + processedContactNumber);
+          // Update the input field with the processed contact number
+          $("#contactNumber").val(processedContactNumber);
+        } else {
+          // Invalid phone number, handle accordingly (e.g., show an error message)
+          alert('Invalid Philippine phone number');
+          event.preventDefault(); // Prevent the form from submitting
+          return;
+        }
 
-      // Display a confirmation dialog
-      const isConfirmed = confirm("Are you sure about your reservation?");
+        // Display a confirmation dialog
+        const isConfirmed = confirm("Are you sure about your reservation?");
 
-      // Check the user's response
-      if (!isConfirmed) {
-        alert("Reservation canceled.");
-        event.preventDefault(); // Prevent the form from submitting
-      }
-    });
+        // Check the user's response
+        if (!isConfirmed) {
+          alert("Reservation canceled.");
+          event.preventDefault(); // Prevent the form from submitting
+        }
+      });
 
       let inactivityTimeout;
       // Function to reset the inactivity timer
