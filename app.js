@@ -268,13 +268,21 @@ app.get("/loggedIndonation", (req, res) => {
 app.get("/loggedInartifacts", async (req, res) => {
   const user = req.session.user;
   if (!req.session.active) {
-      return res.redirect("/logout");
+    return res.redirect("/logout");
   }
   req.session.active = true;
-  let artifacts = await Artifact.find();
 
-  // No need to decode images, as we are using URLs
-  res.render("loggedInartifacts", { user, artifacts });
+  let artifacts = await Artifact.find();
+  const { search } = req.query;
+
+  // Filter artifacts based on the search query if it exists
+  if (search) {
+    artifacts = artifacts.filter(artifact =>
+      artifact.title.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+
+  res.render("loggedInartifacts", { user, artifacts, search });
 });
 
 app.get("/loggedInvirtualTour", (req, res) => {
