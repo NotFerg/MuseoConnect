@@ -284,7 +284,7 @@
                             <span class="color-a"> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel
                                 Palgan
                         </p>
-                        <% if (admin && admin.name) { %>
+                        <% if (admin && admin.name && admin.type ==="admin") { %>
                             <p hidden>Welcome, <%= admin.name %>
                             </p>
                             <% } else { %>
