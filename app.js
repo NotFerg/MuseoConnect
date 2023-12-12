@@ -139,54 +139,54 @@ app.use(
 );
 
 // Middleware to prevent caching
-// app.use((req, res, next) => {
-//   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-//   res.setHeader("Pragma", "no-cache");
-//   res.setHeader("Expires", "0");
-
-//   if (req.session) {
-//     // Reset the session timeout when the user interacts with the server
-//     req.session._garbage = Date();
-//     req.session.touch();
-
-//     // Set the session as active
-//     req.session.active = true;
-
-//     // Start a timeout to set the session as inactive after 5 minutes
-//     setTimeout(() => {
-//       if (req.session) {
-//         req.session.active = false;
-//       }
-//     }, 300000); // 300,000 milliseconds = 5 minutes
-//   }
-
-//   next();
-// });
-
 app.use((req, res, next) => {
-  // Set Cache-Control to allow caching for a specific duration
-  // For example, 'public, max-age=3600' allows caching for 1 hour (3600 seconds)
-  res.setHeader("Cache-Control", "public, max-age=3600");
-
-  // These headers are no longer necessary as we are allowing caching
-  // res.setHeader("Pragma", "no-cache");
-  // res.setHeader("Expires", "0");
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
 
   if (req.session) {
-    // Your session management logic remains the same
+    // Reset the session timeout when the user interacts with the server
     req.session._garbage = Date();
     req.session.touch();
+
+    // Set the session as active
     req.session.active = true;
 
+    // Start a timeout to set the session as inactive after 5 minutes
     setTimeout(() => {
       if (req.session) {
         req.session.active = false;
       }
-    }, 300000); // 5 minutes
+    }, 300000); // 300,000 milliseconds = 5 minutes
   }
 
   next();
 });
+
+// app.use((req, res, next) => {
+//   // Set Cache-Control to allow caching for a specific duration
+//   // For example, 'public, max-age=3600' allows caching for 1 hour (3600 seconds)
+//   res.setHeader("Cache-Control", "public, max-age=3600");
+
+//   // These headers are no longer necessary as we are allowing caching
+//   // res.setHeader("Pragma", "no-cache");
+//   // res.setHeader("Expires", "0");
+
+//   if (req.session) {
+//     // Your session management logic remains the same
+//     req.session._garbage = Date();
+//     req.session.touch();
+//     req.session.active = true;
+
+//     setTimeout(() => {
+//       if (req.session) {
+//         req.session.active = false;
+//       }
+//     }, 300000); // 5 minutes
+//   }
+
+//   next();
+// });
 
 
 //Inactivity reset
