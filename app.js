@@ -1387,7 +1387,7 @@ app.post("/loggedIn/admin/addBlockedDates", async (req, res) => {
     }
   
     // Redirect after the database is updated
-    res.redirect("/loggedInadminblocked");
+    res.json({ success: true, message: "Blocked date added successfully" });
   } catch (err) {
     console.error("Error occurred:", err.message);
     res.status(500).json({ error: err.message });

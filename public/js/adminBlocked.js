@@ -5,6 +5,7 @@ $(function () {
         dateFormat: 'yy-mm-dd', // Set the date format as per your needs
     });
 });
+
 //FOR BLOCKED DATES
 const btnSubmitDate = document.getElementById("btnsubmitDate");
 
@@ -31,26 +32,30 @@ btnSubmitDate.addEventListener("click", () => {
     // Make sure data is being constructed correctly
     console.log("Data to be sent:", data);
 
-    const blockedTimesParam = blockedTimes.join(",");
-
     const url = `/loggedIn/admin/addBlockedDates`;
 
-
-    // Make a POST request to the server using the constructed URL
     fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(data), // Send data as JSON
+        body: JSON.stringify(data),
     })
-        .then((response) => response.json())
-        .then((data) => {
-            console.log("Response from server:", data);
-            window.location.href = "/loggedInadminblocked";
-        })
-        
-        .catch((error) => console.error("Error:", error));
-
-    window.location.href = "/loggedInadminblocked";
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Response from server:", data);
+        if (data.success) {
+            setTimeout(() => {
+                window.location.href = "/loggedInadminblocked";
+            }, 2000); // delay in milliseconds
+        } else {
+            console.error("Server responded with an error:", data.message);
+        }
+    })
+    .catch(error => console.error("Error:", error));
 });
