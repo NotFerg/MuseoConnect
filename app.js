@@ -1355,37 +1355,45 @@ app.put(
 app.post("/loggedIn/admin/addBlockedDates", async (req, res) => {
   console.log("Received a POST request to /loggedIn/admin/addBlockedDates");
   try {
-    const blockedDate = req.body.blockedDate;
+    // Extracting the date string from the request
+    const blockedDateString = req.body.blockedDate;
     const blockedTimes = req.body.blockedTimes;
 
-    console.log("Received blockedDate:", blockedDate);
+    console.log("Received blockedDate:", blockedDateString);
     console.log("Received blockedTimes:", blockedTimes);
+
+    // Converting the date string to a Date object
+    const blockedDate = new Date(blockedDateString);
+
+    // Check if the converted date is valid
+    if (isNaN(blockedDate.getTime())) {
+      throw new Error("Invalid date format");
+    }
 
     let existingBlockedDate = await Blocked.findOne({
       blockedDate: blockedDate,
     });
 
     if (existingBlockedDate) {
-      // If a record exists, append the new blockedTimes to the existing ones
       existingBlockedDate.blockedTimes.push(...blockedTimes);
+      await existingBlockedDate.save(); // Make sure to save the updated document
     } else {
-      // If no record exists, create a new Blocked document
+      // Create a new document if it doesn't exist
       existingBlockedDate = new Blocked({
         blockedDate: blockedDate,
         blockedTimes: blockedTimes,
       });
+      await existingBlockedDate.save();
     }
-    // Save the changes to the database
-    await existingBlockedDate.save();
-    console.log("Database updated successfully!");
-
+  
     // Redirect after the database is updated
-    // res.redirect("/loggedInadminblocked");
+    res.redirect("/loggedInadminblocked");
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error occurred:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
+
 
 // Update Blocked Date
 app.put("/loggedIn/admin/blocked/:id/blockedDate", async (req, res) => {

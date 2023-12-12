@@ -33,7 +33,8 @@ btnSubmitDate.addEventListener("click", () => {
 
     const blockedTimesParam = blockedTimes.join(",");
 
-    const url = `/loggedIn/admin/addBlockedDates?blockedDate=${blockedDate}&blockedTimes=${blockedTimesParam}`;
+    const url = `/loggedIn/admin/addBlockedDates`;
+
 
     // Make a POST request to the server using the constructed URL
     fetch(url, {
@@ -46,7 +47,9 @@ btnSubmitDate.addEventListener("click", () => {
         .then((response) => response.json())
         .then((data) => {
             console.log("Response from server:", data);
+            window.location.href = "/loggedInadminblocked";
         })
+        
         .catch((error) => console.error("Error:", error));
 
     window.location.href = "/loggedInadminblocked";
