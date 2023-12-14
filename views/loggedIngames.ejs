@@ -26,24 +26,30 @@
       background-color: #f8f9fa;
       border-radius: 15px;
       box-shadow: 10px 10px 10px rgba(45, 192, 16, 0.13);
-      padding: 30px; /* Increase padding for a larger card */
-      border: 2px solid #28a745; /* Set border color to success color */
+      padding: 30px;
+      /* Increase padding for a larger card */
+      border: 2px solid #28a745;
+      /* Set border color to success color */
     }
-  
+
     .quiz-title {
-      font-size: 40px; /* Increase font size for the title */
+      font-size: 40px;
+      /* Increase font size for the title */
       font-weight: bold;
       color: #000000;
-      margin-bottom: 30px; /* Increase margin for spacing */
+      margin-bottom: 30px;
+      /* Increase margin for spacing */
       text-align: center;
     }
-  
+
     .quiz-question {
-      font-size: 24px; /* Increase font size for the question */
+      font-size: 24px;
+      /* Increase font size for the question */
       color: #495057;
-      margin-bottom: 20px; /* Increase margin for spacing */
+      margin-bottom: 20px;
+      /* Increase margin for spacing */
     }
-  
+
     .quiz-options {
       list-style-type: none;
       padding: 0;
@@ -51,65 +57,74 @@
       flex-direction: column;
       margin: 0;
     }
-  
+
     .quiz-options li {
-      margin-bottom: 15px; /* Increase margin between options */
+      margin-bottom: 15px;
+      /* Increase margin between options */
     }
-  
+
     .quiz-options label {
       display: inline-block;
       cursor: pointer;
       border: 2px solid #28a745;
       background-color: #fff;
       color: #000000;
-      padding: 20px; /* Increase padding for larger buttons */
-      border-radius: 8px; /* Increase border radius for rounded corners */
+      padding: 20px;
+      /* Increase padding for larger buttons */
+      border-radius: 8px;
+      /* Increase border radius for rounded corners */
       transition: background-color 0.3s ease, color 0.3s ease;
       width: 100%;
-      text-align: left; /* Align text to the left */
-      font-size: 18px; /* Increase font size for the options */
+      text-align: left;
+      /* Align text to the left */
+      font-size: 18px;
+      /* Increase font size for the options */
     }
-  
+
     .quiz-options input[type="radio"] {
       display: none;
     }
-  
+
     .quiz-options input[type="radio"]:checked+label {
       background-color: #0056b3;
       color: #fff;
     }
-  
+
     .quiz-btn {
-      margin-top: 30px; /* Increase margin for spacing */
+      margin-top: 30px;
+      /* Increase margin for spacing */
       background-color: #28a745;
       color: #fff;
       border: none;
       border-radius: 8px;
-      padding: 20px; /* Increase padding for a larger button */
-      font-size: 20px; /* Increase font size for the button */
+      padding: 20px;
+      /* Increase padding for a larger button */
+      font-size: 20px;
+      /* Increase font size for the button */
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-  
+
     .quiz-btn:hover {
       background-color: #218838;
     }
-  
+
     .quiz-options label:hover {
       background-color: #28a745;
       color: #fff;
     }
-  
+
     .quiz-options input[type="radio"]:checked+label {
       background-color: #28a745;
       color: #fff;
     }
-  
+
     .quiz-progress {
       font-size: 18px;
       text-align: center;
       margin-top: 15px;
-      color: #28a745; /* Change color to your preference */
+      color: #28a745;
+      /* Change color to your preference */
     }
   </style>
 </head>
@@ -173,57 +188,40 @@
       </div>
     </div>
   </nav><!-- End Header/Navbar -->
+  <br><br><br><br><br><br><br><br><br>
 
-  <main id="main">
-    <!-- ======= Intro Single ======= -->
-    <section class="intro-single">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12 col-lg-8">
-            <div class="title-single-box d-flex align-items-center">
-              <img src="/images/games.png" alt="Image" class="img-fluid" style="max-width: 100px; max-height: 100px;">
-              <h1 class="title-single">Games</h1>
-            </div>
-          </div>
-          <div class="col-md-12 col-lg-4">
-            <nav aria-label="breadcrumb" class="breadcrumb-box d-flex justify-content-lg-end">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                  <a href="/loggedInindex">Home</a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                  Games
-                </li>
-              </ol>
-            </nav>
-          </div>
-
-          <div class="container my-5">
-            <div class="row justify-content-center">
-              <div class="col-12 col-md-9 col-lg-8">
-                <div class="card quiz-card">
-                  <div class="card-body">
-                    <div id="question-container">
-                      <h1 class="quiz-title">Test your knowledge!</h1>
-                      <p id="question" class="quiz-question"></p>
-                      <ul id="options" class="quiz-options"></ul>
-                      <button onclick="checkInputAnswer(); nextQuestion();"
-                        class="btn btn-success btn-lg gradient-custom-4 text-body quiz-btn">Next Question</button>
-                    </div>
-                  </div>
-                </div>
+  <div id="quiz-container" class="quiz-card">
+    <p id="user-score">User Score: <%= user.score %>
+    </p>
+    <% quizQuestions.forEach((question, index)=> { %>
+      <div class="quiz-question" data-question-index="<%= index %>" data-question-id="<%= question.id %>">
+        <h3 class="quiz-title">
+          <%= question.question %>
+        </h3>
+        <% if (question.options) { %>
+          <ul class="quiz-options">
+            <% question.options.forEach(option=> { %>
+              <li>
+                <label>
+                  <input type="radio" name="question_<%= index %>"
+                    onclick="selectOption('<%= option %>', '<%= question.correctAnswer %>')">
+                  <%= option %>
+                </label>
+              </li>
+              <% }); %>
+          </ul>
+          <% } else { %>
+            <input type="text" id="input-answer-<%= index %>" class="form-control" placeholder="Your answer">
+            <button class="quiz-btn" onclick="submitInputAnswer('<%= question.correctAnswer %>')">Submit</button>
+            <% } %>
+              <div class="correct-answer" style="display:none;">
+                Correct Answer: <span class="answer-text"></span>
               </div>
-            </div>
-          </div>
-
-
-          <form id="scoreForm" method="POST" action="/saveScore">
-            <input type="hidden" id="scoreInput" value="" name="score">
-            <button type="submit" style="display: none;"></button>
-          </form>
-        </div>
       </div>
-    </section>
+      <% }); %>
+        <button class="quiz-btn" onclick="showNextQuestion()">Next Question</button>
+  </div>
+
 
   </main>
   <br><br><br><br><br><br><br><br><br>
@@ -231,29 +229,7 @@
 
   <!-- Footer -->
   <footer>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
 
-          <div class="copyright-footer">
-            <p class="copyright color-text-a">
-              <span class="color-a"> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel
-                Palgan
-            </p>
-            <% if (user && user.name) { %>
-              <p hidden>Welcome, <%= user.name %>
-              </p>
-              <% } else { %>
-                <p hidden>User is not logged in</p>
-                <script>
-                  // Redirect to the logout route when user.name is empty
-                  window.location.href = "/logout";
-                </script>
-                <% } %>
-          </div>
-        </div>
-      </div>
-    </div>
   </footer><!-- End  Footer -->
 
 
@@ -266,181 +242,74 @@
   <script src="assets/vendor/php-email-form/validate.js"></script>
 
   <script src="/js/index.js"></script>
-  
+
   <script>
-    const questions = [
-      {
-        question: "When was Museo De La Salle inaugurated?",
-        options: ["a) March 25, 2000", "b) October 1996", "c) April 10, 2005", "d) February 14, 1999"],
-        correctAnswer: "a"
-      },
-
-      {
-        question: "What is the meaning of 'Zaguan'? (1 word only)",
-        type: "input",
-        correctAnswer: "passageway"
-      },
-
-      {
-        question: "What does 'cuarto' refer to in the museum?",
-        options: ["a) A prayer room", "b) A specific area or room within the museum where certain exhibits or collections are housed.", "c) A dining room", "d) A drawing room"],
-        correctAnswer: "b"
-      },
-
-      {
-        question: "The 'Oratorio' room served as a ______ room in old bahay-na-bato houses? (1 word only)",
-        type: "input",
-        correctAnswer: "prayer"
-      },
-
-      {
-        question: "What is depicted on the ceiling of the 'Pink Room' (Cuarto) at Museo De La Salle?",
-        options: ["a) Trompe l'oeil butterflies", "b) Religious scenes", "c) Victorian motifs", "d) Abstract patterns"],
-        correctAnswer: "a"
-      },
-
-      {
-        question: "What does the 'Sala Mayor' traditionally serve as in a bahay-na-bato house?",
-        options: ["a) Main living room for big parties", "b) Bedroom for the master of the house", "c) Kitchen and dining area", "d) Study and office space"],
-        correctAnswer: "a"
-      },
-
-      {
-        question: "Sala Mayor is also known as ____",
-        options: ["a) Salon De Baile", "b) Oak and Pine wood", "c) Bamboo and Rattan", "d) Teak and Cedar"],
-        correctAnswer: "a"
-      },
-
-      {
-        question: "A ______ room is found in the 'Comedor' room? (1 word only)",
-        type: "input",
-        correctAnswer: "dining"
-      },
-
-      {
-        question: "What is the purpose of a 'Banggerahan' in the old kitchen?",
-        options: ["a) Dish-drying", "b) Rice cooking", "c) Dishwashing", "d) Food storage"],
-        correctAnswer: "a"
-      },
-
-      {
-        question: "What is the significance of the 'Azotea' in a traditional house?",
-        options: ["a) Hanging garden and recreation area", "b) Prayer room", "c) Bedroom for guests", "d) Dining area"],
-        correctAnswer: "a"
-      },
-
-    ];
-
     let currentQuestionIndex = 0;
-    let score = 0;
 
-    function displayQuestion() {
-      const questionContainer = document.getElementById('question-container');
-      const question = document.getElementById('question');
-      const optionsList = document.getElementById('options');
-
-      // Clear previous question content
-      question.innerHTML = '';
-      optionsList.innerHTML = '';
-
-      const currentQuestion = questions[currentQuestionIndex];
-
-      if (currentQuestion.type === "input") {
-        const inputId = `inputAnswer${currentQuestionIndex}`;
-        question.innerHTML = `
-      <label for="${inputId}">${currentQuestion.question}</label><br>
-      <input type="text" id="${inputId}" placeholder="Type your answer">
-    `;
-      } else {
-        // Handle multiple-choice questions
-        question.innerText = currentQuestion.question;
-
-        currentQuestion.options.forEach((option, index) => {
-          const listItem = document.createElement('li');
-
-          const radioInput = document.createElement('input');
-          const optionId = `option${index}`;
-          radioInput.type = 'radio';
-          radioInput.name = 'option';
-          radioInput.id = optionId;
-          radioInput.value = String.fromCharCode(97 + index);
-
-          const label = document.createElement('label');
-          label.setAttribute('for', optionId);
-          label.textContent = option;
-
-          listItem.appendChild(radioInput);
-          listItem.appendChild(label);
-          optionsList.appendChild(listItem);
-        });
-      }
+    function selectOption(selectedOption, correctAnswer) {
+      const questionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
+      questionDiv.querySelector('.answer-text').innerText = correctAnswer;
+      questionDiv.querySelector('.correct-answer').style.display = 'block';
     }
 
-    function checkAnswer() {
-      const currentQuestion = questions[currentQuestionIndex];
-
-      if (currentQuestion.type !== "input") {
-        const selectedOption = document.querySelector('input[name="option"]:checked');
-
-        if (selectedOption) {
-          console.log('Selected Option:', selectedOption.value);
-          if (selectedOption.value === currentQuestion.correctAnswer.toLowerCase()) {
-            score++;
-            console.log('Score:', score);
-          }
-        }
-      } else {
-        checkInputAnswer(); // Call the separate input box checking function
-      }
+    function submitInputAnswer(correctAnswer) {
+      const questionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
+      questionDiv.querySelector('.answer-text').innerText = correctAnswer;
+      questionDiv.querySelector('.correct-answer').style.display = 'block';
     }
 
-    function checkInputAnswer() {
-      const currentQuestion = questions[currentQuestionIndex];
-
-      if (currentQuestion.type === "input") {
-        const inputAnswer = document.getElementById(`inputAnswer${currentQuestionIndex}`).value.toLowerCase();
-        console.log('Input Answer:', inputAnswer);
-        if (inputAnswer === currentQuestion.correctAnswer.toLowerCase()) {
-          score++;
-          console.log('Score:', score);
-        }
-      }
-    }
-
-
-
-    function nextQuestion() {
-      const currentQuestion = questions[currentQuestionIndex];
-
-      if (currentQuestion.type !== "input") {
-        const selectedOption = document.querySelector('input[name="option"]:checked');
-
-        if (selectedOption) {
-          checkAnswer(selectedOption.value);
-        }
-      }
-
+    function showNextQuestion() {
+      const totalQuestionsString = "<%= quizQuestions.length %>";
+      const totalQuestions = parseInt(totalQuestionsString, 10);
+      const currentQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
+      currentQuestionDiv.style.display = 'none';
       currentQuestionIndex++;
-      if (currentQuestionIndex < questions.length) {
-        displayQuestion();
+
+      if (currentQuestionIndex < totalQuestions) {
+        const nextQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
+        nextQuestionDiv.style.display = 'block';
       } else {
-        alert('Game Over! Your score is: ' + score);
-        gameOver(score);
+        // Handle end of the quiz
+        alert("End of the quiz!");
+        window.location.href = "/loggedIngames"; // Redirect to the game start page
       }
     }
 
-    // Call this function when the game is over and you have the user's score
-    function gameOver(score) {
-      // Set the score value in the hidden input field
-      document.getElementById("scoreInput").value = score;
 
-      // Submit the form
-      document.getElementById("scoreForm").submit();
-    }
+    const updatedScore = calculateUpdatedScore(); // You need to implement this function
+    fetch(`/loggedIn/admin/users/<%= user._id %>/score`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ score: updatedScore }), // Update the score as needed
+    })
+      .then((response) => {
+        if (response.ok) {
+          // Score updated successfully, you can handle this accordingly
+          // Update the displayed score on the webpage
+          const userScoreElement = document.getElementById('user-score');
+          userScoreElement.innerText = `User Score: ${updatedScore}`;
+        } else {
+          // Handle errors if necessary
+        }
+      })
+      .catch((error) => {
+        console.error('Error updating score:', error);
+        // Handle errors if necessary
+      });
 
-    displayQuestion();
+
+    // Initially show the first question
+    document.querySelector('.quiz-question[data-question-index="0"]').style.display = 'block';
+
+
+
+    // Initially show the first question
+    document.querySelector('.quiz-question[data-question-index="0"]').style.display = 'block';
 
     let inactivityTimeout;
+
     // Function to reset the inactivity timer
     function resetInactivityTimeout() {
       clearTimeout(inactivityTimeout);
@@ -455,9 +324,11 @@
         });
       }, 300000); // 300,000 milliseconds = 5 minutes
     }
+
     // Listen for user interactions
     window.addEventListener("mousemove", resetInactivityTimeout);
     window.addEventListener("keydown", resetInactivityTimeout);
+
     // Initial reset
     resetInactivityTimeout(); 
   </script>
