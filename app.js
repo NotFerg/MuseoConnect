@@ -102,23 +102,27 @@ const Blocked = mongoose.model("blocked", blockedSchema);
 //ARTIFACTS
 const artifactSchema = new mongoose.Schema({
   title: {
-      type: String,
-      required: true,
+    type: String,
+    required: true,
   },
   type: {
-      type: String,
-      required: true,
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    required: true,
   },
   description: {
-      type: String,
-      required: true,
+    type: String,
+    required: true,
   },
   image: {
-      type: String,
-      required: true,
+    type: String,
+    required: true,
   },
   sketchfabLink: {
-      type: String,
+    type: String,
   },
 });
 
@@ -162,32 +166,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
-// app.use((req, res, next) => {
-//   // Set Cache-Control to allow caching for a specific duration
-//   // For example, 'public, max-age=3600' allows caching for 1 hour (3600 seconds)
-//   res.setHeader("Cache-Control", "public, max-age=3600");
-
-//   // These headers are no longer necessary as we are allowing caching
-//   // res.setHeader("Pragma", "no-cache");
-//   // res.setHeader("Expires", "0");
-
-//   if (req.session) {
-//     // Your session management logic remains the same
-//     req.session._garbage = Date();
-//     req.session.touch();
-//     req.session.active = true;
-
-//     setTimeout(() => {
-//       if (req.session) {
-//         req.session.active = false;
-//       }
-//     }, 300000); // 5 minutes
-//   }
-
-//   next();
-// });
-
 
 //Inactivity reset
 app.get("/reset-inactivity", (req, res) => {
@@ -303,7 +281,7 @@ app.get("/loggedInartifacts", async (req, res) => {
 
   // Filter artifacts based on the search query if it exists
   if (search) {
-    artifacts = artifacts.filter(artifact =>
+    artifacts = artifacts.filter((artifact) =>
       artifact.title.toLowerCase().includes(search.toLowerCase())
     );
   }
@@ -368,7 +346,12 @@ app.get("/loggedInaccountInformation", async (req, res) => {
     let userReservations = await Reservation.find({ emailAddress: user.email });
     const blockedSlots = await Blocked.find();
     let reservations = await Reservation.find();
-    res.render("loggedInaccountInformation", { user, userReservations,blockedSlots,reservations });
+    res.render("loggedInaccountInformation", {
+      user,
+      userReservations,
+      blockedSlots,
+      reservations,
+    });
   } catch (error) {
     res.redirect("/logout");
     console.error("Error fetching reservations: ", error);
@@ -405,7 +388,6 @@ app.get("/loggedInadmin", async (req, res) => {
   }
 });
 
-
 app.get("/loggedInadminartifacts", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
   try {
@@ -424,7 +406,6 @@ app.get("/loggedInadminartifacts", async (req, res) => {
     res.status(500).send("An error occurred while fetching users.");
   }
 });
-
 
 app.get("/loggedInadminblocked", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
@@ -475,8 +456,7 @@ app.get("/loggedInadminreports", async (req, res) => {
     // let artifactType = await Artifact.find();
     // const artifacts = artifactType.map(artifactType => artifactType.type);
 
-    let artifacts = await Artifact.find().select('type');
-
+    let artifacts = await Artifact.find().select("type");
 
     const { search } = req.query;
     if (search) {
@@ -504,42 +484,42 @@ app.get("/loggedInadminreports", async (req, res) => {
 app.get("/loggedInadminreservation", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
   try {
-      if (!req.session.active) {
-          return res.redirect("/logout");
-      }
-      req.session.active = true;
-      let users = await User.find();
-      let reservations = await Reservation.find();
+    if (!req.session.active) {
+      return res.redirect("/logout");
+    }
+    req.session.active = true;
+    let users = await User.find();
+    let reservations = await Reservation.find();
 
-      const { search, date } = req.query;
+    const { search, date } = req.query;
 
-      // Filter users by name/email if search term is present
-      if (search) {
-          users = users.filter(
-              (user) =>
-                  user.name.toLowerCase().includes(search.toLowerCase()) ||
-                  user.email.toLowerCase().includes(search.toLowerCase())
-          );
-      }
+    // Filter users by name/email if search term is present
+    if (search) {
+      users = users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(search.toLowerCase()) ||
+          user.email.toLowerCase().includes(search.toLowerCase())
+      );
+    }
 
-      // Filter reservations by date if date term is present
-      if (date) {
-          reservations = reservations.filter(
-              (reservation) =>
-                  reservation.visitDate &&
-                  reservation.visitDate.toISOString().split('T')[0].includes(date)
-          );
-      }
+    // Filter reservations by date if date term is present
+    if (date) {
+      reservations = reservations.filter(
+        (reservation) =>
+          reservation.visitDate &&
+          reservation.visitDate.toISOString().split("T")[0].includes(date)
+      );
+    }
 
-      res.render("loggedInadminreservation", {
-          users,
-          search,
-          admin,
-          reservations,
-      });
+    res.render("loggedInadminreservation", {
+      users,
+      search,
+      admin,
+      reservations,
+    });
   } catch (error) {
-      console.error("Error fetching users:", error);
-      res.status(500).send("An error occurred while fetching users.");
+    console.error("Error fetching users:", error);
+    res.status(500).send("An error occurred while fetching users.");
   }
 });
 
@@ -1107,7 +1087,6 @@ app.post("/loggedIn/reservation", async (req, res) => {
   }
 });
 
-
 // Rebook of Reservation
 app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
   const reservationId = req.params.id;
@@ -1123,28 +1102,34 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
   try {
     // Check if the visit date is less than today
     if (visitDate < today) {
-      return res.send(`<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInaccountInformation";</script>`);
+      return res.send(
+        `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInaccountInformation";</script>`
+      );
     }
 
     // Check for blocked dates and times
     const isDateOrTimeBlocked = await Blocked.findOne({
       blockedDate: visitDate,
-      blockedTimes: inpVisitTime
+      blockedTimes: inpVisitTime,
     });
 
     if (isDateOrTimeBlocked) {
-      return res.send(`<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`);
+      return res.send(
+        `<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`
+      );
     }
 
     // Check if there's already a reservation for the selected date and time (excluding the current reservation)
     const existingReservation = await Reservation.findOne({
       _id: { $ne: reservationId },
       visitDate: visitDate,
-      visitTime: inpVisitTime
+      visitTime: inpVisitTime,
     });
 
     if (existingReservation) {
-      return res.send(`<script>alert("A reservation already exists for the selected date and time. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`);
+      return res.send(
+        `<script>alert("A reservation already exists for the selected date and time. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`
+      );
     }
 
     // Update the reservation
@@ -1152,19 +1137,19 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
       visitDate: visitDate,
       visitTime: inpVisitTime,
       contactNumber: inpContactNumber,
-      numberOfVisitors: inpNumberOfVisitors
+      numberOfVisitors: inpNumberOfVisitors,
     });
 
     // Email setup
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
+        pass: process.env.GMAIL_PASS,
       },
       tls: {
         rejectUnauthorized: false,
-      }
+      },
     });
 
     // Send confirmation email to admin
@@ -1175,7 +1160,7 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
       from: process.env.GMAIL_USER,
       to: adminEmail,
       subject: "Reservation Update",
-      text: `A reservation has been updated by ${loggedInUser.name} for ${reservationDate} at ${inpVisitTime}.`
+      text: `A reservation has been updated by ${loggedInUser.name} for ${reservationDate} at ${inpVisitTime}.`,
     };
 
     transporter.sendMail(adminMailOptions, (error, info) => {
@@ -1191,7 +1176,7 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
       from: process.env.GMAIL_USER,
       to: loggedInUser.email,
       subject: "Reservation Update Confirmation",
-      text: `Your reservation has been updated successfully. New date and time: ${reservationDate} at ${inpVisitTime}.`
+      text: `Your reservation has been updated successfully. New date and time: ${reservationDate} at ${inpVisitTime}.`,
     };
 
     transporter.sendMail(userMailOptions, (error, info) => {
@@ -1203,7 +1188,9 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
     });
 
     // Response to client
-    res.send(`<script>alert("Reservation updated successfully!"); window.location.href = "/loggedInaccountInformation";</script>`);
+    res.send(
+      `<script>alert("Reservation updated successfully!"); window.location.href = "/loggedInaccountInformation";</script>`
+    );
   } catch (error) {
     console.error("Error updating reservation:", error);
     res.status(500).send("An error occurred while updating the reservation.");
@@ -1385,7 +1372,7 @@ app.post("/loggedIn/admin/addBlockedDates", async (req, res) => {
       });
       await existingBlockedDate.save();
     }
-  
+
     // Redirect after the database is updated
     res.json({ success: true, message: "Blocked date added successfully" });
   } catch (err) {
@@ -1393,7 +1380,6 @@ app.post("/loggedIn/admin/addBlockedDates", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Update Blocked Date
 app.put("/loggedIn/admin/blocked/:id/blockedDate", async (req, res) => {
@@ -1491,143 +1477,161 @@ app.post("/saveScore", async (req, res) => {
   }
 });
 
-const cloudinary = require('cloudinary').v2;
+const cloudinary = require("cloudinary").v2;
 
-cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-  api_key: process.env.CLOUDINARY_API_KEY, 
-  api_secret: process.env.CLOUDINARY_API_SECRET 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 //Adding an artifact
-app.post("/loggedIn/admin/addArtifact", upload.single("image"), async (req, res) => {
-  const { title, description, type, sketchfabLink } = req.body;
-  
-  try {
+app.post(
+  "/loggedIn/admin/addArtifact",
+  upload.single("image"),
+  async (req, res) => {
+    const { title, description, type, status, sketchfabLink } = req.body;
+
+    try {
       let imageUrl;
       if (req.file) {
-          const uploadOptions = {
-              use_filename: true,
-              unique_filename: true,
-              overwrite: true,
-              folder: "museo", // Specify the folder name here
-              public_id: req.file.originalname.split('.')[0], // Set file name without extension
-              resource_type: 'auto'
-          };
+        const uploadOptions = {
+          use_filename: true,
+          unique_filename: true,
+          overwrite: true,
+          folder: "museo", // Specify the folder name here
+          public_id: req.file.originalname.split(".")[0], // Set file name without extension
+          resource_type: "auto",
+        };
 
-          // Upload the image to Cloudinary
-          const uploadResult = await new Promise((resolve, reject) => {
-              cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
-                  if (error) reject(error);
-                  else resolve(result);
-              }).end(req.file.buffer);
-          });
+        // Upload the image to Cloudinary
+        const uploadResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream(uploadOptions, (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            })
+            .end(req.file.buffer);
+        });
 
-          imageUrl = uploadResult.url;
+        imageUrl = uploadResult.url;
       }
 
       const artifact = new Artifact({
-          title,
-          type,
-          description,
-          image: imageUrl, // Using the URL from Cloudinary
-          sketchfabLink,
+        title,
+        type,
+        status, // Include status
+        description,
+        image: imageUrl, // Using the URL from Cloudinary
+        sketchfabLink,
       });
 
       await artifact.save();
       res.redirect("/loggedInadminartifacts");
-  } catch (error) {
+    } catch (error) {
       console.error(error);
       res.status(500).send("Error adding artifact: " + error.message);
+    }
   }
-});
+);
 
 //Updating an artifact
-app.put("/loggedIn/admin/artifacts/:artifactId", upload.single("updateImage"), async (req, res) => {
-  const { updateTitle, updateDescription, updateType, updateSketchfabLink } = req.body;
-  const artifactId = req.params.artifactId;
+app.put(
+  "/loggedIn/admin/artifacts/:artifactId",
+  upload.single("updateImage"),
+  async (req, res) => {
+    const {
+      updateTitle,
+      updateDescription,
+      updateType,
+      updateStatus,
+      updateSketchfabLink,
+    } = req.body;
+    const artifactId = req.params.artifactId;
 
-  try {
+    try {
       const artifact = await Artifact.findById(artifactId);
       if (!artifact) {
-          return res.status(404).send("Artifact not found");
+        return res.status(404).send("Artifact not found");
       }
 
       if (req.file) {
-          // Delete the old image from Cloudinary, if it exists
-          if (artifact.image) {
-            const publicId = extractPublicId(artifact.image);
-            const decodedPublicId = decodeURIComponent(publicId); // Decode URL-encoded public ID
-            console.log(decodedPublicId);
-            await cloudinary.uploader.destroy("museo/" + decodedPublicId);
+        // Delete the old image from Cloudinary, if it exists
+        if (artifact.image) {
+          const publicId = extractPublicId(artifact.image);
+          const decodedPublicId = decodeURIComponent(publicId); // Decode URL-encoded public ID
+          console.log(decodedPublicId);
+          await cloudinary.uploader.destroy("museo/" + decodedPublicId);
         }
-        
 
-          // Upload the new image to Cloudinary
-          let uploadResult;
-          const uploadOptions = {
-            use_filename: true,
-            unique_filename: true,
-            overwrite: true,
-            folder: "museo", // Specify the folder name here
-            public_id: req.file.originalname.split('.')[0], // Set file name without extension
-            resource_type: 'auto'
-          };
+        // Upload the new image to Cloudinary
+        let uploadResult;
+        const uploadOptions = {
+          use_filename: true,
+          unique_filename: true,
+          overwrite: true,
+          folder: "museo", // Specify the folder name here
+          public_id: req.file.originalname.split(".")[0], // Set file name without extension
+          resource_type: "auto",
+        };
 
-          uploadResult = await new Promise((resolve, reject) => {
-              cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
-                  if (error) reject(error);
-                  else resolve(result);
-              }).end(req.file.buffer);
-          });
+        uploadResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream(uploadOptions, (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            })
+            .end(req.file.buffer);
+        });
 
-          artifact.image = uploadResult.url; // Update with new image URL
+        artifact.image = uploadResult.url; // Update with new image URL
       }
 
       // Update other details
       artifact.title = updateTitle;
       artifact.description = updateDescription;
       artifact.type = updateType;
+      artifact.status = updateStatus;
       artifact.sketchfabLink = updateSketchfabLink;
 
       await artifact.save();
       res.redirect("/loggedInadminartifacts");
-  } catch (error) {
+    } catch (error) {
       console.error(error);
       res.status(500).send("Error updating artifact: " + error.message);
+    }
   }
-});
+);
 
 //Deleting an artifact
 app.delete("/loggedIn/admin/artifacts/:artifactId", async (req, res) => {
   const artifactId = req.params.artifactId;
   try {
-      const artifact = await Artifact.findById(artifactId);
-      if (!artifact) {
-          return res.status(404).send("Artifact not found");
-      }
-
-      // Delete the image from Cloudinary
-      if (artifact.image) {
-        const publicId = extractPublicId(artifact.image);
-        const decodedPublicId = decodeURIComponent(publicId); // Decode URL-encoded public ID
-        console.log(decodedPublicId);
-        await cloudinary.uploader.destroy("museo/" + decodedPublicId);
+    const artifact = await Artifact.findById(artifactId);
+    if (!artifact) {
+      return res.status(404).send("Artifact not found");
     }
-    
 
-      await Artifact.findByIdAndRemove(artifactId);
-      res.redirect("/loggedInadminartifacts");
+    // Delete the image from Cloudinary
+    if (artifact.image) {
+      const publicId = extractPublicId(artifact.image);
+      const decodedPublicId = decodeURIComponent(publicId); // Decode URL-encoded public ID
+      console.log(decodedPublicId);
+      await cloudinary.uploader.destroy("museo/" + decodedPublicId);
+    }
+
+    await Artifact.findByIdAndRemove(artifactId);
+    res.redirect("/loggedInadminartifacts");
   } catch (error) {
-      res.status(500).send("Error removing artifact: " + error.message);
+    res.status(500).send("Error removing artifact: " + error.message);
   }
 });
 
 function extractPublicId(url) {
   // Extract the public ID from the URL
   // Adjust the logic based on your Cloudinary URL structure
-  const parts = url.split('/');
-  return parts[parts.length - 1].split('.')[0]; // Assuming the public ID is the last part before the file extension
+  const parts = url.split("/");
+  return parts[parts.length - 1].split(".")[0]; // Assuming the public ID is the last part before the file extension
 }
 
 app.listen(port, () => {

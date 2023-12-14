@@ -84,24 +84,55 @@
                             <label for="image" class="form-label">Artifact Image</label>
                             <input type="file" class="form-control" id="image" name="image" required autocomplete="off">
                         </div>
+
                         <div class="mb-3">
                             <label for="title" class="form-label">Artifact Title</label>
                             <input type="text" class="form-control" id="title" name="title" required autocomplete="off">
                         </div>
+
                         <div class="mb-3">
-                            <label for="title" class="form-label">Artifact Type</label>
-                            <input type="text" class="form-control" id="type" name="type" required autocomplete="off">
+                            <label for="type" class="form-label">Artifact Type</label>
+                            <select class="form-control" id="type" name="type" required>
+                                <option value="">Select a Type</option>
+                                <!-- Add your artifact types here -->
+                                <option value="Kitchen Ware">Kitchen Ware</option>
+                                <option value="Laundry Ware">Laundry Ware</option>
+                                <option value="Personal Wear and Adornment">Personal Wear and Adornment</option>
+                                <option value="Laundry Fixture">Lighting Fixture</option>
+                                <option value="Tool">Tool</option>
+                                <option value="Painting">Painting</option>
+                                <option value="Sculpture">Sculpture</option>
+                                <option value="Others">Others</option>
+                                <!-- ... other types ... -->
+                            </select>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Artifact Status</label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="">Select a Storage Type</option>
+                                <option value="Displayed">Displayed</option>
+                                <option value="Donated">Donated</option>
+                                <option value="Stored">Stored</option>
+                                <option value="Sold">Sold</option>
+                                <!-- ... other statuses ... -->
+                            </select>
+                        </div>
+
                         <div class="mb-3">
                             <label for="description" class="form-label">Artifact Description</label>
                             <textarea class="form-control" id="description" name="description" rows="4" required
                                 autocomplete="off"></textarea>
                         </div>
+
                         <div class="mb-3">
                             <label for="sketchfabLink" class="form-label">Sketchfab Embed Link</label>
-                            <input type="text" class="form-control" id="sketchfabLink" name="sketchfabLink" placeholder="Paste Sketchfab Embed Link here">
-                            <small class="form-text text-muted">If available, you can provide a Sketchfab embed link for a 3D model.</small>
+                            <input type="text" class="form-control" id="sketchfabLink" name="sketchfabLink"
+                                placeholder="Paste Sketchfab Embed Link here">
+                            <small class="form-text text-muted">If available, you can provide a Sketchfab embed link for
+                                a 3D model.</small>
                         </div>
+
                         <button type="submit" class="btn btn-primary" onclick="insertArtifact()">Add Artifact</button>
                     </form>
                 </div>
@@ -112,10 +143,10 @@
                         <br><br><br>
                         <div class="title-single-box">
                             <h1 class="title-single">Display Artifacts</h1>
-                         
+
                         </div>
                     </div>
-            
+
                     <div class="row mt-4">
                         <% artifacts.forEach(artifact=> { %>
                             <div class="col-12 col-md-6 col-lg-4">
@@ -139,11 +170,41 @@
                                                 <input type="text" name="updateTitle" value="<%= artifact.title %>"
                                                     class="form-control" required autocomplete="off">
                                             </div>
+
                                             <div class="mb-3">
-                                                <label for="updateTitle" class="form-label">Update Type</label>
-                                                <input type="text" name="updateType" value="<%= artifact.type %>"
-                                                    class="form-control" required autocomplete="off">
+                                                <label for="type" class="form-label">Artifact Type</label>
+                                                <select class="form-control" id="updateType" name="updateType" required>
+                                                    <option value="<%= artifact.type %>">
+                                                        <%= artifact.type %>
+                                                    </option>
+                                                    <!-- Add your artifact types here -->
+                                                    <option value="Kitchen Ware">Kitchen Ware</option>
+                                                    <option value="Laundry Ware">Laundry Ware</option>
+                                                    <option value="Personal Wear and Adornment">Personal Wear and
+                                                        Adornment</option>
+                                                    <option value="Laundry Fixture">Lighting Fixture</option>
+                                                    <option value="Tool">Tool</option>
+                                                    <option value="Painting">Painting</option>
+                                                    <option value="Sculpture">Sculpture</option>
+                                                    <option value="Others">Others</option>
+                                                    <!-- ... other types ... -->
+                                                </select>
                                             </div>
+
+                                            <div class="mb-3">
+                                                <label for="status" class="form-label">Artifact Status</label>
+                                                <select class="form-control" id="updateStatus" name="updateStatus" required>
+                                                    <option value="<%= artifact.status %>">
+                                                        <%= artifact.status %>
+                                                    </option>
+                                                    <option value="Displayed">Displayed</option>
+                                                    <option value="Donated">Donated</option>
+                                                    <option value="Stored">Stored</option>
+                                                    <option value="Sold">Sold</option>
+                                                    <!-- ... other statuses ... -->
+                                                </select>
+                                            </div>
+
                                             <div class="mb-3">
                                                 <label for="updateDescription" class="form-label">Update
                                                     Description</label>
@@ -152,14 +213,16 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label for="updateImage" class="form-label">Update Image</label>
-                                                <input type="file" name="updateImage" class="form-control" accept="image/*">
+                                                <input type="file" name="updateImage" class="form-control"
+                                                    accept="image/*">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="updateSketchfabLink" class="form-label">Update
                                                     Sketchfab Embed Link</label>
                                                 <textarea name="updateSketchfabLink" class="form-control" rows="4"
                                                     autocomplete="off"><%= artifact.sketchfabLink %></textarea>
-                                                    <small class="form-text text-muted">Leave blank if there is no sketchfab embed link</small>    
+                                                <small class="form-text text-muted">Leave blank if there is no sketchfab
+                                                    embed link</small>
                                             </div>
                                             <button type="submit" class="btn btn-primary">Update Artifact</button>
                                         </form>
@@ -185,7 +248,7 @@
                             <span class="color-a"> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel
                                 Palgan
                         </p>
-                        <% if (admin && admin.name && admin.type ==="admin") { %>
+                        <% if (admin && admin.name && admin.type==="admin" ) { %>
                             <p hidden>Welcome, <%= admin.name %>
                             </p>
                             <% } else { %>
@@ -224,6 +287,7 @@
             async function insertArtifact() {
                 const title = document.getElementById('title').value;
                 const type = document.getElementById('type').value;
+                const status = document.getElementById('status').value;
                 const description = document.getElementById('description').value;
                 const imageInput = document.getElementById('image');
                 const sketchfabLink = docunment.getElementById('sketchfabLink').value;
@@ -234,10 +298,11 @@
 
                 const formData = new FormData();
                 formData.append('title', title);
-                formData.append('description', description);
                 formData.append('type', type);
+                formData.append('status', status);
+                formData.append('description', description);
                 formData.append('image', imageInput.files[0]);
-                fontData.append('sketchfabLink',sketchfabLink)
+                fontData.append('sketchfabLink', sketchfabLink)
 
                 try {
                     const response = await fetch('/loggedIn/admin/addArtifact/', {
