@@ -149,25 +149,7 @@ const questionSchema = new mongoose.Schema({
   correctAnswer: { type: String, required: true }
 });
 
-// Pre Save Hook for Question Schema
-questionSchema.pre('save', function(next) {
-  var doc = this;
-  Counter.findByIdAndUpdate({_id: 'questionId'}, {$inc: { seq: 1} }, {new: true, upsert: true}, function(error, counter) {
-    if (error) return next(error);
-    doc.id = counter.seq;
-    next();
-  });
-});
 const Question = mongoose.model('Question', questionSchema);
-
-const counterSchema = new mongoose.Schema({
-  _id: String,
-  seq: Number
-});
-const Counter = mongoose.model('Counter', counterSchema);
-
-module.exports = { Question, Counter };
-
 
 //MIDDLEWARE FOR FETCHING DATA FROM ROUTE AND SENDING TO ANOTHER ROUTE
 app.use(
