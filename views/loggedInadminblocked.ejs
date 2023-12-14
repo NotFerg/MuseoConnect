@@ -80,8 +80,10 @@
 
                     <form id="setDate" action="/loggedIn/admin/addBlockedDates" method="post" class="mb-3">
                         <div class="input-group">
-                            <input type="input" id="blockedDate" class="form-control datePicker me-2" name="blockedDate"
-                                autocomplete="off" placeholder = "yyyy-mm-dd"required>
+                            <input type="input" id="startDate" class="form-control datePicker me-2" name="startDate"
+                                autocomplete="off" placeholder="Start Date (yyyy-mm-dd)" required>
+                            <input type="input" id="endDate" class="form-control datePicker me-2" name="endDate"
+                                autocomplete="off" placeholder="End Date (yyyy-mm-dd)" optional>
                             <div class="mt-2">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="10:30" id="checkbox1030"
@@ -104,7 +106,8 @@
 
                     <div class="row">
                         <div class="col-12">
-                            <button type="button" id="toggle-view-button" class="btn btn-primary mb-2">Toggle View</button>
+                            <button type="button" id="toggle-view-button" class="btn btn-primary mb-2">Toggle
+                                View</button>
                         </div>
                     </div>
 
@@ -185,8 +188,7 @@
                             </select>
                             <button type="button" id="sort-date-button" class="btn btn-primary my-2">Sort by
                                 Date</button>
-                            <button type="button" id="reset-sort-button"
-                                class="btn btn-secondary my-2">Reset</button>
+                            <button type="button" id="reset-sort-button" class="btn btn-secondary my-2">Reset</button>
                         </div>
                         <div class="col-md-12">
                             <h2>Blocked Date Table</h2>
@@ -285,7 +287,7 @@
                             <span class="color-a"> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel
                                 Palgan
                         </p>
-                        <% if (admin && admin.name && admin.type ==="admin") { %>
+                        <% if (admin && admin.name && admin.type==="admin" ) { %>
                             <p hidden>Welcome, <%= admin.name %>
                             </p>
                             <% } else { %>
@@ -324,29 +326,29 @@
             // Function to sort the table based on the selected option
             function sortTable(order) {
                 var rows = $('#blockedDateTable tbody tr').get();
-    
+
                 rows.sort(function (a, b) {
                     var dateA = new Date($(a).children('td:first').text());
                     var dateB = new Date($(b).children('td:first').text());
-    
+
                     if (order === 'asc') {
                         return dateA - dateB;
                     } else {
                         return dateB - dateA;
                     }
                 });
-    
+
                 $.each(rows, function (index, row) {
                     $('#blockedDateTable tbody').append(row);
                 });
             }
-    
+
             // Event listener for the sort button
             $('#sort-date-button').click(function () {
                 var sortOrder = $('#sort-order-select').val();
                 sortTable(sortOrder);
             });
-    
+
             // Event listener for the reset button
             $('#reset-sort-button').click(function () {
                 // Reload the page to reset the table to its original order
@@ -354,23 +356,24 @@
             });
 
             function toggleView() {
-        var cardView = $('#card-view');
-        var tableView = $('#table-view');
+                var cardView = $('#card-view');
+                var tableView = $('#table-view');
 
-        // Toggle visibility of card and table views
-        cardView.toggle();
-        tableView.toggle();
-    }
+                // Toggle visibility of card and table views
+                cardView.toggle();
+                tableView.toggle();
+            }
 
-    // Event listener for the toggle view button
-    $('#toggle-view-button').click(function () {
-        toggleView();
-    });
+            // Event listener for the toggle view button
+            $('#toggle-view-button').click(function () {
+                toggleView();
+            });
 
-    // Initially hide one of the views (assuming card view is initially shown)
-    $('#table-view').hide();
+            // Initially hide one of the views (assuming card view is initially shown)
+            $('#table-view').hide();
 
         });
     </script>
 </body>
+
 </html>

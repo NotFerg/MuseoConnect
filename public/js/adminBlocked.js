@@ -10,11 +10,13 @@ $(function () {
 const btnSubmitDate = document.getElementById("btnsubmitDate");
 
 btnSubmitDate.addEventListener("click", () => {
-    const datetimeInput = document.getElementById("blockedDate");
+    // const datetimeInput = document.getElementById("blockedDate");
     const checkbox1030 = document.getElementById("checkbox1030");
     const checkbox1330 = document.getElementById("checkbox1330");
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
 
-    const blockedDate = datetimeInput.value;
+    // const blockedDate = datetimeInput.value;
     const blockedTimes = [];
 
     if (checkbox1030.checked) {
@@ -25,9 +27,10 @@ btnSubmitDate.addEventListener("click", () => {
     }
 
     const data = {
-        blockedDate: blockedDate,
+        startDate: startDate,
+        endDate: endDate,
         blockedTimes: blockedTimes,
-    };
+      };
 
     // Make sure data is being constructed correctly
     console.log("Data to be sent:", data);

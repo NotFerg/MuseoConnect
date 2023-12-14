@@ -135,6 +135,8 @@ const artifactSchema = new mongoose.Schema({
   },
 });
 
+const Artifact = mongoose.model("artifact", artifactSchema);
+
 const generateSecureSecret = () => {
   return crypto.randomBytes(64).toString("hex");
 };
@@ -1406,46 +1408,63 @@ app.put(
 // Add Blocked Dates
 app.post("/loggedIn/admin/addBlockedDates", async (req, res) => {
   console.log("Received a POST request to /loggedIn/admin/addBlockedDates");
+
   try {
-    // Extracting the date string from the request
-    const blockedDateString = req.body.blockedDate;
+    // Extracting the start date, end date, and time slots from the request
+    const startDateString = req.body.startDate;
+    const endDateString = req.body.endDate || startDateString; // Use start date as end date if end date is not provided
     const blockedTimes = req.body.blockedTimes;
 
-    console.log("Received blockedDate:", blockedDateString);
+    console.log("Received startDate:", startDateString);
+    console.log("Received endDate:", endDateString);
     console.log("Received blockedTimes:", blockedTimes);
 
-    // Converting the date string to a Date object
-    const blockedDate = new Date(blockedDateString);
+    // Function to generate all dates in the range
+    function generateDateRange(startDate, endDate) {
+      const dateRange = [];
+      let currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        dateRange.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      return dateRange;
+    }
 
-    // Check if the converted date is valid
-    if (isNaN(blockedDate.getTime())) {
+    // Validate and generate the date range
+    const startDate = new Date(startDateString);
+    const endDate = new Date(endDateString);
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       throw new Error("Invalid date format");
     }
+    const dateRange = generateDateRange(startDate, endDate);
 
-    let existingBlockedDate = await Blocked.findOne({
-      blockedDate: blockedDate,
-    });
-
-    if (existingBlockedDate) {
-      existingBlockedDate.blockedTimes.push(...blockedTimes);
-      await existingBlockedDate.save(); // Make sure to save the updated document
-    } else {
-      // Create a new document if it doesn't exist
-      existingBlockedDate = new Blocked({
-        blockedDate: blockedDate,
-        blockedTimes: blockedTimes,
+    // Process each date in the range
+    for (const date of dateRange) {
+      let existingBlockedDate = await Blocked.findOne({
+        blockedDate: date,
       });
-      await existingBlockedDate.save();
+
+      if (existingBlockedDate) {
+        // If the date already exists in the database, append new times
+        existingBlockedDate.blockedTimes.push(...blockedTimes);
+        await existingBlockedDate.save();
+      } else {
+        // Create a new document if it doesn't exist
+        const newBlockedDate = new Blocked({
+          blockedDate: date,
+          blockedTimes: blockedTimes,
+        });
+        await newBlockedDate.save();
+      }
     }
-  
+
     // Redirect after the database is updated
-    res.json({ success: true, message: "Blocked date added successfully" });
+    res.json({ success: true, message: "Blocked dates added successfully" });
   } catch (err) {
     console.error("Error occurred:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Update Blocked Date
 app.put("/loggedIn/admin/blocked/:id/blockedDate", async (req, res) => {
