@@ -550,7 +550,6 @@ app.get("/loggedInadminreservation", async (req, res) => {
   }
 });
 
-
 app.get('/loggedInadminquestions', async (req, res) => {
   try {
       // Fetching questions from the database
@@ -1016,6 +1015,7 @@ app.put("/loggedIn/admin/users/:id/score", async (req, res) => {
     return res.status(500).json({ error: "An error occurred while updating score." });
   }
 });
+
 //UPDATEQUESTION ROUTE
 app.put("/admin/questions/:id", async (req, res) => {
   const { id } = req.params;
@@ -1030,7 +1030,6 @@ app.put("/admin/questions/:id", async (req, res) => {
     res.status(500).send("Error updating question: " + error.message);
   }
 });
-
 
 // Adding by user Reservation
 app.post("/loggedIn/reservation", async (req, res) => {
@@ -1142,7 +1141,6 @@ app.post("/loggedIn/reservation", async (req, res) => {
     res.status(500).send("An error occurred while saving the reservation.");
   }
 });
-
 
 // Rebook of Reservation
 app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
@@ -1699,6 +1697,24 @@ function extractPublicId(url) {
   const parts = url.split('/');
   return parts[parts.length - 1].split('.')[0]; // Assuming the public ID is the last part before the file extension
 }
+
+//ADMINQUESTIONS
+app.get('/admin/questions', async (req, res) => {
+  try {
+      // Assuming you have a Question model set up to interact with your questions collection
+      // Fetch all the questions from the database
+      const questions = await Question.find(); // Replace with your actual data retrieval logic
+
+      // Render the admin questions management page and pass the questions to the template
+      `<script>alert("Question added successfuly"); window.location.href = "/loggedInadminquestions";</script>`
+      res.render('loggedInadminquestions', { questions }); // Ensure 'adminQuestions' matches your EJS file name
+  } catch (error) {
+      // Handle errors, such as by logging and sending a server error response
+      console.error('Error fetching questions:', error);
+      res.status(500).send('Error loading admin questions page');
+  }
+});
+
 //DELETE QUESTION ROUTE
 app.delete("/admin/questions/:id", async (req, res) => {
   const { id } = req.params;
@@ -1716,19 +1732,39 @@ app.delete("/admin/questions/:id", async (req, res) => {
 
 
 //QUESTIONS ROUTE
-app.post("/admin/questions/add", async (req, res) => {
-  const { type, question, options, correctAnswer } = req.body;
+app.post('/admin/questions/add', async (req, res) => {
+  const questionType = req.body.type;
+  const questionText = req.body.question;
+  let options = req.body.options;
+  const correctAnswer = req.body.correctAnswer;
 
-  const newQuestion = new Question({ type, question, options, correctAnswer });
+  // If the question type is multiple-choice, split the options string by commas
+  if (questionType === 'multiple-choice') {
+    options = options.split(',').map(option => option.trim()); // Split and trim each option
+  } else {
+    options = []; // No options for fill-in-the-blank
+  }
+
+  // Here, you should create a new question object based on your schema
+  const newQuestion = new Question({
+    type: questionType,
+    question: questionText,
+    options: options,
+    correctAnswer: correctAnswer
+  });
 
   try {
-    await newQuestion.save();
-    res.send("Question added successfully");
+    // Save the new question to the database
+    await newQuestion.save()
+    console.log("Question added successfully"); // Log success message
+;
+    console.log('Question added successfully');
+    res.redirect('/admin/questions'); // Redirect to the list of questions
   } catch (error) {
-    res.status(500).send("Error adding question: " + error.message);
+    console.error('Error adding question:', error);
+    res.status(500).send('Error adding question');
   }
 });
-
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

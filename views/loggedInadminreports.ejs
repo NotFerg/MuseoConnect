@@ -194,9 +194,6 @@
             const blocked = JSON.parse(blockedJSON);
             const artifacts = JSON.parse(artifactsJSON);
 
-            // Initialize an array to store monthly reservation counts
-            const monthlyReservationCounts = getMonthlyReservationCounts(reservations);
-
             // Initialize an array to store user scores
             const userScoreData = Array(10).fill(0);
             const userTypeData = {};
@@ -217,15 +214,7 @@
                 }
             });
 
-            // Create an array to store the visitor count for each month
-            const visitorCountPerMonth = new Array(12).fill(0);
-
-            // Group the visitor data by month and count the visitors
-            reservations.forEach((reservation) => {
-                const visitDate = new Date(reservation.visitDate);
-                const month = visitDate.getMonth(); // Months are zero-indexed (0-11)
-                visitorCountPerMonth[month]++;
-            });
+            
 
             // Create the pie chart for User Type Distribution
             const userTypeChartCtx = document.getElementById("userTypeChart").getContext("2d");
@@ -298,6 +287,8 @@
                 },
             });
 
+            // Initialize an array to store monthly reservation counts
+            const monthlyReservationCounts = getMonthlyReservationCounts(reservations);
 
             // Prepare the data for the line graph
             const monthlyReservationCountChartCtx = document.getElementById("monthlyReservationCountChart").getContext("2d");
@@ -322,6 +313,16 @@
                         },
                     },
                 },
+            });
+
+            // Create an array to store the visitor count for each month
+            const visitorCountPerMonth = new Array(12).fill(0);
+
+            // Group the visitor data by month and count the visitors
+            reservations.forEach((reservation) => {
+                const visitDate = new Date(reservation.visitDate);
+                const month = visitDate.getMonth(); // Months are zero-indexed (0-11)
+                visitorCountPerMonth[month]++;
             });
 
             // Create the bar graph for Visitor Count per Month

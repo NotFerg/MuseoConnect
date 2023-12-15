@@ -189,39 +189,39 @@
     </div>
   </nav><!-- End Header/Navbar -->
   <br><br><br><br><br><br><br><br><br>
-
   <div id="quiz-container" class="quiz-card">
     <p id="user-score">User Score: <%= user.score %>
     </p>
     <% quizQuestions.forEach((question, index)=> { %>
-      <div class="quiz-question" data-question-index="<%= index %>" data-question-id="<%= question.id %>">
+      <div class="quiz-question" data-question-index="<%= index %>" data-question-id="<%= question._id %>"
+        data-question-type="<%= question.type %>" style="display: <%= index === 0 ? 'block' : 'none' %>;">
         <h3 class="quiz-title">
           <%= question.question %>
         </h3>
-        <% if (question.options) { %>
+        <% if (question.type==='multiple-choice' ) { %>
           <ul class="quiz-options">
-            <% question.options.forEach(option=> { %>
+            <% question.options.forEach((option, optionIndex)=> { %>
               <li>
-                <label>
-                  <input type="radio" name="question_<%= index %>"
-                    onclick="selectOption('<%= option %>', '<%= question.correctAnswer %>')">
+                <input type="radio" id="option-<%= index %>-<%= optionIndex %>" name="question_<%= index %>"
+                  value="<%= option %>">
+                <label for="option-<%= index %>-<%= optionIndex %>">
                   <%= option %>
                 </label>
               </li>
               <% }); %>
           </ul>
+          <button class="quiz-btn" onclick="submitAnswer(< %= index %>, '<%= question.correctAnswer %>')">Submit</button>
           <% } else { %>
             <input type="text" id="input-answer-<%= index %>" class="form-control" placeholder="Your answer">
-            <button class="quiz-btn" onclick="submitInputAnswer('<%= question.correctAnswer %>')">Submit</button>
+            <button class="quiz-btn"
+              onclick="submitInputAnswer(<%= index %>, '<%= question.correctAnswer %>')">Submit</button>
             <% } %>
-              <div class="correct-answer" style="display:none;">
-                Correct Answer: <span class="answer-text"></span>
-              </div>
+              <p id="result-message-<%= index %>" class="quiz-result-message"></p>
       </div>
       <% }); %>
-        <button class="quiz-btn" onclick="showNextQuestion()">Next Question</button>
+        <button id="next-question-btn" class="quiz-btn" onclick="showNextQuestion()" style="display: none;">Next
+          Question</button>
   </div>
-
 
   </main>
   <br><br><br><br><br><br><br><br><br>
@@ -245,93 +245,112 @@
 
   <script>
     let currentQuestionIndex = 0;
+    const totalQuestionsString = "<%= quizQuestions.length %>";
+    let userScoreString = "<%= user.score %>";
+    const totalQuestions = parseInt(totalQuestionsString, 10);
+    const userScore = parseInt(userScoreString, 10);
 
-    function selectOption(selectedOption, correctAnswer) {
-      const questionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
-      questionDiv.querySelector('.answer-text').innerText = correctAnswer;
-      questionDiv.querySelector('.correct-answer').style.display = 'block';
+  
+    function submitAnswer(questionIndex, correctAnswer) {
+      let userAnswer;
+      const questionType = document.querySelector(`.quiz-question[data-question-index="${questionIndex}"]`).getAttribute('data-question-type');
+  
+      if (questionType === 'multiple-choice') {
+        const selectedOption = document.querySelector(`input[name="question_${questionIndex}"]:checked`);
+        userAnswer = selectedOption ? selectedOption.value : '';
+      } else {
+        userAnswer = document.getElementById(`input-answer-${questionIndex}`).value;
+      }
+  
+      const resultMessageElement = document.getElementById(`result-message-${questionIndex}`);
+      if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+        userScore++;
+        resultMessageElement.innerText = "Correct!";
+      } else {
+        resultMessageElement.innerText = "Incorrect!";
+      }
+  
+      document.getElementById('user-score').innerText = `User Score: ${userScore}`;
+      document.getElementById('next-question-btn').style.display = 'block';
+    }
+    function submitInputAnswer(questionIndex, correctAnswer) {
+    const inputField = document.getElementById(`input-answer-${questionIndex}`);
+    const userAnswer = inputField.value;
+    const resultMessageElement = document.getElementById(`result-message-${questionIndex}`);
+
+    if (userAnswer.trim() === "") {
+        resultMessageElement.innerText = "Please enter an answer.";
+        return;
     }
 
-    function submitInputAnswer(correctAnswer) {
-      const questionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
-      questionDiv.querySelector('.answer-text').innerText = correctAnswer;
-      questionDiv.querySelector('.correct-answer').style.display = 'block';
+    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+        userScore++;
+        resultMessageElement.innerText = "Correct!";
+    } else {
+        resultMessageElement.innerText = "Incorrect!";
     }
+
+    document.getElementById('user-score').innerText = `User Score: ${userScore}`;
+    document.getElementById('next-question-btn').style.display = 'block';
+}
 
     function showNextQuestion() {
-      const totalQuestionsString = "<%= quizQuestions.length %>";
-      const totalQuestions = parseInt(totalQuestionsString, 10);
       const currentQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
       currentQuestionDiv.style.display = 'none';
       currentQuestionIndex++;
-
+  
       if (currentQuestionIndex < totalQuestions) {
         const nextQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
         nextQuestionDiv.style.display = 'block';
+        document.getElementById('next-question-btn').style.display = 'none';
       } else {
-        // Handle end of the quiz
         alert("End of the quiz!");
-        window.location.href = "/loggedIngames"; // Redirect to the game start page
+        updateScore();
       }
     }
-
-
-    const updatedScore = calculateUpdatedScore(); // You need to implement this function
-    fetch(`/loggedIn/admin/users/<%= user._id %>/score`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ score: updatedScore }), // Update the score as needed
-    })
+  
+    function updateScore() {
+      fetch(`/loggedIn/admin/users/<%= user._id %>/score`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ score: userScore }),
+      })
       .then((response) => {
         if (response.ok) {
-          // Score updated successfully, you can handle this accordingly
-          // Update the displayed score on the webpage
-          const userScoreElement = document.getElementById('user-score');
-          userScoreElement.innerText = `User Score: ${updatedScore}`;
-        } else {
-          // Handle errors if necessary
+          alert("Your final score is: " + userScore);
+          window.location.href = "/loggedIngames";
         }
       })
       .catch((error) => {
         console.error('Error updating score:', error);
-        // Handle errors if necessary
       });
-
-
-    // Initially show the first question
-    document.querySelector('.quiz-question[data-question-index="0"]').style.display = 'block';
-
-
-
-    // Initially show the first question
-    document.querySelector('.quiz-question[data-question-index="0"]').style.display = 'block';
-
-    let inactivityTimeout;
-
+    }
+  
     // Function to reset the inactivity timer
+    let inactivityTimeout;
     function resetInactivityTimeout() {
       clearTimeout(inactivityTimeout);
       inactivityTimeout = setTimeout(() => {
-        // Send a request to the server to reset the session timeout
         fetch("/reset-inactivity").then((response) => {
           if (response.ok) {
-            console.log("Inactivity timer reset.");
-            // Redirect to the logout route after 1 minute of inactivity
             window.location.href = "/logout";
           }
         });
-      }, 300000); // 300,000 milliseconds = 5 minutes
+      }, 300000); // 5 minutes
     }
-
+  
     // Listen for user interactions
     window.addEventListener("mousemove", resetInactivityTimeout);
     window.addEventListener("keydown", resetInactivityTimeout);
-
-    // Initial reset
-    resetInactivityTimeout(); 
+    resetInactivityTimeout(); // Initial reset
+  
+    // Initially show the first question
+    document.querySelector('.quiz-question[data-question-index="0"]').style.display = 'block';
   </script>
+  
+
 
 </body>
 
