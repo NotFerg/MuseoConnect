@@ -189,39 +189,34 @@
     </div>
   </nav><!-- End Header/Navbar -->
   <br><br><br><br><br><br><br><br><br>
+  
   <div id="quiz-container" class="quiz-card">
-    <p id="user-score">User Score: <%= user.score %>
-    </p>
-    <% quizQuestions.forEach((question, index)=> { %>
-      <div class="quiz-question" data-question-index="<%= index %>" data-question-id="<%= question._id %>"
-        data-question-type="<%= question.type %>" style="display: <%= index === 0 ? 'block' : 'none' %>;">
-        <h3 class="quiz-title">
-          <%= question.question %>
-        </h3>
-        <% if (question.type==='multiple-choice' ) { %>
+    <p id="user-score">User Score: <%= user.score %></p>
+    <% quizQuestions.forEach((question, index) => { %>
+      <div class="quiz-question" data-question-index="<%= index %>" style="display: <%= index === 0 ? 'block' : 'none' %>;">
+        <h3 class="quiz-title"><%= question.question %></h3>
+        <% if (question.type === 'multiple-choice') { %>
           <ul class="quiz-options">
-            <% question.options.forEach((option, optionIndex)=> { %>
+            <% question.options.forEach((option, optionIndex) => { %>
               <li>
-                <input type="radio" id="option-<%= index %>-<%= optionIndex %>" name="question_<%= index %>"
-                  value="<%= option %>">
-                <label for="option-<%= index %>-<%= optionIndex %>">
-                  <%= option %>
-                </label>
+                <input type="radio" id="option-<%= index %>-<%= optionIndex %>" name="question_<%= index %>" value="<%= option.trim() %>">
+                <label for="option-<%= index %>-<%= optionIndex %>"><%= option.trim() %></label>
               </li>
-              <% }); %>
+            <% }); %>
           </ul>
-          <button class="quiz-btn" onclick="submitAnswer(< %= index %>, '<%= question.correctAnswer %>')">Submit</button>
-          <% } else { %>
-            <input type="text" id="input-answer-<%= index %>" class="form-control" placeholder="Your answer">
-            <button class="quiz-btn"
-              onclick="submitInputAnswer(<%= index %>, '<%= question.correctAnswer %>')">Submit</button>
-            <% } %>
-              <p id="result-message-<%= index %>" class="quiz-result-message"></p>
+          <button class="quiz-btn" onclick="submitAnswer(event, <%= index %>, '<%= question.correctAnswer %>')">Submit</button>
+        <% } else { %>
+          <input type="text" id="input-answer-<%= index %>" class="form-control" placeholder="Your answer">
+          <button class="quiz-btn" onclick="submitAnswer(event, <%= index %>, '<%= question.correctAnswer %>')">Submit</button>
+        <% } %>
+        <p id="result-message-<%= index %>" class="quiz-result-message"></p>
       </div>
-      <% }); %>
-        <button id="next-question-btn" class="quiz-btn" onclick="showNextQuestion()" style="display: none;">Next
-          Question</button>
+    <% }); %>
+    <button id="next-question-btn" class="quiz-btn" onclick="showNextQuestion(event)" style="display: none;">Next Question</button>
   </div>
+  
+  
+  
 
   </main>
   <br><br><br><br><br><br><br><br><br>
@@ -244,89 +239,85 @@
   <script src="/js/index.js"></script>
 
   <script>
-    let currentQuestionIndex = 0;
-    const totalQuestionsString = "<%= quizQuestions.length %>";
-    let userScoreString = "<%= user.score %>";
-    const totalQuestions = parseInt(totalQuestionsString, 10);
-    const userScore = parseInt(userScoreString, 10);
+ let currentQuestionIndex = 0;
+ let userScore = parseInt("<%= user.score %>", 10);
+
 
   
-    function submitAnswer(questionIndex, correctAnswer) {
-      let userAnswer;
-      const questionType = document.querySelector(`.quiz-question[data-question-index="${questionIndex}"]`).getAttribute('data-question-type');
-  
-      if (questionType === 'multiple-choice') {
-        const selectedOption = document.querySelector(`input[name="question_${questionIndex}"]:checked`);
-        userAnswer = selectedOption ? selectedOption.value : '';
-      } else {
-        userAnswer = document.getElementById(`input-answer-${questionIndex}`).value;
-      }
-  
-      const resultMessageElement = document.getElementById(`result-message-${questionIndex}`);
-      if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-        userScore++;
-        resultMessageElement.innerText = "Correct!";
-      } else {
-        resultMessageElement.innerText = "Incorrect!";
-      }
-  
-      document.getElementById('user-score').innerText = `User Score: ${userScore}`;
-      document.getElementById('next-question-btn').style.display = 'block';
-    }
-    function submitInputAnswer(questionIndex, correctAnswer) {
-    const inputField = document.getElementById(`input-answer-${questionIndex}`);
-    const userAnswer = inputField.value;
-    const resultMessageElement = document.getElementById(`result-message-${questionIndex}`);
+ function submitAnswer(event, questionIndex, correctAnswer) {
+    event.preventDefault(); // Prevent the default form submission
 
-    if (userAnswer.trim() === "") {
-        resultMessageElement.innerText = "Please enter an answer.";
-        return;
-    }
+    let userAnswer;
+    const questionType = document.querySelector(`.quiz-question[data-question-index="${questionIndex}"]`).getAttribute('data-question-type');
 
-    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-        userScore++;
-        resultMessageElement.innerText = "Correct!";
+    if (questionType === 'multiple-choice') {
+      const selectedOption = document.querySelector(`input[name="question_${questionIndex}"]:checked`);
+      userAnswer = selectedOption ? selectedOption.value : '';
     } else {
-        resultMessageElement.innerText = "Incorrect!";
+      userAnswer = document.getElementById(`input-answer-${questionIndex}`).value;
+    }
+
+    const resultMessageElement = document.getElementById(`result-message-${questionIndex}`);
+    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+      userScore++;
+      resultMessageElement.innerText = "Correct!";
+    } else {
+      resultMessageElement.innerText = "Incorrect!";
     }
 
     document.getElementById('user-score').innerText = `User Score: ${userScore}`;
-    document.getElementById('next-question-btn').style.display = 'block';
-}
 
-    function showNextQuestion() {
-      const currentQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
-      currentQuestionDiv.style.display = 'none';
-      currentQuestionIndex++;
+    // Show the next question or end the quiz
+    if (currentQuestionIndex < totalQuestions - 1) {
+      document.getElementById('next-question-btn').style.display = 'block';
+    } else {
+      // Last question answered, update the score
+      updateScore();
+    }
+  }
+   
+  function showNextQuestion(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    // Hide the current question
+    const currentQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
+    currentQuestionDiv.style.display = 'none';
+
+    // Increment the question index
+    currentQuestionIndex++;
+
+    // Check if there are more questions
+    if (currentQuestionIndex < totalQuestions) {
+      // Show the next question
+      const nextQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
+      nextQuestionDiv.style.display = 'block';
+      document.getElementById('next-question-btn').style.display = 'none';
+    } else {
+      // End of the quiz
+      alert("End of the quiz!");
+      updateScore();
+    }
+  }
   
-      if (currentQuestionIndex < totalQuestions) {
-        const nextQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
-        nextQuestionDiv.style.display = 'block';
-        document.getElementById('next-question-btn').style.display = 'none';
-      } else {
-        alert("End of the quiz!");
-        updateScore();
+  
+  function updateScore() {
+    fetch(`/loggedIn/admin/users/<%= user._id %>/score`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ score: userScore }),
+    })
+    .then((response) => {
+      if (response.ok) {
+        alert(`Your final score is: ${userScore}`);
+        window.location.href = "/loggedIngames";
       }
-    }
-  
-    function updateScore() {
-      fetch(`/loggedIn/admin/users/<%= user._id %>/score`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ score: userScore }),
-      })
-      .then((response) => {
-        if (response.ok) {
-          alert("Your final score is: " + userScore);
-          window.location.href = "/loggedIngames";
-        }
-      })
-      .catch((error) => {
-        console.error('Error updating score:', error);
-      });
-    }
+    })
+    .catch((error) => {
+      console.error('Error updating score:', error);
+    });
+  }
   
     // Function to reset the inactivity timer
     let inactivityTimeout;
