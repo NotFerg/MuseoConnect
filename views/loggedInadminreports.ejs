@@ -99,6 +99,7 @@
                         <canvas id="monthlyReservationCountChart" width="400" height="400"></canvas>
                         <button onclick="printMonthlyReservationChart()" id="printMonthlyReservationChartButton">Print
                             Monthly Reservation Chart</button>
+                        <button onclick="updateCharts()">Update Charts</button>
                     </div>
 
                     <!-- Visitor count per month HTML body -->
@@ -315,6 +316,25 @@
                 },
             });
 
+            function getMonthlyReservationCounts(reservations) {
+                const monthlyCounts = {};
+
+                reservations.forEach((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    const year = visitDate.getFullYear();
+                    const month = visitDate.getMonth() + 1; // Months are 0-based
+
+                    const key = `${year}-${month}`;
+                    if (monthlyCounts[key]) {
+                        monthlyCounts[key]++;
+                    } else {
+                        monthlyCounts[key] = 1;
+                    }
+                });
+
+                return monthlyCounts;
+            }
+
             // Create an array to store the visitor count for each month
             const visitorCountPerMonth = new Array(12).fill(0);
 
@@ -361,24 +381,7 @@
                 },
             });
 
-            function getMonthlyReservationCounts(reservations) {
-                const monthlyCounts = {};
-
-                reservations.forEach((reservation) => {
-                    const visitDate = new Date(reservation.visitDate);
-                    const year = visitDate.getFullYear();
-                    const month = visitDate.getMonth() + 1; // Months are 0-based
-
-                    const key = `${year}-${month}`;
-                    if (monthlyCounts[key]) {
-                        monthlyCounts[key]++;
-                    } else {
-                        monthlyCounts[key] = 1;
-                    }
-                });
-
-                return monthlyCounts;
-            }
+            
 
             // Create an array to store the blocked dates
             const blockedDates = blocked.map((entry) => entry.blockedDate);
