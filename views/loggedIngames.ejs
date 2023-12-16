@@ -239,33 +239,40 @@
   <script src="/js/index.js"></script>
 
   <script>
- let currentQuestionIndex = 0;
- let userScore = parseInt("<%= user.score %>", 10);
+  let currentQuestionIndex = 0;
+  let userScore = parseInt("<%= user.score %>", 10);
+  let totalQuestions = <%= quizQuestions.length %>;
 
 
   
- function submitAnswer(event, questionIndex, correctAnswer) {
+  function submitAnswer(event, questionIndex, correctAnswer) {
     event.preventDefault(); // Prevent the default form submission
 
     let userAnswer;
-    const questionType = document.querySelector(`.quiz-question[data-question-index="${questionIndex}"]`).getAttribute('data-question-type');
-
-    if (questionType === 'multiple-choice') {
+    // If all questions are multiple-choice or text, you can check the type of input present
+    if (document.querySelector(`input[name="question_${questionIndex}"]:checked`)) {
       const selectedOption = document.querySelector(`input[name="question_${questionIndex}"]:checked`);
       userAnswer = selectedOption ? selectedOption.value : '';
     } else {
-      userAnswer = document.getElementById(`input-answer-${questionIndex}`).value;
+      const inputElement = document.getElementById(`input-answer-${questionIndex}`);
+      userAnswer = inputElement ? inputElement.value : '';
+    }
+
+    if (!userAnswer.trim()) {
+      alert('Please select or enter an answer.');
+      return;
     }
 
     const resultMessageElement = document.getElementById(`result-message-${questionIndex}`);
-    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-      userScore++;
-      resultMessageElement.innerText = "Correct!";
-    } else {
-      resultMessageElement.innerText = "Incorrect!";
+    if (resultMessageElement) {
+      if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+        userScore++;
+        resultMessageElement.innerText = "Correct!";
+      } else {
+        resultMessageElement.innerText = "Incorrect!";
+      }
+      document.getElementById('user-score').innerText = `User Score: ${userScore}`;
     }
-
-    document.getElementById('user-score').innerText = `User Score: ${userScore}`;
 
     // Show the next question or end the quiz
     if (currentQuestionIndex < totalQuestions - 1) {
