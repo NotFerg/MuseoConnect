@@ -609,7 +609,7 @@ function generateVerificationCode() {
 
 // Signup route with email verification
 app.post("/signUp", async (req, res) => {
-  const { name, email, userType, password, gender } = req.body;
+  const { name, email, userType, studentType, teacherType, dlsuStaff, password, gender } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -626,11 +626,20 @@ app.post("/signUp", async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    let finalUserType = userType;
+    if (userType === "Student" && studentType) {
+      finalUserType = studentType;
+    } else if (userType === "Teacher" && teacherType) {
+      finalUserType = teacherType;
+    } else if (userType === "DLSU-D Staff" && dlsuStaff) {
+      finalUserType = dlsuStaff;
+    }
+
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      type: userType,
+      type: finalUserType, // Use the specific type
       gender,
       isVerified: false,
       verificationCode,
@@ -641,7 +650,7 @@ app.post("/signUp", async (req, res) => {
     // Send verification email
     await sendVerificationEmail(email, verificationCode);
 
-    // You may want to redirect the user to a "check your email" page
+    // Redirect to a "check your email" page
     return res.send(
       `<script>alert("Account Created. Please check your email for verification. Please also check your junk/spam folders for the email"); window.location.href = "/signIn";</script>`
     );
@@ -650,6 +659,7 @@ app.post("/signUp", async (req, res) => {
     res.status(500).send("An error occurred during registration.");
   }
 });
+
 
 // Define a function to send a verification email
 async function sendVerificationEmail(email, verificationCode) {

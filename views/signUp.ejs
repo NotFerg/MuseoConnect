@@ -134,6 +134,7 @@
                           <label class="form-label" for="confirmPassword">Confirm Password</label>
                         </div>
 
+                        <h5>Gender</h5>
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="gender" id="maleRadio" value="Male"
                             required>
@@ -149,32 +150,68 @@
                           </label>
                         </div>
                         <br><br>
-                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="userType" id="teacherRadio" value="Teacher"
-                            required>
-                          <label class="form-check-label" for="teacherRadio">
-                            Teacher
-                          </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="userType" id="studentRadio" value="Student"
-                            required>
-                          <label class="form-check-label" for="studentRadio">
-                            Student
-                          </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="userType" id="othersRadio" value="Others"
-                            required>
-                          <label class="form-check-label" for="othersRadio">
-                            Others
-                          </label>
+
+                        <h5>Type</h5>
+                        <!-- Teacher Radio Button with additional options -->
+                        <div class="user-type-option">
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="userType" id="teacherRadio"
+                              value="Teacher" required>
+                            <label class="form-check-label" for="teacherRadio">Teacher</label>
+                          </div>
+                          <div id="teacherTypeOptions" style="display: none;">
+                            <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="teacherType" id="dlsudTeacherRadio"
+                                value="DLSUD-Teacher">
+                              <label class="form-check-label" for="dlsudTeacherRadio">DLSU-D Teacher</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="teacherType" id="outsiderTeacherRadio"
+                                value="Outsider-Teacher">
+                              <label class="form-check-label" for="outsiderTeacherRadio">Outsider Teacher</label>
+                            </div>
+                          </div>
                         </div>
 
-                        <div class="form-outline mb-4" id="othersInput" style="display: none;">
-                          <input type="text" id="others" class="form-control form-control-lg" name="others"
+                        <!-- Student Radio Button with additional options -->
+                        <div class="user-type-option">
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="userType" id="studentRadio"
+                              value="Student" required>
+                            <label class="form-check-label" for="studentRadio">Student</label>
+                          </div>
+                          <div id="studentTypeOptions" style="display: none;">
+                            <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="studentType" id="dlsudStudentRadio"
+                                value="DLSUD-Student">
+                              <label class="form-check-label" for="dlsudStudentRadio">DLSU-D Student</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="radio" name="studentType" id="outsiderStudentRadio"
+                                value="Outsider-Student">
+                              <label class="form-check-label" for="outsiderStudentRadio">Outsider Student</label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="user-type-option">
+                          <input class="form-check-input" type="radio" name="userType" id="dlsuStaff"
+                              value="DLSU-D Staff" required>
+                            <label class="form-check-label" for="dlsuStaff">DLSU-D Staff</label>
+                        </div>
+
+                        <!-- Others Radio Button -->
+                        <div class="user-type-option">
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="userType" id="othersRadio" value="Others"
+                              required>
+                            <label class="form-check-label" for="othersRadio">Others</label>
+                          </div>
+                          <div id="othersInput" style="display: none;">
+                            <input type="text" id="others" class="form-control form-control-lg" name="others"
                             autocomplete="off" />
                           <label class="form-label" for="others">Other (please specify)</label>
+                          </div>
                         </div>
 
                         <div class="d-flex justify-content-center mt-3">
@@ -251,18 +288,36 @@
     teacherRadio.addEventListener('change', function () {
       if (this.checked) {
         othersInput.style.display = 'none';
+        document.getElementById('teacherTypeOptions').style.display = 'block';
+        document.getElementById('studentTypeOptions').style.display = 'none'; // Hide student options when teacher is selected
       }
     });
 
     studentRadio.addEventListener('change', function () {
       if (this.checked) {
         othersInput.style.display = 'none';
+        document.getElementById('studentTypeOptions').style.display = 'block';
+        document.getElementById('teacherTypeOptions').style.display = 'none'; // Hide teacher options when student is selected
       }
     });
 
-    othersText.addEventListener('input', function () {
-      othersRadio.value = this.value;
+    othersRadio.addEventListener('change', function () {
+      if (this.checked) {
+        othersInput.style.display = 'block';
+        document.getElementById('studentTypeOptions').style.display = 'none'; // Hide student options
+        document.getElementById('teacherTypeOptions').style.display = 'none'; // Hide teacher options
+      }
     });
+
+    const dlsuStaffRadio = document.querySelector('#dlsuStaff');
+
+  dlsuStaffRadio.addEventListener('change', function () {
+    if (this.checked) {
+      document.getElementById('studentTypeOptions').style.display = 'none'; // Hide student options
+      document.getElementById('teacherTypeOptions').style.display = 'none'; // Hide teacher options
+      othersInput.style.display = 'none'; // Hide others input
+    }
+  });
 
     function validateForm() {
       const passwordInput = document.getElementById('password');
