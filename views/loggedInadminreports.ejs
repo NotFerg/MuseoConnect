@@ -150,7 +150,7 @@
                             <span class="color-a"> © All Rights Reserved 2023, Fergus Ampuan, Rasheed Taban, Lemuel
                                 Palgan
                         </p>
-                        <% if (admin && admin.name && admin.type ==="admin") { %>
+                        <% if (admin && admin.name && admin.type==="admin" ) { %>
                             <p hidden>Welcome, <%= admin.name %>
                             </p>
                             <% } else { %>
@@ -214,7 +214,7 @@
                 }
             });
 
-            
+
 
             // Create the pie chart for User Type Distribution
             const userTypeChartCtx = document.getElementById("userTypeChart").getContext("2d");
@@ -622,7 +622,57 @@
                 const imageDataUrl = canvas.toDataURL(); // Convert canvas to image data URL
 
                 const printWindow = window.open('', '_blank');
-                printWindow.document.write(`<h2>${chartTitle}</h2><img src="${imageDataUrl}" alt="${chartTitle}">`);
+
+                // Create header container
+                const headerDiv = printWindow.document.createElement('div');
+                headerDiv.style.display = 'flex';
+                headerDiv.style.justifyContent = 'space-between';
+                headerDiv.style.alignItems = 'center';
+                headerDiv.style.marginBottom = '20px';
+
+                // Create and append the left image
+                const leftImage = printWindow.document.createElement('img');
+                leftImage.src = 'https://www.dlsud.edu.ph/images/about-logo.png';
+                leftImage.alt = 'dlsud-logo';
+                leftImage.style.width = '100px'; // Adjust size as needed
+                headerDiv.appendChild(leftImage);
+
+                // Create and append the center text
+                const centerText = printWindow.document.createElement('h1');
+                centerText.textContent = 'De La Salle University Dasmarinas';
+                centerText.style.flexGrow = '1';
+                centerText.style.textAlign = 'center';
+                headerDiv.appendChild(centerText);
+
+                // Create and append the right image
+                const rightImage = printWindow.document.createElement('img');
+                rightImage.src = 'https://culture360.asef.org/media/2011/7/Museo_De_La_Salle.jpeg';
+                rightImage.alt = 'museo-logo';
+                rightImage.style.width = '100px'; // Adjust size as needed
+                headerDiv.appendChild(rightImage);
+
+                // Append header to the new window's document
+                printWindow.document.body.appendChild(headerDiv);
+
+                // Create a title element for the chart
+                const titleElement = printWindow.document.createElement('h2');
+                titleElement.textContent = chartTitle;
+                titleElement.style.fontFamily = 'Arial, sans-serif';
+                titleElement.style.textAlign = 'center';
+
+                // Create an image element for the chart
+                const imageElement = printWindow.document.createElement('img');
+                imageElement.src = imageDataUrl;
+                imageElement.alt = chartTitle;
+                imageElement.style.maxWidth = '100%';
+                imageElement.style.height = 'auto';
+
+                // Append the chart title and image to the new window's document
+                printWindow.document.body.appendChild(titleElement);
+                printWindow.document.body.appendChild(imageElement);
+
+                // Style the body of the new document
+                printWindow.document.body.style.textAlign = 'center';
 
                 // Introduce a delay of 1 second (1000 milliseconds) before triggering the print function
                 setTimeout(() => {
