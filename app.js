@@ -1765,9 +1765,9 @@ app.post('/admin/questions/add', async (req, res) => {
 
   try {
     // Save the new question to the database
-    await newQuestion.save()
+    await newQuestion.save();
     res.send("Question added successfully"); // Log success message
-;
+
     console.log('Question added successfully');
     res.redirect('/admin/questions'); // Redirect to the list of questions
   } catch (error) {
