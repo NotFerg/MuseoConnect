@@ -96,15 +96,32 @@
                     <!-- Monthly Reservation Count Line Chart Container -->
                     <div class="col-md-6 my-3">
                         <h2>Monthly Reservation Counts</h2>
+
+                        <label for="startMonth">Start Month:</label>
+                        <input type="month" id="startMonth" name="startMonth">
+
+                        <label for="endMonth">End Month:</label>
+                        <input type="month" id="endMonth" name="endMonth">
+
+                        <button class="my-3" id="updateMonthlyChartBtn">Update Chart</button>
+
                         <canvas id="monthlyReservationCountChart" width="400" height="400"></canvas>
                         <button onclick="printMonthlyReservationChart()" id="printMonthlyReservationChartButton">Print
                             Monthly Reservation Chart</button>
-                        <button onclick="updateCharts()">Update Charts</button>
                     </div>
 
                     <!-- Visitor count per month HTML body -->
                     <div class="col-md-6 my-3">
                         <h2>Monthly number of visitors per reservation</h2>
+
+                        <label for="startMonth">Start Month:</label>
+                        <input type="month" id="startMonthVisitor" name="startMonth">
+
+                        <label for="endMonth">End Month:</label>
+                        <input type="month" id="endMonthVisitor" name="endMonth">
+
+                        <button class="my-3" id="updateMonthlyVistorBtn">Update Chart</button>
+
                         <canvas id="visitorCountChart" width="400" height="400"></canvas>
                         <button onclick="printMonthlyVisitorChart()" id="printMonthlyVisitorsChartButton">Print Monthly
                             Visitors Chart</button>
@@ -113,7 +130,16 @@
                     <!-- Blocked dates by week -->
                     <div class="col-md-6 my-3">
                         <h2>Blocked Dates by Week</h2>
-                        <canvas id="blockedDatesByWeekChart" width="400" height="400"></canvas>
+
+                        <label for="startMonth">Start Month:</label>
+                        <input type="month" id="startMonthBlocked" name="startMonth">
+
+                        <label for="endMonth">End Month:</label>
+                        <input type="month" id="endMontBlocked" name="endMonth">
+
+                        <button class="my-3" id="updateBlockedBtn">Update Chart</button>
+
+                        <canvas id="blockedDatesByMonthChart" width="400" height="400"></canvas>
                         <button onclick="printBlockDateChart()" id="printBlockDateChartButton">Print Blocked Dates
                             Chart</button>
                     </div>
@@ -214,8 +240,6 @@
                     }
                 }
             });
-
-
 
             // Create the pie chart for User Type Distribution
             const userTypeChartCtx = document.getElementById("userTypeChart").getContext("2d");
@@ -330,34 +354,120 @@
                     } else {
                         monthlyCounts[key] = 1;
                     }
-                });
 
+                });
+                // console.log(monthlyCounts);
                 return monthlyCounts;
             }
+
+            document.getElementById('updateMonthlyChartBtn').addEventListener('click', updateMonthlyReservationCounts);
+            // Add this function to your script to update the chart
+            function updateMonthlyReservationCounts() {
+                // Get the user-inputted start and end months
+                const startMonth = document.getElementById('startMonth').value;
+                const endMonth = document.getElementById('endMonth').value;
+
+                // Convert start and end months to Date objects
+                const startDate = new Date(startMonth + '-01'); // First day of the start month
+                const endDate = new Date(endMonth + '-01'); // First day of the month after the end month
+                endDate.setMonth(endDate.getMonth() + 1);
+
+                // Filter the reservations array
+                const filteredReservations = reservations.filter((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    return visitDate >= startDate && visitDate < endDate;
+                });
+
+                // Count reservations by month
+                const reservationCounts = {};
+                filteredReservations.forEach((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    const yearMonth = visitDate.getFullYear() + '-' + (visitDate.getMonth() + 1).toString().padStart(2, '0');
+                    reservationCounts[yearMonth] = (reservationCounts[yearMonth] || 0) + 1;
+                });
+
+                // Prepare the data for the chart
+                const labels = Object.keys(reservationCounts).sort();
+                const data = labels.map(label => reservationCounts[label]);
+
+                // Update the chart
+                const monthlyReservationCountChart = Chart.getChart("monthlyReservationCountChart"); // Assuming your chart's ID is 'monthlyReservationCountChart'
+                monthlyReservationCountChart.data.labels = labels;
+                monthlyReservationCountChart.data.datasets[0].data = data;
+                monthlyReservationCountChart.update();
+            }
+
+
 
             // Create an array to store the visitor count for each month
             const visitorCountPerMonth = new Array(12).fill(0);
 
-            // Group the visitor data by month and count the visitors
-            reservations.forEach((reservation) => {
-                const visitDate = new Date(reservation.visitDate);
-                const month = visitDate.getMonth(); // Months are zero-indexed (0-11)
-                visitorCountPerMonth[month]++;
+            // Function to get visitor count per month in year-month format
+            function getVisitorCountPerMonthYearFormat(reservations) {
+                const visitorCount = {};
+
+                // Count visitors per month
+                reservations.forEach((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    const year = visitDate.getFullYear();
+                    const month = visitDate.getMonth() + 1; // Months are zero-indexed (0-11), so add 1
+                    const yearMonth = `${year}-${month}`;
+
+                    if (visitorCount[yearMonth]) {
+                        visitorCount[yearMonth]++;
+                    } else {
+                        visitorCount[yearMonth] = 1;
+                    }
+                });
+                // console.log(visitorCount)
+                return visitorCount;
+            }
+
+            document.getElementById('updateMonthlyVistorBtn').addEventListener('click', function () {
+                // Get the user-inputted start and end months
+                const startMonth = document.getElementById('startMonthVisitor').value;
+                const endMonth = document.getElementById('endMonthVisitor').value;
+
+                // Convert start and end months to Date objects
+                const startDate = new Date(startMonth + '-01'); // First day of the start month
+                const endDate = new Date(endMonth + '-01'); // Last day of the end month
+                endDate.setMonth(endDate.getMonth() + 1);
+
+                // Filter the reservations array
+                const filteredVisitorCounts = getVisitorCountPerMonthYearFormat(reservations.filter((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    return visitDate >= startDate && visitDate < endDate;
+                }));
+
+                // Prepare the data for the chart
+                const labelsVisitor = Object.keys(filteredVisitorCounts).sort((a, b) => new Date(a) - new Date(b));
+                const dataVisitors = labelsVisitor.map(label => filteredVisitorCounts[label]);
+
+                // Update the chart
+                const visitorCountChart = Chart.getChart("visitorCountChart");
+                visitorCountChart.data.labels = labelsVisitor;
+                visitorCountChart.data.datasets[0].data = dataVisitors;
+                visitorCountChart.update();
             });
 
-            // Create the bar graph for Visitor Count per Month
+
+            // Get the visitor count per month in year-month format
+            const visitorCountYearMonth = getVisitorCountPerMonthYearFormat(reservations);
+
+            // Sort the labels (year-month) and prepare the data for the chart
+            const labelsVisitor = Object.keys(visitorCountYearMonth).sort((a, b) => new Date(a) - new Date(b));
+            const dataVisitors = labelsVisitor.map(label => visitorCountYearMonth[label]); // corrected this line
+
+            // Create the bar graph for Visitor Count per Month with new labels
             const visitorCountChartCtx = document.getElementById("visitorCountChart").getContext("2d");
             const visitorCountChart = new Chart(visitorCountChartCtx, {
                 type: "bar",
                 data: {
-                    labels: [
-                        "January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December",
-                    ],
+                    labels: labelsVisitor,
                     datasets: [
                         {
                             label: "Visitor Count",
-                            data: visitorCountPerMonth,
+                            data: dataVisitors,
                             backgroundColor: "rgba(75, 192, 192, 0.7)",
                         },
                     ],
@@ -381,59 +491,105 @@
                 },
             });
 
-            
+            // Function to get the start date of the month for a given date
+            function getMonthStartDate(date) {
+                const d = new Date(date);
+                return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-01`; // Format to year-month-01
+            }
 
-            // Create an array to store the blocked dates
+            // Function to group blocked dates by month
+            function groupBlockedDatesByMonth(dates) {
+                const blockedDatesByMonth = {};
+                dates.forEach((date) => {
+                    const monthStart = getMonthStartDate(date);
+                    if (blockedDatesByMonth[monthStart]) {
+                        blockedDatesByMonth[monthStart]++;
+                    } else {
+                        blockedDatesByMonth[monthStart] = 1;
+                    }
+                });
+                return blockedDatesByMonth;
+            }
+
+            // Assuming `blocked` is an array of objects with a `blockedDate` property
+            // e.g., [{ blockedDate: '2023-01-15' }, { blockedDate: '2023-01-20' }]
             const blockedDates = blocked.map((entry) => entry.blockedDate);
 
-            // Process blocked dates and group them by week
-            const blockedDatesByWeek = groupBlockedDatesByWeek(blockedDates);
+            // Process blocked dates and group them by month
+            const blockedDatesByMonth = groupBlockedDatesByMonth(blockedDates);
+
+            // Sort the labels (year-month) for the chart
+            const labelsBlockedDates = Object.keys(blockedDatesByMonth).sort((a, b) => new Date(a) - new Date(b));
+
+            // Prepare the data for the chart
+            const dataBlockedDates = labelsBlockedDates.map(label => blockedDatesByMonth[label]);
 
             // Chart.js code to create the chart
-            const blockedDatesByWeekChartCtx = document.getElementById("blockedDatesByWeekChart").getContext("2d");
-            const blockedDatesByWeekChart = new Chart(blockedDatesByWeekChartCtx, {
+            const blockedDatesByMonthChartCtx = document.getElementById("blockedDatesByMonthChart").getContext("2d");
+            const blockedDatesByMonthChart = new Chart(blockedDatesByMonthChartCtx, {
                 type: "bar",
                 data: {
-                    labels: Object.keys(blockedDatesByWeek), // Weeks as labels
+                    labels: labelsBlockedDates,
                     datasets: [
                         {
                             label: "Blocked Dates Count",
-                            data: Object.values(blockedDatesByWeek), // Count of blocked dates for each week
+                            data: dataBlockedDates,
                             backgroundColor: "rgba(75, 192, 192, 0.7)",
                         },
                     ],
                 },
                 options: {
                     scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Month",
+                            },
+                        },
                         y: {
+                            title: {
+                                display: true,
+                                text: "Blocked Dates Count",
+                            },
                             beginAtZero: true,
                         },
                     },
                 },
             });
 
-            // Function to group blocked dates by week
-            function groupBlockedDatesByWeek(dates) {
-                const blockedDatesByWeek = {};
-                dates.forEach((date) => {
-                    const weekStart = getWeekStartDate(date);
-                    if (blockedDatesByWeek[weekStart]) {
-                        blockedDatesByWeek[weekStart]++;
-                    } else {
-                        blockedDatesByWeek[weekStart] = 1;
-                    }
-                });
-                return blockedDatesByWeek;
-            }
+            document.getElementById('updateBlockedBtn').addEventListener('click', function () {
+                // Get the user-inputted start and end months
+                const startMonthValue = document.getElementById('startMonthBlocked').value;
+                const endMonthValue = document.getElementById('endMontBlocked').value;
 
-            // Function to get the start date of the week for a given date
-            function getWeekStartDate(date) {
-                const d = new Date(date);
-                const day = d.getDay();
-                const diff = d.getDate() - day + (day == 0 ? -6 : 1); // Adjust for Sunday
-                d.setDate(diff);
-                return d.toISOString().split("T")[0]; // Return date in ISO format
-            }
+                // Convert start and end months to Date objects
+                const startDate = new Date(startMonthValue + '-01'); // First day of the start month
+                const endDate = new Date(endMonthValue + '-01'); // First day of the next month after the end month
+                endDate.setMonth(endDate.getMonth() + 1); // This ensures the entire end month is included
+
+                // Filter the blocked dates array
+                const filteredBlockedDates = blocked
+                    .map((entry) => entry.blockedDate)
+                    .filter((date) => {
+                        const blockedDate = new Date(date);
+                        return blockedDate >= startDate && blockedDate < endDate;
+                    });
+
+                // Group the filtered blocked dates by month
+                const blockedDatesByMonth = groupBlockedDatesByMonth(filteredBlockedDates);
+
+                // Sort the labels (year-month) and prepare the data for the chart
+                const labelsBlockedDates = Object.keys(blockedDatesByMonth).sort((a, b) => new Date(a) - new Date(b));
+                const dataBlockedDates = labelsBlockedDates.map(label => blockedDatesByMonth[label]);
+
+                // Update the chart
+                const blockedDatesByMonthChart = Chart.getChart("blockedDatesByMonthChart");
+                blockedDatesByMonthChart.data.labels = labelsBlockedDates;
+                blockedDatesByMonthChart.data.datasets[0].data = dataBlockedDates;
+                blockedDatesByMonthChart.update();
+            });
+
+
 
             // Initialize an object to store artifact counts by type
             const artifactTypeCounts = {};
@@ -555,8 +711,8 @@
                 printChart('Gender Distribution', 'genderDistributionChart');
             }
 
-            console.log('User Type Data:', userTypeData);
-            console.log('Gender Counts:', genderCounts);
+            // console.log('User Type Data:', userTypeData);
+            // console.log('Gender Counts:', genderCounts);
 
             //print all chart function
             function printAllCharts() {
@@ -565,60 +721,97 @@
                     { title: 'User Score Distribution', id: 'userScoreChart' },
                     { title: 'Monthly Reservation Counts per visitor', id: 'monthlyReservationCountChart' },
                     { title: 'Monthly Reservation Counts', id: 'visitorCountChart' },
-                    { title: 'Block Date Chart', id: 'blockedDatesByWeekChart' },
+                    { title: 'Block Date Chart', id: 'blockedDatesByMonthChart' },
                     { title: 'Artifacts Chart', id: 'artifactsByTypeChart' },
                     { title: 'Gender Distribution chart', id: 'genderDistributionChart' }
                 ];
 
-                // Create a canvas with a dynamic height based on the sum of individual chart heights
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                let totalHeight = 0;
-
-                // Calculate total height without title space
-                charts.forEach(({ id }) => {
-                    const chartCanvas = document.getElementById(id);
-                    totalHeight += chartCanvas.height;
-                });
-
-                // Add space for titles between charts
-                const titleSpace = 80; // Adjust as needed
-                totalHeight += (charts.length - 1) * titleSpace;
-
-                // Set canvas dimensions
-                canvas.width = 1200; // Adjust as needed
-                canvas.height = totalHeight + 100; // Adjust as needed
-
-                // Variables to track the current Y coordinate
-                let currentY = 0;
-
-                // Draw each chart on the combined canvas
-                charts.forEach(({ title, id }) => {
-                    const chartCanvas = document.getElementById(id);
-
-                    // Add space for the title
-                    ctx.font = '18px Arial';
-                    ctx.fillStyle = '#000';
-                    ctx.fillText(title, 10, currentY + 40); // Adjust the position as needed
-
-                    // Draw the chart below the title
-                    ctx.drawImage(chartCanvas, 0, currentY + 30); // Adjust the position as needed
-
-                    // Add space between charts
-                    currentY += chartCanvas.height + titleSpace;
-                });
-
-                // Open a new window with the combined canvas
                 const printWindow = window.open('', '_blank');
-                printWindow.document.write(`<h2>All Charts</h2><img src="${canvas.toDataURL()}" alt="All Charts">`);
+
+                // Create header container
+                const headerDiv = printWindow.document.createElement('div');
+                headerDiv.style.display = 'flex';
+                headerDiv.style.justifyContent = 'center';
+                headerDiv.style.flexWrap = 'wrap';
+                headerDiv.style.alignItems = 'center';
+                headerDiv.style.marginBottom = '20px';
+
+                // Create and append the left image
+                const leftImage = printWindow.document.createElement('img');
+                leftImage.src = 'https://www.dlsud.edu.ph/images/about-logo.png';
+                leftImage.alt = 'dlsud-logo';
+                leftImage.style.width = '100px';
+                leftImage.style.marginRight = '20px';
+                headerDiv.appendChild(leftImage);
+
+                // Create and append the center text
+                const centerText = printWindow.document.createElement('div');
+                centerText.style.flexGrow = '1';
+                centerText.style.textAlign = 'center';
+
+                const universityName = printWindow.document.createElement('h1');
+                universityName.textContent = 'De La Salle University Dasmarinas';
+                centerText.appendChild(universityName);
+
+                const museumName = printWindow.document.createElement('h2');
+                museumName.textContent = 'Museo De La Salle';
+                centerText.appendChild(museumName);
+
+                headerDiv.appendChild(centerText);
+
+                // Create and append the right image
+                const rightImage = printWindow.document.createElement('img');
+                rightImage.src = 'https://culture360.asef.org/media/2011/7/Museo_De_La_Salle.jpeg';
+                rightImage.alt = 'museo-logo';
+                rightImage.style.width = '100px';
+                rightImage.style.marginLeft = '20px';
+                headerDiv.appendChild(rightImage);
+
+                // Append header to the new window's document
+                printWindow.document.body.appendChild(headerDiv);
+
+                // Function to create an image element for each chart
+                function createImageElementForChart(chartTitle, imageDataUrl) {
+                    // Create a container for each chart
+                    const chartContainer = printWindow.document.createElement('div');
+                    chartContainer.className = 'chart-container';
+                    chartContainer.style.pageBreakAfter = 'always'; // Ensure each chart is on a new page
+                    chartContainer.style.textAlign = 'center'; // Center align the content
+
+                    // Create a title element for the chart
+                    const titleElement = printWindow.document.createElement('h2');
+                    titleElement.textContent = chartTitle;
+                    titleElement.style.fontFamily = 'Arial, sans-serif';
+
+                    // Create an image element for the chart
+                    const imageElement = printWindow.document.createElement('img');
+                    imageElement.src = imageDataUrl;
+                    imageElement.alt = chartTitle;
+                    imageElement.style.maxWidth = '100%';
+                    imageElement.style.height = 'auto';
+                    imageElement.style.display = 'block'; // Display chart as a block
+                    imageElement.style.margin = 'auto'; // Center the chart
+
+                    // Append the chart title and image to the chart container
+                    chartContainer.appendChild(titleElement);
+                    chartContainer.appendChild(imageElement);
+
+                    // Append the chart container to the print window's document
+                    printWindow.document.body.appendChild(chartContainer);
+                }
+
+                // Loop through each chart and create an image element for it
+                charts.forEach(({ title, id }) => {
+                    const canvas = document.getElementById(id);
+                    const imageDataUrl = canvas.toDataURL();
+                    createImageElementForChart(title, imageDataUrl);
+                });
 
                 // Introduce a delay before triggering the print function
                 setTimeout(() => {
                     printWindow.print();
                 }, 1000);
             }
-
 
             function printChart(chartTitle, chartId) {
                 const canvas = document.getElementById(chartId);
@@ -629,7 +822,8 @@
                 // Create header container
                 const headerDiv = printWindow.document.createElement('div');
                 headerDiv.style.display = 'flex';
-                headerDiv.style.justifyContent = 'space-between';
+                headerDiv.style.justifyContent = 'center'; // Center the content
+                headerDiv.style.flexWrap = 'wrap'; // Allow items to wrap
                 headerDiv.style.alignItems = 'center';
                 headerDiv.style.marginBottom = '20px';
 
@@ -638,13 +832,22 @@
                 leftImage.src = 'https://www.dlsud.edu.ph/images/about-logo.png';
                 leftImage.alt = 'dlsud-logo';
                 leftImage.style.width = '100px'; // Adjust size as needed
+                leftImage.style.marginRight = '20px'; // Add some space between the logo and the text
                 headerDiv.appendChild(leftImage);
 
                 // Create and append the center text
-                const centerText = printWindow.document.createElement('h1');
-                centerText.textContent = 'De La Salle University Dasmarinas';
+                const centerText = printWindow.document.createElement('div'); // Use div to allow line breaks
                 centerText.style.flexGrow = '1';
                 centerText.style.textAlign = 'center';
+
+                const universityName = printWindow.document.createElement('h1');
+                universityName.textContent = 'De La Salle University Dasmarinas';
+                centerText.appendChild(universityName);
+
+                const museumName = printWindow.document.createElement('h2');
+                museumName.textContent = 'Museo De La Salle';
+                centerText.appendChild(museumName);
+
                 headerDiv.appendChild(centerText);
 
                 // Create and append the right image
@@ -652,6 +855,7 @@
                 rightImage.src = 'https://culture360.asef.org/media/2011/7/Museo_De_La_Salle.jpeg';
                 rightImage.alt = 'museo-logo';
                 rightImage.style.width = '100px'; // Adjust size as needed
+                rightImage.style.marginLeft = '20px'; // Add some space between the text and the logo
                 headerDiv.appendChild(rightImage);
 
                 // Append header to the new window's document
@@ -682,6 +886,7 @@
                     printWindow.print();
                 }, 1000);
             }
+
 
             // Attach print functions to buttons or links
             document.getElementById('printUserTypeChartButton').addEventListener('click', printUserTypeChart);
