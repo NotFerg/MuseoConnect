@@ -326,10 +326,11 @@ app.get("/loggedIngames", async (req, res) => {
 
   try {
       const quizQuestions = await Question.find({});
-      console.log(quizQuestions); // Add this line to check fetched data
-      res.render("loggedIngames", { user, quizQuestions });
+      const leaderboard = await User.find({}).sort({ score: -1 }).limit(10); // Fetch top 10 users for leaderboard
+
+      res.render("loggedIngames", { user, quizQuestions, leaderboard });
   } catch (error) {
-      console.error("Error fetching questions: ", error);
+      console.error("Error fetching data: ", error);
       res.status(500).send("Error loading the games page");
   }
 });
@@ -1725,6 +1726,8 @@ app.get('/admin/questions', async (req, res) => {
   }
 });
 
+
+
 //DELETE QUESTION ROUTE
 app.delete("/admin/questions/:id", async (req, res) => {
   const { id } = req.params;
@@ -1775,6 +1778,10 @@ app.post('/admin/questions/add', async (req, res) => {
     res.status(500).send('Error adding question');
   }
 });
+
+
+
+
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

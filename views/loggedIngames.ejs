@@ -189,6 +189,18 @@
     </div>
   </nav><!-- End Header/Navbar -->
   <br><br><br><br><br><br><br><br><br>
+
+
+  <div class="leaderboard">
+    <h3>Leaderboard</h3>
+    <ul>
+        <% leaderboard.forEach(function(user) { %>
+            <li><%= user.name %>: Score - <%= user.score %></li>
+        <% }); %>
+    </ul>
+</div>
+
+
   
   <div id="quiz-container" class="quiz-card">
     <p id="user-score">User Score: <%= user.score %></p>
