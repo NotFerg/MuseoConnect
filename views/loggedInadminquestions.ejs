@@ -9,10 +9,6 @@
 
     <!-- Form for Adding a New Question -->
     <h2>Add New Question</h2>
-    <h1>Manage Questions</h1>
-
-    <!-- Form for Adding a New Question -->
-    <h2>Add New Question</h2>
     <form action="/admin/questions/add" method="post">
         <label for="type">Question Type:</label>
         <select name="type" id="type">
@@ -32,7 +28,40 @@
         <button type="submit">Add Question</button>
     </form>
 
-    <!-- Note: The forms for updating and deleting questions by ID have been removed -->
+    <!-- Table to Display Questions -->
+    <h2>Existing Questions</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% questions.forEach(question => { %>
+                <tr>
+                    <td><%= question.question %></td>
+                    <td><%= question.type %></td>
+                    <td>
+                        <!-- Update Form -->
+                        <form action="/admin/questions/<%= question._id %>?_method=PUT" method="post">
+                            <input type="hidden" name="type" value="<%= question.type %>">
+                            <input type="hidden" name="question" value="<%= question.question %>">
+                            <input type="hidden" name="options" value="<%= question.options.join(', ') %>">
+                            <input type="hidden" name="correctAnswer" value="<%= question.correctAnswer %>">
+                            <button type="submit">Update</button>
+                        </form>
+
+                        <!-- Delete Form -->
+                        <form action="/admin/questions/<%= question._id %>?_method=DELETE" method="post">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
 
     <!-- Add any additional scripts here -->
 
