@@ -25,55 +25,56 @@
 
     <style>
         .question-table {
-          background-color: #f8f9fa;
-          border-radius: 15px;
-          box-shadow: 10px 10px 10px rgba(45, 192, 16, 0.13);
-          padding: 30px;
-          border: 2px solid #28a745;
-          margin-top: 30px;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 10px 10px 10px rgba(45, 192, 16, 0.13);
+            padding: 30px;
+            border: 2px solid #28a745;
+            margin-top: 30px;
         }
-    
+
         .table-title {
-          font-size: 40px;
-          font-weight: bold;
-          color: #000000;
-          text-align: center;
-          margin-bottom: 20px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 20px;
         }
-    
+
         table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-    
-        th, td {
-          padding: 15px;
-          text-align: left;
-          border-bottom: 1px solid #d3d3d3;
-        }
-    
-        th {
-          background-color: #28a745;
-          color: #fff;
-        }
-    
+
+        th,
         td {
-          background-color: #fff;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #d3d3d3;
         }
-    
+
+        th {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        td {
+            background-color: #fff;
+        }
+
         td button {
-          background-color: #28a745;
-          color: #fff;
-          border: none;
-          padding: 10px;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-    
+
         td button:hover {
-          background-color: #218838;
+            background-color: #218838;
         }
     </style>
 </head>
@@ -141,63 +142,87 @@
                             <option value="fill-in-the-blank">Fill in the Blank</option>
                         </select>
                         <br>
- 
+
                         <label for="question" class="form-label">Question:</label>
-                        <input type="text" class="form-control" id="question" name="question" required>
+                        <input type="text" class="form-control" id="question" name="question" required
+                            autocomplete="off">
                         <br>
 
                         <label for="options" class="form-label">Options (for multiple-choice, comma-separated):</label>
-                        <input type="text" class="form-control" id="options" name="options">
+                        <input type="text" class="form-control" id="options" name="options" autocomplete="off">
                         <br>
 
                         <label for="correctAnswer" class="form-label">Correct Answer:</label>
-                        <input type="text" class="form-control" id="correctAnswer" name="correctAnswer" required>
+                        <input type="text" class="form-control" id="correctAnswer" name="correctAnswer" required
+                            autocomplete="off">
 
                         <br>
 
                         <button type="submit" class="btn btn-primary">Add Question</button>
                         <br><br><br><br>
                     </form>
-                    
+
 
                     <!-- Table to Display Questions -->
                     <h1>Existing Questions</h1>
-                    <table class="question-table">
+                    <table class="table question-table">
                         <thead>
                             <tr>
-                                <th>Question</th>
-                                <th>Type</th>
-                                <th>Actions</th>
+                                <th scope="col" class="col-3">Question</th>
+                                <th scope="col" class="col-2">Type</th>
+                                <th scope="col" class="col-3">Correct Answer</th>
+                                <th scope="col" class="col-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% questions.forEach(question=> { %>
                                 <tr>
-                                    <td>
+                                    <td class="col-12 col-lg-2">
                                         <%= question.question %>
                                     </td>
-                                    <td>
+                                    <td class="col-12 col-lg-2">
                                         <%= question.type %>
                                     </td>
-                                    <td>
+                                    <td class="col-12 col-lg-2">
+                                        <%= question.correctAnswer %>
+                                    </td>
+                                    <td class="col-12 col-lg-6">
                                         <!-- Update Form -->
-                                        <form action="/admin/questions/<%= question._id %>?_method=PUT" method="post">
-                                            <input type="hidden" name="type" value="<%= question.type %>">
-                                            <input type="hidden" name="question" value="<%= question.question %>">
-                                            <input type="hidden" name="options" value="<%= question.options.join(', ') %>">
-                                            <input type="hidden" name="correctAnswer" value="<%= question.correctAnswer %>">
-                                            <button type="submit" class="btn btn-success">Update</button>
+                                        <form action="/admin/questions/<%= question._id %>?_method=PUT" method="post"
+                                            class="d-grid ">
+                                            <p class="my-1"><b>Question Type</b></p>
+                                            <select name="type" id="type" class="form-control ">
+                                                <option value="multiple-choice">Multiple Choice</option>
+                                                <option value="fill-in-the-blank">Fill in the Blank</option>
+                                            </select>
+
+                                            <p class="my-1"><b>Question:</b></p>
+                                            <input type="text" name="question" value="<%= question.question %>"
+                                                placeholder="Question:" class="form-control ">
+
+                                            <p class="my-1"><b>Options (for multiple-choice, comma-separated):</b></p>
+                                            <input type="text" name="options" value="<%= question.options.join(', ') %>"
+                                                placeholder="Options (for multiple-choice, comma-separated):"
+                                                class="form-control ">
+
+                                            <p class="my-1"><b>Correct Answer:</b></p>    
+                                            <input type="text" name="correctAnswer"
+                                                value="<%= question.correctAnswer %>" placeholder="Correct Answer:"
+                                                class="form-control ">
+                                            <button type="submit" class="btn btn-success btn-block mt-2">Update</button>
                                         </form>
-                    
+
                                         <!-- Delete Form -->
-                                        <form action="/admin/questions/<%= question._id %>?_method=DELETE" method="post">
-                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        <form action="/admin/questions/<%= question._id %>?_method=DELETE" method="post"
+                                            class="d-grid mt-2">
+                                            <button type="submit" class="btn btn-danger btn-block">Delete</button>
                                         </form>
                                     </td>
                                 </tr>
                                 <% }); %>
                         </tbody>
                     </table>
+
                 </div>
             </div>
         </section>
@@ -206,6 +231,28 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let inactivityTimeout;
+        // Function to reset the inactivity timer
+        function resetInactivityTimeout() {
+            clearTimeout(inactivityTimeout);
+            inactivityTimeout = setTimeout(() => {
+                // Send a request to the server to reset the session timeout
+                fetch("/reset-inactivity").then((response) => {
+                    if (response.ok) {
+                        console.log("Inactivity timer reset.");
+                        // Redirect to the logout route after 1 minute of inactivity
+                        window.location.href = "/logout";
+                    }
+                });
+            }, 300000); // 300,000 milliseconds = 5 minutes
+        }
+        // Listen for user interactions
+        window.addEventListener("mousemove", resetInactivityTimeout);
+        window.addEventListener("keydown", resetInactivityTimeout);
+        // Initial reset
+        resetInactivityTimeout();
+    </script>
 
 </body>
 

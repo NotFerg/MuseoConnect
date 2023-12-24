@@ -335,8 +335,6 @@ app.get("/loggedIngames", async (req, res) => {
   }
 });
 
-
-
 app.get("/loggedInreservation", async (req, res) => {
   const user = req.session.user;
   try {
@@ -413,7 +411,6 @@ app.get("/loggedInadmin", async (req, res) => {
   }
 });
 
-
 app.get("/loggedInadminartifacts", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
   try {
@@ -432,7 +429,6 @@ app.get("/loggedInadminartifacts", async (req, res) => {
     res.status(500).send("An error occurred while fetching users.");
   }
 });
-
 
 app.get("/loggedInadminblocked", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
@@ -484,7 +480,6 @@ app.get("/loggedInadminreports", async (req, res) => {
     // const artifacts = artifactType.map(artifactType => artifactType.type);
 
     let artifacts = await Artifact.find().select('type');
-
 
     const { search } = req.query;
     if (search) {
@@ -660,7 +655,6 @@ app.post("/signUp", async (req, res) => {
     res.status(500).send("An error occurred during registration.");
   }
 });
-
 
 // Define a function to send a verification email
 async function sendVerificationEmail(email, verificationCode) {
@@ -1036,7 +1030,7 @@ app.put("/admin/questions/:id", async (req, res) => {
     if (!updatedQuestion) {
       return res.status(404).send("Question not found");
     }
-    res.send("Question updated successfully");
+    res.redirect("/loggedInadminquestions")
   } catch (error) {
     res.status(500).send("Error updating question: " + error.message);
   }
@@ -1726,8 +1720,6 @@ app.get('/admin/questions', async (req, res) => {
   }
 });
 
-
-
 //DELETE QUESTION ROUTE
 app.delete("/admin/questions/:id", async (req, res) => {
   const { id } = req.params;
@@ -1737,12 +1729,11 @@ app.delete("/admin/questions/:id", async (req, res) => {
     if (!deletedQuestion) {
       return res.status(404).send("Question not found");
     }
-    res.send("Question removed successfully");
+    res.redirect("/loggedInadminquestions")
   } catch (error) {
     res.status(500).send("Error removing question: " + error.message);
   }
 });
-
 
 //QUESTIONS ROUTE
 app.post('/admin/questions/add', async (req, res) => {
@@ -1769,19 +1760,15 @@ app.post('/admin/questions/add', async (req, res) => {
   try {
     // Save the new question to the database
     await newQuestion.save();
-    res.send("Question added successfully"); // Log success message
+    // res.send("Question added successfully"); // Log success message
 
     console.log('Question added successfully');
-    res.redirect('/admin/questions'); // Redirect to the list of questions
+    res.redirect("/loggedInadminquestions")
   } catch (error) {
     console.error('Error adding question:', error);
     res.status(500).send('Error adding question');
   }
 });
-
-
-
-
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
