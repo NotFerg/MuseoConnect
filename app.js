@@ -53,7 +53,8 @@ const userSchema = new mongoose.Schema({
   email: String,
   password: String,
   type: String,
-  score: String,
+  score: Number,
+  scoreDate: Date,
   gender: String,
   isVerified: {
     type: Boolean,
@@ -326,7 +327,11 @@ app.get("/loggedIngames", async (req, res) => {
 
   try {
       const quizQuestions = await Question.find({});
-      const leaderboard = await User.find({}).sort({ score: -1 }).limit(10); // Fetch top 10 users for leaderboard
+      const leaderboard = await User.find({})
+        .sort({ score: -1, scoreDate: -1 })
+        .limit(10);
+
+        // console.log(leaderboard.map(user => ({ name: user.name, score: user.score, scoreDate: user.scoreDate })));
 
       res.render("loggedIngames", { user, quizQuestions, leaderboard });
   } catch (error) {
@@ -1528,22 +1533,35 @@ app.post("/saveScore", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Update the user's score
+     // Create a new date object representing midnight (00:00:00) UTC on the current date
+     const now = new Date();
+     const midnightUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+    // Update the user's score and scoreDate
     user.score = score;
+    user.scoreDate = midnightUtc; // Set the current date and time as the scoreDate
     await user.save();
 
     // Update the session user with the new data
+    req.session.user.score = score;
+    req.session.user.scoreDate = user.scoreDate;
     req.session.user = user;
 
-    console.log("Score updated successfully:", user.score);
+    console.log(
+      "Score and date updated successfully:",
+      user.score,
+      user.scoreDate
+    );
 
-    // Redirect to the desired page after updating the score
+    // Respond with a success message
     return res.status(200).json({ message: "Score updated successfully" });
+    // res.redirect("/loggedInaccountInformation");
   } catch (error) {
     console.error("Error updating score:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 const cloudinary = require('cloudinary').v2;
 

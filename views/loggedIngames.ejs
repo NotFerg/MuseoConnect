@@ -263,7 +263,7 @@
                 <div class="card quiz-card">
                   <div class="card-body">
                     <div id="question-container">
-                      <p id="user-score">User Score: <%= user.score %>
+                      <p id="user-score">User Score: 0</p>
                       </p>
                       <% quizQuestions.forEach((question, index)=> { %>
                         <div class="quiz-question" data-question-index="<%= index %>"
@@ -283,13 +283,13 @@
                                 </li>
                                 <% }); %>
                             </ul>
-                            <button class="quiz-btn"
-                              onclick="submitAnswer(event, <%= index %>, '<%= question.correctAnswer %>')">Submit</button>
+                            <button class="quiz-btn" id="submit-btn-<%= index %>">Submit</button>
+
                             <% } else { %>
                               <input type="text" id="input-answer-<%= index %>" class="form-control"
                                 placeholder="Your answer">
-                              <button class="quiz-btn"
-                                onclick="submitAnswer(event, <%= index %>, '<%= question.correctAnswer %>')">Submit</button>
+                                <button class="quiz-btn" id="submit-btn-<%= index %>">Submit</button>
+
                               <% } %>
                                 <p id="result-message-<%= index %>" class="quiz-result-message"></p>
                         </div>
@@ -301,7 +301,7 @@
                   </div>
                 </div>
               </div>
-              
+
             </div>
             <br><br><br><br>
 
@@ -314,10 +314,15 @@
                       <%= user.name %>
                     </span>
                     <span class="leaderboard-score">Score - <%= user.score %></span>
+                    <!-- Display the date when the score was achieved -->
+                    <span class="leaderboard-date">
+                      Date - <%= user.scoreDate %>
+                    </span>
                   </li>
-                  <% }); %>
+                <% }); %>
               </ul>
             </div>
+
           </div>
   </main>
   <br><br>
@@ -357,117 +362,105 @@
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
   <script src="assets/vendor/php-email-form/validate.js"></script>
-
   <script src="/js/index.js"></script>
-
   <script>
-    let currentQuestionIndex = 0;
-    let userScore = parseInt("<%= user.score %>", 10);
-    let totalQuestions = <%= quizQuestions.length %>;
-
-
-
+    // Function to decode HTML entities
+    function htmlDecode(input){
+      var e = document.createElement('textarea');
+      e.innerHTML = input;
+      // Handle case of empty input
+      return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+  
+    // Define functions in the global scope
     function submitAnswer(event, questionIndex, correctAnswer) {
-      event.preventDefault(); // Prevent the default form submission
-
+      event.preventDefault(); // Prevent form submission
       let userAnswer;
-      // If all questions are multiple-choice or text, you can check the type of input present
+    
+      // Check if a multiple-choice answer is selected or if it's a text input
       if (document.querySelector(`input[name="question_${questionIndex}"]:checked`)) {
-        const selectedOption = document.querySelector(`input[name="question_${questionIndex}"]:checked`);
-        userAnswer = selectedOption ? selectedOption.value : '';
+        userAnswer = document.querySelector(`input[name="question_${questionIndex}"]:checked`).value;
       } else {
-        const inputElement = document.getElementById(`input-answer-${questionIndex}`);
-        userAnswer = inputElement ? inputElement.value : '';
+        userAnswer = document.getElementById(`input-answer-${questionIndex}`).value;
       }
-
-      if (!userAnswer.trim()) {
-        alert('Please select or enter an answer.');
-        return;
+    
+      // Decode HTML entities and check the user's answer and update the score
+      const decodedCorrectAnswer = htmlDecode(correctAnswer);
+      if (userAnswer.toLowerCase().trim() === decodedCorrectAnswer.toLowerCase()) {
+        userScore++;
+        alert('Correct!');
+      } else {
+        alert('Incorrect. The correct answer was ' + decodedCorrectAnswer);
       }
-
-      const resultMessageElement = document.getElementById(`result-message-${questionIndex}`);
-      if (resultMessageElement) {
-        if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-          userScore++;
-          resultMessageElement.innerText = "Correct!";
-        } else {
-          resultMessageElement.innerText = "Incorrect!";
-        }
-        document.getElementById('user-score').innerText = `User Score: ${userScore}`;
-      }
-
+    
+      document.getElementById('user-score').textContent = 'User Score: ' + userScore;
+    
       // Show the next question or end the quiz
       if (currentQuestionIndex < totalQuestions - 1) {
-        document.getElementById('next-question-btn').style.display = 'block';
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
       } else {
-        // Last question answered, update the score
-        updateScore();
+        alert('Quiz completed! Final score: ' + userScore);
+        submitScore(userScore);
       }
     }
-
-    function showNextQuestion(event) {
-      event.preventDefault(); // Prevent the default form submission
-
-      // Hide the current question
-      const currentQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
-      currentQuestionDiv.style.display = 'none';
-
-      // Increment the question index
-      currentQuestionIndex++;
-
-      // Check if there are more questions
-      if (currentQuestionIndex < totalQuestions) {
-        // Show the next question
-        const nextQuestionDiv = document.querySelector(`.quiz-question[data-question-index="${currentQuestionIndex}"]`);
-        nextQuestionDiv.style.display = 'block';
-        document.getElementById('next-question-btn').style.display = 'none';
-      } else {
-        // End of the quiz
-        alert("End of the quiz!");
-        updateScore();
-      }
+  
+    function showQuestion(index) {
+      // Hide all questions
+      document.querySelectorAll('.quiz-question').forEach(function(questionDiv) {
+        questionDiv.style.display = 'none';
+      });
+  
+      // Show the current question
+      document.querySelector(`.quiz-question[data-question-index="${index}"]`).style.display = 'block';
     }
+  
+    // Global variables
+    let userScore = 0;
+    let currentQuestionIndex = 0;
+    let totalQuestions = <%= quizQuestions.length %>;
+  
+    // Wait for the DOM to be fully loaded before attaching event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Attach event listeners to submit buttons
+      <% quizQuestions.forEach((question, index) => { %>
+        var button = document.getElementById('submit-btn-<%= index %>');
+        if (button) {
+          button.addEventListener('click', function(event) {
+            // Note: Here we're using JSON.stringify to ensure the string is properly formatted and escaped
+            submitAnswer(event, <%= index %>, <%- JSON.stringify(question.correctAnswer) %>);
+          });
+        }
+      <% }); %>
+    
+      // Initially show the first question
+      showQuestion(currentQuestionIndex);
+    });
 
-
-    function updateScore() {
-      fetch(`/loggedIn/admin/users/<%= user._id %>/score`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ score: userScore }),
-      })
-        .then((response) => {
-          if (response.ok) {
-            alert(`Your final score is: ${userScore}`);
-            window.location.href = "/loggedIngames";
-          }
-        })
-        .catch((error) => {
-          console.error('Error updating score:', error);
-        });
+    async function submitScore(score) {
+  try {
+    const response = await fetch('/saveScore', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ score })
+    });
+    if (response.ok) {
+      console.log("Score saved successfully!");
+      const data = await response.json();
+      window.location.href= "/loggedInaccountInformation";
+      // Handle the response data
+    } else {
+      console.error("Failed to save score");
     }
+  } catch (error) {
+    console.error("Error in submitScore:", error);
+  }
+}
 
-    // Function to reset the inactivity timer
-    let inactivityTimeout;
-    function resetInactivityTimeout() {
-      clearTimeout(inactivityTimeout);
-      inactivityTimeout = setTimeout(() => {
-        fetch("/reset-inactivity").then((response) => {
-          if (response.ok) {
-            window.location.href = "/logout";
-          }
-        });
-      }, 300000); // 5 minutes
-    }
-
-    // Listen for user interactions
-    window.addEventListener("mousemove", resetInactivityTimeout);
-    window.addEventListener("keydown", resetInactivityTimeout);
-    resetInactivityTimeout(); // Initial reset
-
-    // Initially show the first question
-    document.querySelector('.quiz-question[data-question-index="0"]').style.display = 'block';
+  
   </script>
 </body>
+
 </html>
