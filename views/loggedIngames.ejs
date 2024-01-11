@@ -297,6 +297,8 @@
                           <button id="next-question-btn" class="quiz-btn" onclick="showNextQuestion(event)"
                             style="display: none;">Next
                             Question</button>
+
+                            <button id="start-quiz-btn" class="quiz-btn">Start Quiz</button>
                     </div>
                   </div>
                 </div>
@@ -364,6 +366,44 @@
   <script src="assets/vendor/php-email-form/validate.js"></script>
   <script src="/js/index.js"></script>
   <script>
+
+//TEST
+
+function startNewQuiz() {
+  // Your quizQuestions variable
+  let quizQuestions = <%= JSON.stringify(quizQuestions) %>;
+
+  // Shuffle the order of quiz questions randomly
+  shuffleArray(quizQuestions);
+
+  // Reset any other quiz-related variables or UI elements if needed
+
+  // Show the first question
+  showQuestion(0);
+}
+
+// Wait for the DOM to be fully loaded before attaching event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Attach event listener to a button or element that starts a new quiz
+  const startQuizButton = document.getElementById('start-quiz-btn');
+  if (startQuizButton) {
+    startQuizButton.addEventListener('click', function() {
+      startNewQuiz();
+    });
+  }
+
+  // Attach event listeners to submit buttons
+  <% quizQuestions.forEach((question, index) => { %>
+    var button = document.getElementById('submit-btn-<%= index %>');
+    if (button) {
+      button.addEventListener('click', function(event) {
+        // Note: Here we're using JSON.stringify to ensure the string is properly formatted and escaped
+        submitAnswer(event, <%= index %>, <%- JSON.stringify(question.correctAnswer) %>);
+      });
+    }
+  <% }); %>
+});
+
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
