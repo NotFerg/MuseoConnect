@@ -371,6 +371,14 @@ function shuffleArray(array) {
       [array[i], array[j]] = [array[j], array[i]];
     }
   }
+
+  // Your quizQuestions variable
+  let quizQuestions = <%= JSON.stringify(quizQuestions) %>;
+
+  // Shuffle the order of quiz questions randomly
+  shuffleArray(quizQuestions);
+
+
     // Function to decode HTML entities
     function htmlDecode(input){
       var e = document.createElement('textarea');
