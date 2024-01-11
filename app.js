@@ -320,25 +320,38 @@ app.get("/loggedInvirtualTour", (req, res) => {
 
 app.get("/loggedIngames", async (req, res) => {
   const user = req.session.user;
+  
   if (!req.session.active) {
-      return res.redirect("/logout");
+    return res.redirect("/logout");
   }
+
   req.session.active = true;
 
   try {
-      const quizQuestions = await Question.find({});
-      const leaderboard = await User.find({})
-        .sort({ score: -1, scoreDate: -1 })
-        .limit(10);
+    const allQuestions = await Question.find({});
+    
+    // Randomize the order of questions on the client side
+    const quizQuestions = shuffleArray(allQuestions);
 
-        // console.log(leaderboard.map(user => ({ name: user.name, score: user.score, scoreDate: user.scoreDate })));
+    const leaderboard = await User.find({})
+      .sort({ score: -1, scoreDate: -1 })
+      .limit(10);
 
-      res.render("loggedIngames", { user, quizQuestions, leaderboard });
+    res.render("loggedIngames", { user, quizQuestions, leaderboard });
   } catch (error) {
-      console.error("Error fetching data: ", error);
-      res.status(500).send("Error loading the games page");
+    console.error("Error fetching data: ", error);
+    res.status(500).send("Error loading the games page");
   }
 });
+
+// Function to shuffle an array (Fisher-Yates algorithm)
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
 app.get("/loggedInreservation", async (req, res) => {
   const user = req.session.user;
