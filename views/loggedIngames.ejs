@@ -318,7 +318,7 @@
                     <span class="leaderboard-score">Score - <%= user.score %></span>
                     <!-- Display the date when the score was achieved -->
                     <span class="leaderboard-date">
-                      Date - <%= user.scoreDate %>
+                      Date - <%= user.scoreDate.toDateString() %>
                     </span>
                   </li>
                 <% }); %>
