@@ -375,6 +375,11 @@
                 const endDate = new Date(endMonth + '-01'); // First day of the month after the end month
                 endDate.setMonth(endDate.getMonth() + 1);
 
+                // Swap start and end months if needed
+                if (startDate > endDate) {
+                    [startMonth, endMonth] = [endMonth, startMonth];
+                }
+
                 // Filter the reservations array
                 const filteredReservations = reservations.filter((reservation) => {
                     const visitDate = new Date(reservation.visitDate);
@@ -799,6 +804,12 @@
                     chartContainer.appendChild(titleElement);
                     chartContainer.appendChild(imageElement);
 
+                    // Add Date Printed
+                    const datePrinted = printWindow.document.createElement('p');
+                    datePrinted.textContent = 'Date Printed: ' + new Date().toLocaleDateString();
+                    datePrinted.style.marginTop = '20px'; // Add some space between the chart and the date printed
+                    printWindow.document.body.appendChild(datePrinted);
+
                     // Append the chart container to the print window's document
                     printWindow.document.body.appendChild(chartContainer);
                 }
@@ -880,6 +891,12 @@
                 // Append the chart title and image to the new window's document
                 printWindow.document.body.appendChild(titleElement);
                 printWindow.document.body.appendChild(imageElement);
+
+                // Add Date Printed
+                const datePrinted = printWindow.document.createElement('p');
+                datePrinted.textContent = 'Date Printed: ' + new Date().toLocaleDateString();
+                datePrinted.style.marginTop = '20px'; // Add some space between the chart and the date printed
+                printWindow.document.body.appendChild(datePrinted);
 
                 // Style the body of the new document
                 printWindow.document.body.style.textAlign = 'center';
