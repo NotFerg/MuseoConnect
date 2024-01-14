@@ -1083,21 +1083,21 @@ app.post("/loggedIn/reservation", async (req, res) => {
       return res.send(
         `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInreservation";</script>`
       );
-    } else if (isDateBlocked && isTimeBlocked) {
-      return res.send(
-        `<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInreservation";</script>`
-      );
+    // } else if (isDateBlocked && isTimeBlocked) {
+    //   return res.send(
+    //     `<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInreservation";</script>`
+    //   );
     } else {
       const existingReservationForDateTime = await Reservation.findOne({
         visitDate: new Date(visitDate),
         visitTime: inpVisitTime,
       });
 
-      if (existingReservationForDateTime) {
-        return res.send(
-          `<script>alert("A reservation already exists for the selected date and time. Please choose a different date/time."); window.location.href = "/loggedInreservation";</script>`
-        );
-      }
+      // if (existingReservationForDateTime) {
+      //   return res.send(
+      //     `<script>alert("A reservation already exists for the selected date and time. Please choose a different date/time."); window.location.href = "/loggedInreservation";</script>`
+      //   );
+      // }
 
       const newReservation = new Reservation({
         visitDate: new Date(visitDate),

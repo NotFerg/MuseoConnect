@@ -128,8 +128,8 @@
 
                         <div class="form-outline mb-4">
                           <label for="visitDate">Visit Date</label>
-                          <input type="text" id="visitDate" name="visitDate" class="form-control" id="visitdate"
-                            required autocomplete="off">
+                          <input type="text" id="visitDate" name="visitDate" class="form-control" required
+                            autocomplete="off">
                           <p><span style="color: #FF0000;">Red</span> dates are full or have been blocked</p>
                           <p><span style="color: #FAEE41;">Yellow</span> dates only have one timeslot remaining</p>
                         </div>
@@ -305,49 +305,121 @@
       //console.log('Reservations:', reservation);
 
       // Declare 'filled' here so that it's accessible in the datepicker initialization below
+      const blocked = []
       const filled = [];
+      let totalVisitorsOnDate = 0;
       blockedDates.forEach((blockedDate) => {
         //console.log('Blocked Date:', blockedDate);
         blockedDate.blockedTimes.forEach((time) => {
           //console.log('Time:', time);
-          filled.push({ date: blockedDate.blockedDate, time });
+          blocked.push({ date: blockedDate.blockedDate, time });
         });
       });
 
       reservation.forEach((reservation) => {
-        filled.push({ date: reservation.visitDate, time: reservation.visitTime });
+        filled.push({ date: reservation.visitDate, time: reservation.visitTime, visitors: reservation.numberOfVisitors });
         //console.log('Reservation:', reservation);
+      });
+
+      // console.log(filled);
+
+      let selectedDate;
+
+      // Call this function whenever the user selects a date
+      function handleDateSelection(dateText, inst) {
+        selectedDate = new Date(dateText);
+        updateRemainingVisitors(selectedDate, $("#selectedVisitTime").val());
+      }
+
+      // Call this function whenever the user selects a date and time
+      function handleTimeSelection(selectedTime) {
+        updateRemainingVisitors(selectedDate, selectedTime);
+      }
+
+      function updateRemainingVisitors(selectedDate, selectedTime) {
+        const formattedDate = $.datepicker.formatDate("yy-mm-dd", selectedDate);
+
+        // Fetch relevant reservations for the selected date and time
+        const reservationsForSlot = filled.filter(
+          (item) => item.date.split("T")[0] === formattedDate && item.time === selectedTime
+        );
+
+        // Calculate the total number of visitors for that slot
+        const totalVisitorsForSlot = reservationsForSlot.reduce((total, item) => total + item.visitors, 0);
+
+        // Update the input field with the remaining slots
+        const remainingSlots = 10 - totalVisitorsForSlot;
+        $("#numberOfVisitors").attr("max", remainingSlots);
+
+        // Update the label dynamically based on remaining slots
+        const label = remainingSlots === 1 ? "Visitor" : "Visitors";
+        $("label[for='numberOfVisitors']").text(`Number Of ${label} (1-${remainingSlots})`);
+      }
+
+      // Example: Set up event handling for time selection
+      $("#visitTimeDropdown").on("click", "a.dropdown-item", function () {
+        const selectedTime = $(this).data("time");
+        handleTimeSelection(selectedTime);
       });
 
       function updateDropdown(selectedDate) {
         const visitTimeDropdown = $("#choice");
         const selectedVisitTime = $("#selectedVisitTime");
 
+        // Get the formatted date for comparison
         const formattedDate = $.datepicker.formatDate("yy-mm-dd", selectedDate);
 
-        const blockedTimes = blockedDates.find((slot) => slot.blockedDate.startsWith(formattedDate))?.blockedTimes || [];
+        // Check if any times are blocked on this date
+        const blockedTimesOnDate = blocked.filter(item => item.date.split("T")[0] === formattedDate);
 
-        // Check if the selected time slot is reserved
-        const has1030 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "10:30");
-        const has1330 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "13:30");
+        // Fetch relevant reservations for the selected date
+        const reservationsForDate = filled.filter(item => item.date.split("T")[0] === formattedDate);
 
-        if ((blockedTimes.includes("10:30") && blockedTimes.includes("13:30")) || (has1030 && has1330)
-          || (blockedTimes.includes("10:30") && has1330) || (has1330 && blockedTimes.includes("10:30"))) {
+        // Calculate the total number of visitors for each time slot
+        const totalVisitors10_30 = reservationsForDate
+          .filter(item => item.time === "10:30")
+          .reduce((total, item) => total + item.visitors, 0);
+
+        const totalVisitors13_30 = reservationsForDate
+          .filter(item => item.time === "13:30")
+          .reduce((total, item) => total + item.visitors, 0);
+
+        if (blockedTimesOnDate.length === 2) {
+          // Both times are blocked
           visitTimeDropdown.text("Both time slots are fully booked");
           selectedVisitTime.val("");
           visitTimeDropdown.prop("disabled", true);
-        } else if (blockedTimes.includes("10:30") || has1030) {
-          visitTimeDropdown.text("13:30");
-          selectedVisitTime.val("13:30");
-          visitTimeDropdown.prop("disabled", true);
-        } else if (blockedTimes.includes("13:30") || has1330) {
-          visitTimeDropdown.text("10:30");
-          selectedVisitTime.val("10:30");
+        } else if (blockedTimesOnDate.length === 1) {
+          // One time is blocked
+          const blockedTime = blockedTimesOnDate[0].time;
+          visitTimeDropdown.text(blockedTime === "10:30" ? "13:30" : "10:30");
+          selectedVisitTime.val(blockedTime);
           visitTimeDropdown.prop("disabled", true);
         } else {
-          visitTimeDropdown.text("Visit Time");
-          selectedVisitTime.val("");
-          visitTimeDropdown.prop("disabled", false);
+          // No times are blocked
+
+          // Determine the available time based on the total number of visitors
+          if (totalVisitors10_30 === 10 && totalVisitors13_30 === 10) {
+            // Both times are fully booked
+            visitTimeDropdown.text("Both time slots are fully booked");
+            selectedVisitTime.val("");
+            visitTimeDropdown.prop("disabled", true);
+          } else if (totalVisitors10_30 === 10) {
+            // Only the 10:30 slot is fully booked
+            visitTimeDropdown.text("13:30");
+            selectedVisitTime.val("13:30");
+            visitTimeDropdown.prop("disabled", true);
+          } else if (totalVisitors13_30 === 10) {
+            // Only the 13:30 slot is fully booked
+            visitTimeDropdown.text("10:30");
+            selectedVisitTime.val("10:30");
+            visitTimeDropdown.prop("disabled", true);
+          } else {
+            // Both times are available
+            visitTimeDropdown.text("Visit Time");
+            selectedVisitTime.val("");
+            visitTimeDropdown.prop("disabled", false);
+          }
         }
       }
 
@@ -356,25 +428,33 @@
         minDate: 0,
         onSelect: function (dateText, inst) {
           const selectedDate = new Date(dateText);
+
+          // Call both functions
+          handleDateSelection(dateText, inst);
           updateDropdown(selectedDate);
         },
+
         beforeShowDay: function (date) {
           const day = date.getDay(); // Get the day of the week (0 = Sunday, 1 = Monday, ...)
-
           // Disable weekends (Saturday and Sunday)
           if (day === 0 || day === 6) {
             return [false, "blocked-date"];
           }
+
+          // Get the formatted date for comparison
           const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
 
-          //console.log('Checking date:', formattedDate);
-          //console.log('filled:', filled);
+          const blocked1030 = blocked.some((item) => item.date.split("T")[0] === formattedDate && item.time === "10:30");
+          const blocked1330 = blocked.some((item) => item.date.split("T")[0] === formattedDate && item.time === "13:30");
 
-          const has1030 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "10:30");
-          const has1330 = filled.some((item) => item.date.split("T")[0] === formattedDate && item.time === "13:30");
+          const reserved10_30 = filled.filter(item => item.date.split("T")[0] === formattedDate && item.time === "10:30");
+          const reserved13_30 = filled.filter(item => item.date.split("T")[0] === formattedDate && item.time === "13:30");
 
-          //console.log('has1030:', has1030);
-          //console.log('has1330:', has1330);
+          const totalVisitors10_30 = reserved10_30.reduce((total, item) => total + item.visitors, 0);
+          const totalVisitors13_30 = reserved13_30.reduce((total, item) => total + item.visitors, 0);
+
+          //console.log(`Total Visitors for 10:30 on ${formattedDate}:`, totalVisitors10_30);
+          //console.log(`Total Visitors for 13:30 on ${formattedDate}:`, totalVisitors13_30);
 
           const blockedDates = [
             "02-10", // February 10
@@ -391,15 +471,21 @@
 
           const formattedBlockedDate = $.datepicker.formatDate("mm-dd", date);
 
-          if (has1030 && has1330) {
-            //console.log('Disabling date:', formattedDate);
+          if (blockedDates.includes(formattedBlockedDate)) {
             return [false, "blocked-date"];
-          } else if (has1030 || has1330) {
-            //console.log('Partially blocking date:', formattedDate);
+          } else if (blocked1030 && blocked1330) {
+            return [false, "blocked-date"];
+          } else if (totalVisitors10_30 === 10 && totalVisitors13_30 === 10) {
+            return [false, "blocked-date"];
+          } else if (totalVisitors10_30 === 10 && blocked1330) {
+            return [false, "blocked-date"];
+          } else if (blocked1030 && totalVisitors13_30 === 10) {
+            return [false, "blocked-date"];
+          } else if (totalVisitors10_30 || blocked1030) {
             return [true, "partialBlock"];
-          }else if(blockedDates.includes(formattedBlockedDate)){
-            return [false, "blocked-date"];
-          } 
+          } else if (totalVisitors13_30 || blocked1330) {
+            return [true, "partialBlock"];
+          }
           else {
             //console.log('Enabling date:', formattedDate);
             return [true, ""];
@@ -418,8 +504,8 @@
         const numberOfVisitors = $("#numberOfVisitors").val();
 
         // Check if the selected date, time, and number of visitors are valid
-        if (selectedDate === "" || selectedTime === "" || numberOfVisitors < 1 || numberOfVisitors > 10) {
-          alert("Please select a valid date, time, and ensure the number of visitors is between 1 and 10.");
+        if (selectedDate === "" || selectedTime === "" || isNaN(numberOfVisitors)) {
+          alert("Please select a valid date, time, and ensure the number of visitors is within the range");
           event.preventDefault(); // Prevent the form from submitting
           return;
         }
