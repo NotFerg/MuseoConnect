@@ -1264,26 +1264,26 @@
             document.getElementById('printGenderDistributionChartButton').addEventListener('click', printGenderDistributionChart);
             document.getElementById('printAllChartsButton').addEventListener('click', printAllCharts);
 
-            // let inactivityTimeout;
-            // // Function to reset the inactivity timer
-            // function resetInactivityTimeout() {
-            //     clearTimeout(inactivityTimeout);
-            //     inactivityTimeout = setTimeout(() => {
-            //         // Send a request to the server to reset the session timeout
-            //         fetch("/reset-inactivity").then((response) => {
-            //             if (response.ok) {
-            //                 console.log("Inactivity timer reset.");
-            //                 // Redirect to the logout route after 1 minute of inactivity
-            //                 window.location.href = "/logout";
-            //             }
-            //         });
-            //     }, 300000); // 300,000 milliseconds = 5 minutes
-            // }
-            // // Listen for user interactions
-            // window.addEventListener("mousemove", resetInactivityTimeout);
-            // window.addEventListener("keydown", resetInactivityTimeout);
-            // // Initial reset
-            // resetInactivityTimeout();
+            let inactivityTimeout;
+            // Function to reset the inactivity timer
+            function resetInactivityTimeout() {
+                clearTimeout(inactivityTimeout);
+                inactivityTimeout = setTimeout(() => {
+                    // Send a request to the server to reset the session timeout
+                    fetch("/reset-inactivity").then((response) => {
+                        if (response.ok) {
+                            console.log("Inactivity timer reset.");
+                            // Redirect to the logout route after 1 minute of inactivity
+                            window.location.href = "/logout";
+                        }
+                    });
+                }, 300000); // 300,000 milliseconds = 5 minutes
+            }
+            // Listen for user interactions
+            window.addEventListener("mousemove", resetInactivityTimeout);
+            window.addEventListener("keydown", resetInactivityTimeout);
+            // Initial reset
+            resetInactivityTimeout();
         });
 
     </script>
