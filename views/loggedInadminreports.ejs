@@ -161,6 +161,7 @@
                         <canvas id="genderDistributionChart" width="400" height="400"></canvas>
                         <button onclick="printGenderDistributionChart()" id="printGenderDistributionChartButton">Print
                             Gender Distribution Chart</button>
+                        <div id="genderBreakdown"></div>
                     </div>
 
                 </div>
@@ -279,6 +280,15 @@
                 },
             });
 
+            // Function to generate breakdown text for User Type Distribution
+            function generateUserTypeBreakdownText(userTypeData) {
+                // Generate breakdown text
+                const breakdownText = Object.entries(userTypeData)
+                    .map(([type, count]) => `${type}: ${count}`)
+                    .join(', ');
+
+                return breakdownText;
+            }
 
             // Create the bar graph for User Score Distribution
             const userScoreChartCtx = document.getElementById("userScoreChart").getContext("2d");
@@ -314,6 +324,14 @@
                     },
                 },
             });
+
+            // Function to generate breakdown text for User Score Distribution
+            function generateUserScoreBreakdown(userScoreData) {
+                // Generate breakdown text
+                const breakdownText = userScoreData.map((count, index) => `Score ${index + 1}: ${count}`).join(', ');
+
+                return breakdownText;
+            }
 
             // Initialize an array to store monthly reservation counts
             const monthlyReservationCounts = getMonthlyReservationCounts(reservations);
@@ -405,7 +423,24 @@
                 monthlyReservationCountChart.update();
             }
 
+            // Function to generate breakdown text for monthly reservation counts
+            function generateMonthlyReservationCountsBreakdown(monthlyCounts) {
+                // Convert keys (month-year strings) to Date objects for sorting
+                const dateLabels = Object.keys(monthlyCounts).map((month) => new Date(month + '-01'));
 
+                // Sort Date objects
+                dateLabels.sort((a, b) => a - b);
+
+                // Generate breakdown text with commas between dates
+                const breakdownText = dateLabels
+                    .map((date, index, array) => {
+                        const formattedDate = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                        return `${formattedDate}: ${monthlyCounts[date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0')]}${index < array.length - 1 ? ',' : ''}`;
+                    })
+                    .join('  ');
+
+                return breakdownText;
+            }
 
             // Create an array to store the visitor count for each month
             const visitorCountPerMonth = new Array(12).fill(0);
@@ -422,12 +457,15 @@
                     const yearMonth = `${year}-${month}`;
 
                     if (visitorCount[yearMonth]) {
-                        visitorCount[yearMonth]++;
+                        // Increment the count by the number of visitors for this reservation
+                        visitorCount[yearMonth] += reservation.numberOfVisitors;
                     } else {
-                        visitorCount[yearMonth] = 1;
+                        // Initialize the count with the number of visitors for this reservation
+                        visitorCount[yearMonth] = reservation.numberOfVisitors;
                     }
                 });
-                // console.log(visitorCount)
+
+                // console.log(visitorCount);
                 return visitorCount;
             }
 
@@ -498,6 +536,74 @@
                     },
                 },
             });
+
+            // Function to get visitor count per month in year-month format
+            function getVisitorCountPerMonthYearFormat(reservations) {
+                const visitorCount = {};
+
+                // Count visitors per month
+                reservations.forEach((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    const year = visitDate.getFullYear();
+                    const month = visitDate.getMonth() + 1; // Months are zero-indexed (0-11), so add 1
+                    const yearMonth = `${year}-${month}`;
+
+                    if (visitorCount[yearMonth]) {
+                        // Increment the count by the number of visitors for this reservation
+                        visitorCount[yearMonth] += reservation.numberOfVisitors;
+                    } else {
+                        // Initialize the count with the number of visitors for this reservation
+                        visitorCount[yearMonth] = reservation.numberOfVisitors;
+                    }
+                });
+
+                return visitorCount;
+            }
+
+            /// Function to generate breakdown text
+            function generateVisitorBreakdownText(labels, data) {
+                let breakdownText = 'Breakdown:\n';
+
+                // If labels are empty, find the earliest and farthest dates dynamically
+                if (labels.length === 0) {
+                    const earliestDate = new Date(Math.min(...reservations.map(reservation => new Date(reservation.visitDate))));
+                    const farthestDate = new Date(Math.max(...reservations.map(reservation => new Date(reservation.visitDate))));
+
+                    let isFirstDate = true;
+
+                    for (let currentDate = new Date(earliestDate); currentDate <= farthestDate; currentDate.setMonth(currentDate.getMonth() + 1)) {
+                        const yearMonth = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`;
+                        const index = labels.indexOf(yearMonth);
+
+                        if (index !== -1) {
+                            if (!isFirstDate) {
+                                breakdownText += ', ';
+                            }
+                            breakdownText += `${getMonthName(currentDate.getMonth())} ${currentDate.getFullYear()}: ${data[index]}`;
+                            isFirstDate = false;
+                        }
+                    }
+                    breakdownText += '\n';
+                } else {
+                    labels.forEach((label, index) => {
+                        const [year, month] = label.split('-');
+                        if (index !== 0) {
+                            breakdownText += ', ';
+                        }
+                        breakdownText += `${getMonthName(parseInt(month) - 1)} ${year}: ${data[index]}`;
+                    });
+                    breakdownText += '\n';
+                }
+
+                return breakdownText;
+            }
+
+            // Helper function to get month name from month index (0-11)
+            function getMonthName(monthIndex) {
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                return monthNames[monthIndex];
+            }
+
 
             // Function to get the start date of the month for a given date
             function getMonthStartDate(date) {
@@ -597,6 +703,38 @@
                 blockedDatesByMonthChart.update();
             });
 
+            // Function to generate breakdown text for blocked dates by month
+            function generateBlockedDatesBreakdown(filteredDates) {
+                // Function to get the start date of the month for a given date
+                function getMonthStartDate(date) {
+                    const d = new Date(date);
+                    return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-01`; // Format to year-month-01
+                }
+
+                // Function to group blocked dates by month
+                function groupBlockedDatesByMonth(dates) {
+                    const blockedDatesByMonth = {};
+                    dates.forEach((date) => {
+                        const monthStart = getMonthStartDate(date);
+                        if (blockedDatesByMonth[monthStart]) {
+                            blockedDatesByMonth[monthStart]++;
+                        } else {
+                            blockedDatesByMonth[monthStart] = 1;
+                        }
+                    });
+                    return blockedDatesByMonth;
+                }
+
+                // Process filtered dates and group them by month
+                const blockedDatesByMonth = groupBlockedDatesByMonth(filteredDates);
+
+                // Generate breakdown text with commas
+                const breakdownText = Object.entries(blockedDatesByMonth)
+                    .map(([month, count]) => `${new Date(month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}: ${count}`)
+                    .join(', ');
+
+                return breakdownText;
+            }
 
 
             // Initialize an object to store artifact counts by type
@@ -651,6 +789,29 @@
                 },
             });
 
+            // Function to generate breakdown text for artifact types
+            function generateArtifactTypeBreakdown() {
+                // Initialize an object to store artifact counts by type
+                const artifactTypeCounts = {};
+
+                // Count artifacts by type
+                artifacts.forEach((artifact) => {
+                    const type = artifact.type;
+                    if (artifactTypeCounts[type]) {
+                        artifactTypeCounts[type]++;
+                    } else {
+                        artifactTypeCounts[type] = 1;
+                    }
+                });
+
+                // Generate breakdown text with commas
+                const breakdownText = Object.entries(artifactTypeCounts)
+                    .map(([type, count]) => `${type}: ${count}`)
+                    .join(', ');
+
+                return breakdownText;
+            }
+
             // Initialize an object to store gender counts
             const genderCounts = {
                 male: 0,
@@ -692,31 +853,130 @@
             });
 
             function printUserTypeChart() {
-                printChart('User Type Distribution', 'userTypeChart');
+                const breakdownText = generateUserTypeBreakdownText(userTypeData);
+                printChart('User Type Distribution', 'userTypeChart', breakdownText);
             }
 
             function printUserScoreChart() {
-                printChart('User Score Distribution', 'userScoreChart');
+                const BreakdownText = generateUserScoreBreakdown(userScoreData);
+                printChart('User Score Distribution', 'userScoreChart', BreakdownText);
             }
 
             function printMonthlyReservationChart() {
-                printChart('Monthly Reservation Counts per visitor', 'monthlyReservationCountChart');
+                // Get the user-inputted start and end months
+                const startMonth = document.getElementById('startMonth').value;
+                const endMonth = document.getElementById('endMonth').value;
+
+                // Convert start and end months to Date objects
+                const startDate = startMonth ? new Date(startMonth + '-01') : null; // First day of the start month
+                const endDate = endMonth ? new Date(endMonth + '-01') : null; // First day of the month after the end month
+
+                // Include the entire end month if a range is provided
+                if (endDate) {
+                    endDate.setMonth(endDate.getMonth() + 1);
+                    endDate.setDate(endDate.getDate() - 1);
+                }
+
+                // Filter the reservations array
+                const filteredReservations = startDate && endDate
+                    ? reservations.filter((reservation) => {
+                        const visitDate = new Date(reservation.visitDate);
+                        // Check if the reservation date is within the specified range
+                        return visitDate >= startDate && visitDate <= endDate;
+                    })
+                    : reservations;
+
+                // Count reservations by month
+                reservationCounts = {};
+                filteredReservations.forEach((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    const yearMonth = visitDate.getFullYear() + '-' + (visitDate.getMonth() + 1).toString().padStart(2, '0');
+                    reservationCounts[yearMonth] = (reservationCounts[yearMonth] || 0) + 1;
+                });
+
+                // Update the chart
+                const monthlyReservationCountChart = Chart.getChart("monthlyReservationCountChart"); // Assuming your chart's ID is 'monthlyReservationCountChart'
+                monthlyReservationCountChart.data.labels = Object.keys(reservationCounts);
+                monthlyReservationCountChart.data.datasets[0].data = Object.values(reservationCounts);
+                monthlyReservationCountChart.update();
+
+                // Generate breakdown text
+                const breakdownText = generateMonthlyReservationCountsBreakdown(reservationCounts);
+
+                // Call the printChart function with the breakdown text
+                printChart('Monthly Reservation Counts per visitor', 'monthlyReservationCountChart', breakdownText);
             }
 
+
             function printMonthlyVisitorChart() {
-                printChart('Monthly Reservation Counts', 'visitorCountChart');
+                // Get the user-inputted start and end months
+                const startMonth = document.getElementById('startMonthVisitor').value;
+                const endMonth = document.getElementById('endMonthVisitor').value;
+
+                // Convert start and end months to Date objects
+                const startDate = startMonth ? new Date(startMonth + '-01') : null; // First day of the start month
+                const endDate = endMonth ? new Date(endMonth + '-01') : null; // Last day of the end month
+                if (endDate) {
+                    endDate.setMonth(endDate.getMonth() + 1);
+                }
+
+                // Filter the reservations array for the selected date range
+                const filteredVisitorCounts = getVisitorCountPerMonthYearFormat(reservations.filter((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    return (!startDate || visitDate >= startDate) && (!endDate || visitDate < endDate);
+                }));
+
+                // Prepare the data for the chart
+                const labelsVisitor = Object.keys(filteredVisitorCounts).sort((a, b) => new Date(a) - new Date(b));
+                const dataVisitors = labelsVisitor.map(label => filteredVisitorCounts[label]);
+
+                // Create the breakdown text
+                const breakdownText = generateVisitorBreakdownText(labelsVisitor, dataVisitors);
+
+                // Print the chart with the breakdown text
+                printChart('Monthly Reservation Counts', 'visitorCountChart', breakdownText);
             }
 
             function printBlockDateChart() {
-                printChart('Block Date Chart', 'blockedDatesByWeekChart');
+                // Get the user-inputted start and end months
+                const startMonthValue = document.getElementById('startMonthBlocked').value;
+                const endMonthValue = document.getElementById('endMontBlocked').value;
+
+                // Convert start and end months to Date objects
+                const startDate = startMonthValue ? new Date(startMonthValue + '-01') : null;
+
+                // Set endDate to the last day of the selected end month
+                const endDate = endMonthValue ? new Date(endMonthValue + '-01') : null;
+                if (endDate) {
+                    endDate.setMonth(endDate.getMonth() + 1); // Move to the next month
+                    endDate.setDate(endDate.getDate() - 1); // Move back one day to the last day of the selected end month
+                }
+
+                // Filter the blocked dates array
+                filteredBlockedDates = blocked
+                    .map((entry) => new Date(entry.blockedDate))
+                    .filter((blockedDate) => {
+                        return (
+                            (!startDate || blockedDate >= startDate) &&
+                            (!endDate || blockedDate <= endDate)
+                        );
+                    });
+
+                // Generate breakdown text with filtered dates
+                const breakdownText = generateBlockedDatesBreakdown(filteredBlockedDates);
+
+                // Call the printChart function with the breakdown text
+                printChart('Block Date Chart', 'blockedDatesByMonthChart', breakdownText);
             }
 
             function printArtifactsChart() {
-                printChart('Artifacts Chart', 'artifactsByTypeChart');
+                const breakdownText = generateArtifactTypeBreakdown();
+                printChart('Artifacts Chart', 'artifactsByTypeChart', breakdownText);
             }
 
             function printGenderDistributionChart() {
-                printChart('Gender Distribution', 'genderDistributionChart');
+                const breakdownText = `Male: ${genderCounts.male}  Female: ${genderCounts.female}`;
+                printChart('Gender Distribution', 'genderDistributionChart', breakdownText);
             }
 
             // console.log('User Type Data:', userTypeData);
@@ -724,14 +984,81 @@
 
             //print all chart function
             function printAllCharts() {
+                // Get the user-inputted start and end months
+                const startMonth = document.getElementById('startMonth').value;
+                const endMonth = document.getElementById('endMonth').value;
+
+                // Convert start and end months to Date objects
+                const startDate = startMonth ? new Date(startMonth + '-01') : null; // First day of the start month
+                const endDate = endMonth ? new Date(endMonth + '-01') : null; // First day of the month after the end month
+
+                // Include the entire end month if a range is provided
+                if (endDate) {
+                    endDate.setMonth(endDate.getMonth() + 1);
+                    endDate.setDate(endDate.getDate() - 1);
+                }
+
+                // Filter the reservations array
+                const filteredReservations = startDate && endDate
+                    ? reservations.filter((reservation) => {
+                        const visitDate = new Date(reservation.visitDate);
+                        // Check if the reservation date is within the specified range
+                        return visitDate >= startDate && visitDate <= endDate;
+                    })
+                    : reservations;
+
+                // Count reservations by month
+                reservationCounts = {};
+                filteredReservations.forEach((reservation) => {
+                    const visitDate = new Date(reservation.visitDate);
+                    const yearMonth = visitDate.getFullYear() + '-' + (visitDate.getMonth() + 1).toString().padStart(2, '0');
+                    reservationCounts[yearMonth] = (reservationCounts[yearMonth] || 0) + 1;
+                });
+
+                // Update the chart
+                const monthlyReservationCountChart = Chart.getChart("monthlyReservationCountChart"); // Assuming your chart's ID is 'monthlyReservationCountChart'
+                monthlyReservationCountChart.data.labels = Object.keys(reservationCounts);
+                monthlyReservationCountChart.data.datasets[0].data = Object.values(reservationCounts);
+                monthlyReservationCountChart.update();
+
+                // Generate breakdown text
+                const breakdownTextBlocked = generateMonthlyReservationCountsBreakdown(reservationCounts);
+
+                // Get the user-inputted start and end months
+                const startMonthValue = document.getElementById('startMonthBlocked').value;
+                const endMonthValue = document.getElementById('endMontBlocked').value;
+
+                // Convert start and end months to Date objects
+                const startDateBlocked = startMonthValue ? new Date(startMonthValue + '-01') : null;
+
+                // Set endDate to the last day of the selected end month
+                const endDateBlocked = endMonthValue ? new Date(endMonthValue + '-01') : null;
+                if (endDateBlocked) {
+                    endDateBlocked.setMonth(endDateBlocked.getMonth() + 1); // Move to the next month
+                    endDateBlocked.setDate(endDateBlocked.getDate() - 1); // Move back one day to the last day of the selected end month
+                }
+
+                // Filter the blocked dates array
+                filteredBlockedDates = blocked
+                    .map((entry) => new Date(entry.blockedDate))
+                    .filter((blockedDate) => {
+                        return (
+                            (!startDateBlocked || blockedDate >= startDateBlocked) &&
+                            (!endDateBlocked || blockedDate <= endDateBlocked)
+                        );
+                    });
+
+                // Generate breakdown text with filtered dates
+                const breakdownText = generateBlockedDatesBreakdown(filteredBlockedDates);
+
                 const charts = [
-                    { title: 'User Type Distribution', id: 'userTypeChart' },
-                    { title: 'User Score Distribution', id: 'userScoreChart' },
-                    { title: 'Monthly Reservation Counts per visitor', id: 'monthlyReservationCountChart' },
-                    { title: 'Monthly Reservation Counts', id: 'visitorCountChart' },
-                    { title: 'Block Date Chart', id: 'blockedDatesByMonthChart' },
-                    { title: 'Artifacts Chart', id: 'artifactsByTypeChart' },
-                    { title: 'Gender Distribution chart', id: 'genderDistributionChart' }
+                    { title: 'User Type Distribution', id: 'userTypeChart', breakdownText: generateUserTypeBreakdownText(userTypeData) },
+                    { title: 'User Score Distribution', id: 'userScoreChart', breakdownText: generateUserScoreBreakdown(userScoreData) },
+                    { title: 'Monthly Reservation Counts per visitor', id: 'monthlyReservationCountChart', breakdownText: generateMonthlyReservationCountsBreakdown(reservationCounts) },
+                    { title: 'Monthly Reservation Counts', id: 'visitorCountChart', breakdownText: generateVisitorBreakdownText(labelsVisitor, dataVisitors) },
+                    { title: 'Block Date Chart', id: 'blockedDatesByMonthChart', breakdownText: generateBlockedDatesBreakdown(filteredBlockedDates) },
+                    { title: 'Artifacts Chart', id: 'artifactsByTypeChart', breakdownText: generateArtifactTypeBreakdown() },
+                    { title: 'Gender Distribution chart', id: 'genderDistributionChart', breakdownText: `Male: ${genderCounts.male}  Female: ${genderCounts.female}` }
                 ];
 
                 const printWindow = window.open('', '_blank');
@@ -779,7 +1106,7 @@
                 printWindow.document.body.appendChild(headerDiv);
 
                 // Function to create an image element for each chart
-                function createImageElementForChart(chartTitle, imageDataUrl) {
+                function createImageElementForChart(chartTitle, imageDataUrl, breakdownText) {
                     // Create a container for each chart
                     const chartContainer = printWindow.document.createElement('div');
                     chartContainer.className = 'chart-container';
@@ -796,7 +1123,7 @@
                     imageElement.src = imageDataUrl;
                     imageElement.alt = chartTitle;
                     imageElement.style.maxWidth = '100%';
-                    imageElement.style.height = 'auto';
+                    imageElement.style.height = '650px';
                     imageElement.style.display = 'block'; // Display chart as a block
                     imageElement.style.margin = 'auto'; // Center the chart
 
@@ -804,21 +1131,31 @@
                     chartContainer.appendChild(titleElement);
                     chartContainer.appendChild(imageElement);
 
-                    // Add Date Printed
-                    const datePrinted = printWindow.document.createElement('p');
-                    datePrinted.textContent = 'Date Printed: ' + new Date().toLocaleDateString();
-                    datePrinted.style.marginTop = '20px'; // Add some space between the chart and the date printed
-                    printWindow.document.body.appendChild(datePrinted);
+                    // Add Date Printed (only for the first chart)
+                    if (chartTitle === charts[0].title) {
+                        const datePrinted = printWindow.document.createElement('p');
+                        datePrinted.textContent = 'Date Printed: ' + new Date().toLocaleDateString();
+                        datePrinted.style.marginTop = '20px'; // Add some space between the chart and the date printed
+                        datePrinted.style.textAlign = 'center'; // Center the "Date Printed" text
+                        printWindow.document.body.appendChild(datePrinted);
+                    }
+
+                    // Add breakdown text
+                    const breakdownElement = printWindow.document.createElement('p');
+                    breakdownElement.textContent = breakdownText;
+                    breakdownElement.style.marginTop = '10px'; // Add some space between the chart and the breakdown
+                    breakdownElement.style.fontWeight = 'bold';
+                    chartContainer.appendChild(breakdownElement);
 
                     // Append the chart container to the print window's document
                     printWindow.document.body.appendChild(chartContainer);
                 }
 
                 // Loop through each chart and create an image element for it
-                charts.forEach(({ title, id }) => {
+                charts.forEach(({ title, id, breakdownText }) => {
                     const canvas = document.getElementById(id);
                     const imageDataUrl = canvas.toDataURL();
-                    createImageElementForChart(title, imageDataUrl);
+                    createImageElementForChart(title, imageDataUrl, breakdownText);
                 });
 
                 // Introduce a delay before triggering the print function
@@ -827,7 +1164,8 @@
                 }, 1000);
             }
 
-            function printChart(chartTitle, chartId) {
+            //PRINT INDIVIDUAL CHART
+            function printChart(chartTitle, chartId, breakdownText) {
                 const canvas = document.getElementById(chartId);
                 const imageDataUrl = canvas.toDataURL(); // Convert canvas to image data URL
 
@@ -839,14 +1177,14 @@
                 headerDiv.style.justifyContent = 'center'; // Center the content
                 headerDiv.style.flexWrap = 'wrap'; // Allow items to wrap
                 headerDiv.style.alignItems = 'center';
-                headerDiv.style.marginBottom = '20px';
+                headerDiv.style.marginBottom = '10px'; // Reduce margin
 
                 // Create and append the left image
                 const leftImage = printWindow.document.createElement('img');
                 leftImage.src = 'https://www.dlsud.edu.ph/images/about-logo.png';
                 leftImage.alt = 'dlsud-logo';
-                leftImage.style.width = '100px'; // Adjust size as needed
-                leftImage.style.marginRight = '20px'; // Add some space between the logo and the text
+                leftImage.style.width = '80px'; // Adjust size as needed
+                leftImage.style.marginRight = '10px'; // Reduce margin
                 headerDiv.appendChild(leftImage);
 
                 // Create and append the center text
@@ -868,8 +1206,8 @@
                 const rightImage = printWindow.document.createElement('img');
                 rightImage.src = 'https://culture360.asef.org/media/2011/7/Museo_De_La_Salle.jpeg';
                 rightImage.alt = 'museo-logo';
-                rightImage.style.width = '100px'; // Adjust size as needed
-                rightImage.style.marginLeft = '20px'; // Add some space between the text and the logo
+                rightImage.style.width = '80px'; // Adjust size as needed
+                rightImage.style.marginLeft = '10px'; // Reduce margin
                 headerDiv.appendChild(rightImage);
 
                 // Append header to the new window's document
@@ -886,16 +1224,25 @@
                 imageElement.src = imageDataUrl;
                 imageElement.alt = chartTitle;
                 imageElement.style.maxWidth = '100%';
-                imageElement.style.height = 'auto';
+                imageElement.style.height = '650px'; // Set a fixed height for the chart
+                imageElement.style.marginTop = '10px'; // Add space between the title and the chart
+                imageElement.style.marginBottom = '10px'; // Add space between the chart and the breakdown
 
                 // Append the chart title and image to the new window's document
                 printWindow.document.body.appendChild(titleElement);
                 printWindow.document.body.appendChild(imageElement);
 
+                // Add breakdown text
+                const breakdownElement = printWindow.document.createElement('p');
+                breakdownElement.textContent = breakdownText;
+                breakdownElement.style.marginTop = '10px'; // Add some space between the chart and the breakdown
+                breakdownElement.style.fontWeight = 'bold';
+                printWindow.document.body.appendChild(breakdownElement);
+
                 // Add Date Printed
                 const datePrinted = printWindow.document.createElement('p');
                 datePrinted.textContent = 'Date Printed: ' + new Date().toLocaleDateString();
-                datePrinted.style.marginTop = '20px'; // Add some space between the chart and the date printed
+                datePrinted.style.marginTop = '10px'; // Reduce space between the breakdown and the date printed
                 printWindow.document.body.appendChild(datePrinted);
 
                 // Style the body of the new document
@@ -907,7 +1254,6 @@
                 }, 1000);
             }
 
-
             // Attach print functions to buttons or links
             document.getElementById('printUserTypeChartButton').addEventListener('click', printUserTypeChart);
             document.getElementById('printUserScoreChartButton').addEventListener('click', printUserScoreChart);
@@ -918,26 +1264,26 @@
             document.getElementById('printGenderDistributionChartButton').addEventListener('click', printGenderDistributionChart);
             document.getElementById('printAllChartsButton').addEventListener('click', printAllCharts);
 
-            let inactivityTimeout;
-            // Function to reset the inactivity timer
-            function resetInactivityTimeout() {
-                clearTimeout(inactivityTimeout);
-                inactivityTimeout = setTimeout(() => {
-                    // Send a request to the server to reset the session timeout
-                    fetch("/reset-inactivity").then((response) => {
-                        if (response.ok) {
-                            console.log("Inactivity timer reset.");
-                            // Redirect to the logout route after 1 minute of inactivity
-                            window.location.href = "/logout";
-                        }
-                    });
-                }, 300000); // 300,000 milliseconds = 5 minutes
-            }
-            // Listen for user interactions
-            window.addEventListener("mousemove", resetInactivityTimeout);
-            window.addEventListener("keydown", resetInactivityTimeout);
-            // Initial reset
-            resetInactivityTimeout();
+            // let inactivityTimeout;
+            // // Function to reset the inactivity timer
+            // function resetInactivityTimeout() {
+            //     clearTimeout(inactivityTimeout);
+            //     inactivityTimeout = setTimeout(() => {
+            //         // Send a request to the server to reset the session timeout
+            //         fetch("/reset-inactivity").then((response) => {
+            //             if (response.ok) {
+            //                 console.log("Inactivity timer reset.");
+            //                 // Redirect to the logout route after 1 minute of inactivity
+            //                 window.location.href = "/logout";
+            //             }
+            //         });
+            //     }, 300000); // 300,000 milliseconds = 5 minutes
+            // }
+            // // Listen for user interactions
+            // window.addEventListener("mousemove", resetInactivityTimeout);
+            // window.addEventListener("keydown", resetInactivityTimeout);
+            // // Initial reset
+            // resetInactivityTimeout();
         });
 
     </script>
