@@ -158,9 +158,14 @@
                 <h5> Artifact Status: 
                   <%= artifact.status %>
                 </h5>
+                <% if (artifact.status === "Donated") { %>
+                  <p> Donated Information: 
+                    <%= artifact.donatedInfo %>
+                  </p>
+                <% } %>
                 <p class="card-text expandable-description" id="description-<%= artifact._id %>">
                   <%= artifact.description %>
-                </p>
+                </p> 
                 <button  onclick="speakText('<%= artifact._id %>')" class="btn btn-info play-description-button">Play Description</button>
                 <!-- Button trigger modal -->
                 <% if (artifact.sketchfabLink) { %>

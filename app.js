@@ -100,17 +100,13 @@ const blockedSchema = new mongoose.Schema({
 });
 const Blocked = mongoose.model("blocked", blockedSchema);
 
-//ARTIFACTS
+// ARTIFACTS
 const artifactSchema = new mongoose.Schema({
   title: {
-      type: String,
-      required: true,
     type: String,
     required: true,
   },
   type: {
-      type: String,
-      required: true,
     type: String,
     required: true,
   },
@@ -119,19 +115,18 @@ const artifactSchema = new mongoose.Schema({
     required: true,
   },
   description: {
-      type: String,
-      required: true,
+    type: String,
+    required: true,
+  },
+  donatedInfo: {
     type: String,
     required: true,
   },
   image: {
-      type: String,
-      required: true,
     type: String,
     required: true,
   },
   sketchfabLink: {
-      type: String,
     type: String,
   },
 });
@@ -144,13 +139,17 @@ const generateSecureSecret = () => {
 
 //QUESTIONS
 const questionSchema = new mongoose.Schema({
-  type: { type: String, enum: ['multiple-choice', 'fill-in-the-blank'], required: true },
+  type: {
+    type: String,
+    enum: ["multiple-choice", "fill-in-the-blank"],
+    required: true,
+  },
   question: { type: String, required: true },
-  options: [String],  // Only used for multiple-choice questions
-  correctAnswer: { type: String, required: true }
+  options: [String], // Only used for multiple-choice questions
+  correctAnswer: { type: String, required: true },
 });
 
-const Question = mongoose.model('Question', questionSchema);
+const Question = mongoose.model("Question", questionSchema);
 
 //MIDDLEWARE FOR FETCHING DATA FROM ROUTE AND SENDING TO ANOTHER ROUTE
 app.use(
@@ -301,7 +300,7 @@ app.get("/loggedInartifacts", async (req, res) => {
 
   // Filter artifacts based on the search query if it exists
   if (search) {
-    artifacts = artifacts.filter(artifact =>
+    artifacts = artifacts.filter((artifact) =>
       artifact.title.toLowerCase().includes(search.toLowerCase())
     );
   }
@@ -320,7 +319,7 @@ app.get("/loggedInvirtualTour", (req, res) => {
 
 app.get("/loggedIngames", async (req, res) => {
   const user = req.session.user;
-  
+
   if (!req.session.active) {
     return res.redirect("/logout");
   }
@@ -329,7 +328,7 @@ app.get("/loggedIngames", async (req, res) => {
 
   try {
     const allQuestions = await Question.find({});
-    
+
     // Randomize the order of questions on the client side
     const quizQuestions = shuffleArray(allQuestions);
 
@@ -392,7 +391,12 @@ app.get("/loggedInaccountInformation", async (req, res) => {
     let userReservations = await Reservation.find({ emailAddress: user.email });
     const blockedSlots = await Blocked.find();
     let reservations = await Reservation.find();
-    res.render("loggedInaccountInformation", { user, userReservations,blockedSlots,reservations });
+    res.render("loggedInaccountInformation", {
+      user,
+      userReservations,
+      blockedSlots,
+      reservations,
+    });
   } catch (error) {
     res.redirect("/logout");
     console.error("Error fetching reservations: ", error);
@@ -497,7 +501,7 @@ app.get("/loggedInadminreports", async (req, res) => {
     // let artifactType = await Artifact.find();
     // const artifacts = artifactType.map(artifactType => artifactType.type);
 
-    let artifacts = await Artifact.find().select('type');
+    let artifacts = await Artifact.find().select("type");
 
     const { search } = req.query;
     if (search) {
@@ -525,54 +529,54 @@ app.get("/loggedInadminreports", async (req, res) => {
 app.get("/loggedInadminreservation", async (req, res) => {
   const admin = req.session.user; // Retrieve user data from the session
   try {
-      if (!req.session.active) {
-          return res.redirect("/logout");
-      }
-      req.session.active = true;
-      let users = await User.find();
-      let reservations = await Reservation.find();
+    if (!req.session.active) {
+      return res.redirect("/logout");
+    }
+    req.session.active = true;
+    let users = await User.find();
+    let reservations = await Reservation.find();
 
-      const { search, date } = req.query;
+    const { search, date } = req.query;
 
-      // Filter users by name/email if search term is present
-      if (search) {
-          users = users.filter(
-              (user) =>
-                  user.name.toLowerCase().includes(search.toLowerCase()) ||
-                  user.email.toLowerCase().includes(search.toLowerCase())
-          );
-      }
+    // Filter users by name/email if search term is present
+    if (search) {
+      users = users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(search.toLowerCase()) ||
+          user.email.toLowerCase().includes(search.toLowerCase())
+      );
+    }
 
-      // Filter reservations by date if date term is present
-      if (date) {
-          reservations = reservations.filter(
-              (reservation) =>
-                  reservation.visitDate &&
-                  reservation.visitDate.toISOString().split('T')[0].includes(date)
-          );
-      }
+    // Filter reservations by date if date term is present
+    if (date) {
+      reservations = reservations.filter(
+        (reservation) =>
+          reservation.visitDate &&
+          reservation.visitDate.toISOString().split("T")[0].includes(date)
+      );
+    }
 
-      res.render("loggedInadminreservation", {
-          users,
-          search,
-          admin,
-          reservations,
-      });
+    res.render("loggedInadminreservation", {
+      users,
+      search,
+      admin,
+      reservations,
+    });
   } catch (error) {
-      console.error("Error fetching users:", error);
-      res.status(500).send("An error occurred while fetching users.");
+    console.error("Error fetching users:", error);
+    res.status(500).send("An error occurred while fetching users.");
   }
 });
 
-app.get('/loggedInadminquestions', async (req, res) => {
+app.get("/loggedInadminquestions", async (req, res) => {
   try {
-      // Fetching questions from the database
-      const questions = await Question.find({});
-      // Rendering the EJS file with the fetched questions
-      res.render('loggedInadminquestions', { questions: questions });
+    // Fetching questions from the database
+    const questions = await Question.find({});
+    // Rendering the EJS file with the fetched questions
+    res.render("loggedInadminquestions", { questions: questions });
   } catch (error) {
-      console.error("Error fetching questions: ", error);
-      res.status(500).send("Error fetching questions");
+    console.error("Error fetching questions: ", error);
+    res.status(500).send("Error fetching questions");
   }
 });
 
@@ -623,7 +627,16 @@ function generateVerificationCode() {
 
 // Signup route with email verification
 app.post("/signUp", async (req, res) => {
-  const { name, email, userType, studentType, teacherType, dlsuStaff, password, gender } = req.body;
+  const {
+    name,
+    email,
+    userType,
+    studentType,
+    teacherType,
+    dlsuStaff,
+    password,
+    gender,
+  } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -990,7 +1003,6 @@ app.put("/loggedIn/admin/users/:id/email", async (req, res) => {
   }
 });
 
-
 // Handle the PUT request for updating password
 app.put("/loggedIn/admin/users/:id/password", async (req, res) => {
   const { id } = req.params;
@@ -1035,7 +1047,9 @@ app.put("/loggedIn/admin/users/:id/score", async (req, res) => {
     return res.status(200).json({ message: "Score updated successfully" });
   } catch (error) {
     console.error("Error updating score:", error);
-    return res.status(500).json({ error: "An error occurred while updating score." });
+    return res
+      .status(500)
+      .json({ error: "An error occurred while updating score." });
   }
 });
 
@@ -1044,11 +1058,13 @@ app.put("/admin/questions/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const updatedQuestion = await Question.findByIdAndUpdate(id, req.body, { new: true });
+    const updatedQuestion = await Question.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
     if (!updatedQuestion) {
       return res.status(404).send("Question not found");
     }
-    res.redirect("/loggedInadminquestions")
+    res.redirect("/loggedInadminquestions");
   } catch (error) {
     res.status(500).send("Error updating question: " + error.message);
   }
@@ -1083,10 +1099,10 @@ app.post("/loggedIn/reservation", async (req, res) => {
       return res.send(
         `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInreservation";</script>`
       );
-    // } else if (isDateBlocked && isTimeBlocked) {
-    //   return res.send(
-    //     `<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInreservation";</script>`
-    //   );
+      // } else if (isDateBlocked && isTimeBlocked) {
+      //   return res.send(
+      //     `<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInreservation";</script>`
+      //   );
     } else {
       const existingReservationForDateTime = await Reservation.findOne({
         visitDate: new Date(visitDate),
@@ -1180,28 +1196,34 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
   try {
     // Check if the visit date is less than today
     if (visitDate < today) {
-      return res.send(`<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInaccountInformation";</script>`);
+      return res.send(
+        `<script>alert("Invalid visit date. Please choose a date equal to or greater than today."); window.location.href = "/loggedInaccountInformation";</script>`
+      );
     }
 
     // Check for blocked dates and times
     const isDateOrTimeBlocked = await Blocked.findOne({
       blockedDate: visitDate,
-      blockedTimes: inpVisitTime
+      blockedTimes: inpVisitTime,
     });
 
     if (isDateOrTimeBlocked) {
-      return res.send(`<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`);
+      return res.send(
+        `<script>alert("The selected date and time are blocked. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`
+      );
     }
 
     // Check if there's already a reservation for the selected date and time (excluding the current reservation)
     const existingReservation = await Reservation.findOne({
       _id: { $ne: reservationId },
       visitDate: visitDate,
-      visitTime: inpVisitTime
+      visitTime: inpVisitTime,
     });
 
     if (existingReservation) {
-      return res.send(`<script>alert("A reservation already exists for the selected date and time. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`);
+      return res.send(
+        `<script>alert("A reservation already exists for the selected date and time. Please choose a different date/time."); window.location.href = "/loggedInaccountInformation";</script>`
+      );
     }
 
     // Update the reservation
@@ -1209,19 +1231,19 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
       visitDate: visitDate,
       visitTime: inpVisitTime,
       contactNumber: inpContactNumber,
-      numberOfVisitors: inpNumberOfVisitors
+      numberOfVisitors: inpNumberOfVisitors,
     });
 
     // Email setup
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
+        pass: process.env.GMAIL_PASS,
       },
       tls: {
         rejectUnauthorized: false,
-      }
+      },
     });
 
     // Send confirmation email to admin
@@ -1232,7 +1254,7 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
       from: process.env.GMAIL_USER,
       to: adminEmail,
       subject: "Reservation Update",
-      text: `A reservation has been updated by ${loggedInUser.name} for ${reservationDate} at ${inpVisitTime}.`
+      text: `A reservation has been updated by ${loggedInUser.name} for ${reservationDate} at ${inpVisitTime}.`,
     };
 
     transporter.sendMail(adminMailOptions, (error, info) => {
@@ -1248,7 +1270,7 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
       from: process.env.GMAIL_USER,
       to: loggedInUser.email,
       subject: "Reservation Update Confirmation",
-      text: `Your reservation has been updated successfully. New date and time: ${reservationDate} at ${inpVisitTime}.`
+      text: `Your reservation has been updated successfully. New date and time: ${reservationDate} at ${inpVisitTime}.`,
     };
 
     transporter.sendMail(userMailOptions, (error, info) => {
@@ -1260,7 +1282,9 @@ app.post("/loggedInaccountInformation/rebook/:id", async (req, res) => {
     });
 
     // Response to client
-    res.send(`<script>alert("Reservation updated successfully!"); window.location.href = "/loggedInaccountInformation";</script>`);
+    res.send(
+      `<script>alert("Reservation updated successfully!"); window.location.href = "/loggedInaccountInformation";</script>`
+    );
   } catch (error) {
     console.error("Error updating reservation:", error);
     res.status(500).send("An error occurred while updating the reservation.");
@@ -1546,9 +1570,11 @@ app.post("/saveScore", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-     // Create a new date object representing midnight (00:00:00) UTC on the current date
-     const now = new Date();
-     const midnightUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    // Create a new date object representing midnight (00:00:00) UTC on the current date
+    const now = new Date();
+    const midnightUtc = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+    );
 
     // Update the user's score and scoreDate
     user.score = score;
@@ -1575,13 +1601,12 @@ app.post("/saveScore", async (req, res) => {
   }
 });
 
+const cloudinary = require("cloudinary").v2;
 
-const cloudinary = require('cloudinary').v2;
-
-cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-  api_key: process.env.CLOUDINARY_API_KEY, 
-  api_secret: process.env.CLOUDINARY_API_SECRET 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 //Adding an artifact
@@ -1589,7 +1614,7 @@ app.post(
   "/loggedIn/admin/addArtifact",
   upload.single("image"),
   async (req, res) => {
-    const { title, description, type, status, sketchfabLink } = req.body;
+    const { title, description,donatedInfo, type, status, sketchfabLink } = req.body;
 
     try {
       let imageUrl;
@@ -1621,6 +1646,7 @@ app.post(
         type,
         status, // Include status
         description,
+        donatedInfo,
         image: imageUrl, // Using the URL from Cloudinary
         sketchfabLink,
       });
@@ -1642,6 +1668,7 @@ app.put(
     const {
       updateTitle,
       updateDescription,
+      updateDonatedInfo,
       updateType,
       updateStatus,
       updateSketchfabLink,
@@ -1689,6 +1716,7 @@ app.put(
       // Update other details
       artifact.title = updateTitle;
       artifact.description = updateDescription;
+      artifact.donatedInfo = updateDonatedInfo;
       artifact.type = updateType;
       artifact.status = updateStatus;
       artifact.sketchfabLink = updateSketchfabLink;
@@ -1706,48 +1734,47 @@ app.put(
 app.delete("/loggedIn/admin/artifacts/:artifactId", async (req, res) => {
   const artifactId = req.params.artifactId;
   try {
-      const artifact = await Artifact.findById(artifactId);
-      if (!artifact) {
-          return res.status(404).send("Artifact not found");
-      }
-
-      // Delete the image from Cloudinary
-      if (artifact.image) {
-        const publicId = extractPublicId(artifact.image);
-        const decodedPublicId = decodeURIComponent(publicId); // Decode URL-encoded public ID
-        console.log(decodedPublicId);
-        await cloudinary.uploader.destroy("museo/" + decodedPublicId);
+    const artifact = await Artifact.findById(artifactId);
+    if (!artifact) {
+      return res.status(404).send("Artifact not found");
     }
-    
 
-      await Artifact.findByIdAndRemove(artifactId);
-      res.redirect("/loggedInadminartifacts");
+    // Delete the image from Cloudinary
+    if (artifact.image) {
+      const publicId = extractPublicId(artifact.image);
+      const decodedPublicId = decodeURIComponent(publicId); // Decode URL-encoded public ID
+      console.log(decodedPublicId);
+      await cloudinary.uploader.destroy("museo/" + decodedPublicId);
+    }
+
+    await Artifact.findByIdAndRemove(artifactId);
+    res.redirect("/loggedInadminartifacts");
   } catch (error) {
-      res.status(500).send("Error removing artifact: " + error.message);
+    res.status(500).send("Error removing artifact: " + error.message);
   }
 });
 
 function extractPublicId(url) {
   // Extract the public ID from the URL
   // Adjust the logic based on your Cloudinary URL structure
-  const parts = url.split('/');
-  return parts[parts.length - 1].split('.')[0]; // Assuming the public ID is the last part before the file extension
+  const parts = url.split("/");
+  return parts[parts.length - 1].split(".")[0]; // Assuming the public ID is the last part before the file extension
 }
 
 //ADMINQUESTIONS
-app.get('/admin/questions', async (req, res) => {
+app.get("/admin/questions", async (req, res) => {
   try {
-      // Assuming you have a Question model set up to interact with your questions collection
-      // Fetch all the questions from the database
-      const questions = await Question.find(); // Replace with your actual data retrieval logic
+    // Assuming you have a Question model set up to interact with your questions collection
+    // Fetch all the questions from the database
+    const questions = await Question.find(); // Replace with your actual data retrieval logic
 
-      // Render the admin questions management page and pass the questions to the template
-      `<script>alert("Question added successfuly"); window.location.href = "/loggedInadminquestions";</script>`
-      res.render('loggedInadminquestions', { questions }); // Ensure 'adminQuestions' matches your EJS file name
+    // Render the admin questions management page and pass the questions to the template
+    `<script>alert("Question added successfuly"); window.location.href = "/loggedInadminquestions";</script>`;
+    res.render("loggedInadminquestions", { questions }); // Ensure 'adminQuestions' matches your EJS file name
   } catch (error) {
-      // Handle errors, such as by logging and sending a server error response
-      console.error('Error fetching questions:', error);
-      res.status(500).send('Error loading admin questions page');
+    // Handle errors, such as by logging and sending a server error response
+    console.error("Error fetching questions:", error);
+    res.status(500).send("Error loading admin questions page");
   }
 });
 
@@ -1760,22 +1787,22 @@ app.delete("/admin/questions/:id", async (req, res) => {
     if (!deletedQuestion) {
       return res.status(404).send("Question not found");
     }
-    res.redirect("/loggedInadminquestions")
+    res.redirect("/loggedInadminquestions");
   } catch (error) {
     res.status(500).send("Error removing question: " + error.message);
   }
 });
 
 //QUESTIONS ROUTE
-app.post('/admin/questions/add', async (req, res) => {
+app.post("/admin/questions/add", async (req, res) => {
   const questionType = req.body.type;
   const questionText = req.body.question;
   let options = req.body.options;
   const correctAnswer = req.body.correctAnswer;
 
   // If the question type is multiple-choice, split the options string by commas
-  if (questionType === 'multiple-choice') {
-    options = options.split(',').map(option => option.trim()); // Split and trim each option
+  if (questionType === "multiple-choice") {
+    options = options.split(",").map((option) => option.trim()); // Split and trim each option
   } else {
     options = []; // No options for fill-in-the-blank
   }
@@ -1785,7 +1812,7 @@ app.post('/admin/questions/add', async (req, res) => {
     type: questionType,
     question: questionText,
     options: options,
-    correctAnswer: correctAnswer
+    correctAnswer: correctAnswer,
   });
 
   try {
@@ -1793,11 +1820,11 @@ app.post('/admin/questions/add', async (req, res) => {
     await newQuestion.save();
     // res.send("Question added successfully"); // Log success message
 
-    console.log('Question added successfully');
-    res.redirect("/loggedInadminquestions")
+    console.log("Question added successfully");
+    res.redirect("/loggedInadminquestions");
   } catch (error) {
-    console.error('Error adding question:', error);
-    res.status(500).send('Error adding question');
+    console.error("Error adding question:", error);
+    res.status(500).send("Error adding question");
   }
 });
 

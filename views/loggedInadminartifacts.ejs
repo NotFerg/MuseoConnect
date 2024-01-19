@@ -112,8 +112,9 @@
 
                         <div class="mb-3">
                             <label for="status" class="form-label">Artifact Status</label>
-                            <select class="form-control" id="status" name="status" required>
-                                <option value="">Select a Storage Type</option>
+                            <select class="form-control" id="status" name="status" required
+                                onchange="showDonationInfo()">
+                                <option value="">Select an Artifact Status</option>
                                 <option value="Displayed">Displayed</option>
                                 <option value="Donated">Donated</option>
                                 <option value="Stored">Stored</option>
@@ -121,6 +122,12 @@
                                 <!-- ... other statuses ... -->
                             </select>
                         </div>
+
+                        <div class="mb-3" id="donationInfoField" style="display:none;">
+                            <label for="donatedInfo" class="form-label">Donation Information</label>
+                            <input type="text" class="form-control" id="donatedInfo" name="donatedInfo">
+                        </div>
+
 
                         <div class="mb-3">
                             <label for="description" class="form-label">Artifact Description</label>
@@ -196,7 +203,8 @@
 
                                             <div class="mb-3">
                                                 <label for="status" class="form-label">Artifact Status</label>
-                                                <select class="form-control" id="updateStatus" name="updateStatus" required>
+                                                <select class="form-control" id="updateStatus" name="updateStatus"
+                                                    required>
                                                     <option value="<%= artifact.status %>">
                                                         <%= artifact.status %>
                                                     </option>
@@ -209,16 +217,26 @@
                                             </div>
 
                                             <div class="mb-3">
+                                                <label for="updateDonatedInfo" class="form-label">Update
+                                                    Donated field</label>
+                                                <input type="text" name="updateDonatedInfo"
+                                                    value="<%= artifact.donatedInfo %>" class="form-control"
+                                                    placeholder="Only edit if donated">
+                                            </div>
+
+                                            <div class="mb-3">
                                                 <label for="updateDescription" class="form-label">Update
                                                     Description</label>
                                                 <textarea name="updateDescription" class="form-control" rows="4"
                                                     required autocomplete="off"><%= artifact.description %></textarea>
                                             </div>
+
                                             <div class="mb-3">
                                                 <label for="updateImage" class="form-label">Update Image</label>
                                                 <input type="file" name="updateImage" class="form-control"
                                                     accept="image/*">
                                             </div>
+
                                             <div class="mb-3">
                                                 <label for="updateSketchfabLink" class="form-label">Update
                                                     Sketchfab Embed Link</label>
@@ -281,19 +299,66 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/js/admin.js"></script>
     <script src="/js/index.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            let inactivityTimeout
+            // Function to reset the inactivity timer
+            function resetInactivityTimeout() {
+                clearTimeout(inactivityTimeout);
+                inactivityTimeout = setTimeout(() => {
+                    // Send a request to the server to reset the session timeout
+                    fetch("/reset-inactivity").then((response) => {
+                        if (response.ok) {
+                            console.log("Inactivity timer reset.");
+                            // Redirect to the logout route after 1 minute of inactivity
+                            window.location.href = "/logout";
+                        }
+                    });
+                }, 300000); // 300,000 milliseconds = 5 minutes
+            }
 
+            // Listen for user interactions
+            window.addEventListener("mousemove", resetInactivityTimeout);
+            window.addEventListener("keydown", resetInactivityTimeout);
+
+            // Initial reset
+            resetInactivityTimeout();
+
+            // Function to show/hide donation info based on status
+            function showDonationInfo() {
+                var statusSelect = document.getElementById('status');
+                var donationInfoField = document.getElementById('donationInfoField');
+                var donatedInfoInput = document.getElementById('donatedInfo');
+
+                console.log('Function triggered. Status:', statusSelect.value);
+
+                if (statusSelect.value === 'Donated') {
+                    // Show the donation information field
+                    console.log('Show donation information field');
+                    donationInfoField.style.display = 'block';
+                    donatedInfoInput.setAttribute('required', 'true');
+                } else {
+                    // Hide the donation information field
+                    console.log('Hide donation information field');
+                    donationInfoField.style.display = 'none';
+                    donatedInfoInput.removeAttribute('required');
+                }
+            }
+
+            // Attach event listener using event delegation
+            document.getElementById('status').addEventListener('change', showDonationInfo);
+
+            // Async function to insert artifact
             async function insertArtifact() {
                 const title = document.getElementById('title').value;
                 const type = document.getElementById('type').value;
                 const status = document.getElementById('status').value;
                 const description = document.getElementById('description').value;
+                const donatedInfo = document.getElementById('donatedInfo').value;
                 const imageInput = document.getElementById('image');
-                const sketchfabLink = docunment.getElementById('sketchfabLink').value;
+                const sketchfabLink = document.getElementById('sketchfabLink').value;
 
                 console.log("title: " + title);
                 console.log("type: " + type);
@@ -304,8 +369,9 @@
                 formData.append('type', type);
                 formData.append('status', status);
                 formData.append('description', description);
+                formData.append('donatedInfo', donatedInfo);
                 formData.append('image', imageInput.files[0]);
-                fontData.append('sketchfabLink', sketchfabLink)
+                formData.append('sketchfabLink', sketchfabLink);
 
                 try {
                     const response = await fetch('/loggedIn/admin/addArtifact/', {
@@ -333,8 +399,8 @@
                 }
             }
         });
-
     </script>
+
 </body>
 
 </html>
